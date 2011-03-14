@@ -14,7 +14,11 @@ module Settings
     ( approot
     , staticDir
     , staticRoot
+    , withConnectionPool
     ) where
+
+import Control.Monad.IO.Peel (MonadPeelIO)
+import Database.Persist.Sqlite
 
 approot :: String
 #ifdef PROD
@@ -28,3 +32,9 @@ staticDir = "static"
 
 staticRoot :: String
 staticRoot = approot ++ "/static"
+
+dataBase :: String
+dataBase = "db.s3db"
+
+withConnectionPool :: MonadPeelIO m => (ConnectionPool -> m a) -> m a
+withConnectionPool = withSqlitePool dataBase 10

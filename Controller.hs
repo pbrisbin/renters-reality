@@ -15,11 +15,14 @@ module Controller (withServer) where
 import Yesod
 import Yesod.Helpers.Static
 import BadLandlords
+import Model
 
 import Handlers.Root
 import Handlers.Legal
 import Handlers.Search
 import Handlers.New
+
+import Database.Persist.GenericSql
 
 import qualified Settings
 
@@ -28,6 +31,8 @@ mkYesodDispatch "BadLandlords" resourcesBadLandlords
 
 -- | Create a Wai App of the site
 withServer :: (Application -> IO a) -> IO a
-withServer f = f =<< toWaiApp (BadLandlords s)
+withServer f = Settings.withConnectionPool $ \p -> do
+    runSqlPool (runMigration doMigration) p
+    f =<< toWaiApp (BadLandlords s p)
     where
         s = static Settings.staticDir

@@ -22,12 +22,16 @@ import Control.Monad    (unless)
 import System.Directory (doesFileExist, createDirectoryIfMissing)
 import Text.Jasmine     (minifym)
 
+import Database.Persist.GenericSql
 import qualified Data.ByteString.Lazy as L
 
 import qualified Settings
 
 -- | The main site type
-data BadLandlords = BadLandlords { getStatic :: Static }
+data BadLandlords = BadLandlords 
+    { getStatic :: Static 
+    , connPool   :: ConnectionPool 
+    }
 
 type Handler     = GHandler   BadLandlords BadLandlords
 type Widget      = GWidget    BadLandlords BadLandlords
@@ -97,3 +101,7 @@ instance Yesod BadLandlords where
         return $ Just $ Right (StaticR $ StaticRoute ["tmp", fn] [], [])
 
     clientSessionDuration _ = 60 * 24 * 7 -- one week
+
+instance YesodPersist BadLandlords where
+    type YesodDB BadLandlords = SqlPersist
+    runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
