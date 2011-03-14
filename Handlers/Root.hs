@@ -35,13 +35,13 @@ getRootR = defaultLayout $ do
                 <div class=tabcontent>
                     <h3>Register a complaint
                     <div>
-                        ^{complaintForm}
+                        ^{landlordSearch NewR}
                     <h3>Search complaints by property
                     <div>
-                        ^{propertySearch}
+                        <p>Todo:
                     <h3>Search complaints by landlord name
                     <div>
-                        ^{landlordSearch}
+                        ^{landlordSearch SearchR}
 
             <div id=landlord class=tabdiv>
                 <div class=tabcontent>
@@ -83,33 +83,25 @@ getRootR = defaultLayout $ do
                         autoHeight:  false,
                         active:      false
                     });
+
+                    var landlords = [ "Rayce Realty Trust", "Brighton Realty" ];
+
+                    $('.complete').autocomplete({
+                        source: landlords
+                    });
                 });
         |]
 
-complaintForm :: Widget ()
-complaintForm = [$hamlet|
-    <form>
+-- | Posts the value as "landlord" to the route specified
+landlordSearch :: BadLandlordsRoute -> Widget ()
+landlordSearch route = [$hamlet|
+    <form method=post action=@{route}>
         <table>
             <tr>
                 <th>
                     <label for=landlord>Landlord name:
                 <td>
-                    <input name=landlord autofocus>
-                <td class=errors>
-                    &nbsp;
-             <tr>
-                <td id=button colspan=2>
+                    <input class=complete name=landlord>
+                <td id=button>
                     <input type=submit>
-                <td>
-                    &nbsp;
-    |]
-
-propertySearch :: Widget ()
-propertySearch = [$hamlet|
-    <p>Todo
-    |]
-
-landlordSearch :: Widget ()
-landlordSearch = [$hamlet|
-    <p>Todo
     |]

@@ -18,6 +18,8 @@ import BadLandlords
 
 import Handlers.Root
 import Handlers.Legal
+import Handlers.Search
+import Handlers.New
 
 import qualified Settings
 

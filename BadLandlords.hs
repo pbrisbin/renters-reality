@@ -35,9 +35,12 @@ type FormMonad a = GFormMonad BadLandlords BadLandlords a
 
 -- | Define all of the routes and handlers
 mkYesodData "BadLandlords" [$parseRoutes|
-    /      RootR  GET
-    /legal LegalR GET
+    /       RootR    GET
 
+    /search SearchR POST
+    /new    NewR    POST
+
+    /legal  LegalR GET
     /static StaticR Static getStatic
     |]
 
