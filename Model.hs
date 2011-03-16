@@ -33,6 +33,7 @@ share2 mkPersist (mkMigrate "doMigration") [$persist|
         name            String
         email           String
         ipAddress       String
+        UniqueComplainer name email ipAddress
 
     Complaint
         createdDate     UTCTime Desc
@@ -69,6 +70,7 @@ data Addr = Addr
 --   address
 data Search = LandlordSearch Landlord | PropertySearch Addr
 
+-- todo: factor repeated code
 findOrCreateLandlord :: Landlord -> Handler LandlordId
 findOrCreateLandlord landlord = do
     result <- runDB $ insertBy landlord
@@ -91,6 +93,21 @@ findOrCreateProperty addr = do
         Left (k, v) -> return k
         Right k     -> return k
 
+--findOrCreateOwnership :: Ownership -> OwnershipId
+--findOrCreateOwnership ownership = do
+--    result <- runDB $ insertBy ownership
+--    case result of
+--        Left (k, v) -> return k
+--        Right k     -> return k
+
+--findOrCreateComplainer :: Complainer -> ComplainerId
+--findOrCreateComplainer complainer = do
+--    result <- runDB $ insertBy complainer
+--    case result of
+--        Left (k, v) -> return k
+--        Right k     -> return k
+
+-- | Search complaints
 complaintsBySearch :: Search -> Handler [Complaint]
 complaintsBySearch (LandlordSearch landlord) = do
     key <- findOrCreateLandlord landlord

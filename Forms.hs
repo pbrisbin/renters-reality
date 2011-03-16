@@ -6,6 +6,7 @@ module Forms
     , addressFormFields
     , addressFromForm
     , userInfoFields
+    , userInfoFromForm
     ) where
 
 import Yesod
@@ -13,6 +14,7 @@ import BadLandlords
 import Model
 
 import Control.Applicative ((<$>),(<*>))
+import Network.Wai (remoteHost)
 
 -- | The landlord entry is a one field input, so the button is included 
 --   here. Pass the route th POST to.
@@ -89,3 +91,16 @@ userInfoFields = [$hamlet|
         <td>
             <input type="email" size=30 name="author-email" required>
     |]
+
+userInfoFromForm :: Handler Complainer
+userInfoFromForm = undefined
+--userInfoFromForm = do
+--    complainer <- runFormPost' $ Complainer
+--        <$> stringInput "author-name"
+--        <*> stringInput "author-email"
+--        <*> requestIp
+--
+--    return complainer
+--
+--    where
+--        requestIp = return . show . remoteHost =<< waiRequest

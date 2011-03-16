@@ -13,7 +13,7 @@ postNewR = do
     defaultLayout $ do
         setTitle "bad boston landlords | New complaint"
         [$hamlet|
-            <h2>New complaint: #{landlordName landlord}
+            <h2>New complaint about #{landlordName landlord}
 
             <div .tabdiv>
                 <div .tabcontent>
