@@ -41,8 +41,11 @@ type FormMonad a = GFormMonad BadLandlords BadLandlords a
 mkYesodData "BadLandlords" [$parseRoutes|
     /       RootR    GET
 
-    /search SearchR POST
-    /new    NewR    POST
+    /search/#String  SearchR POST
+    /complaints/#Int ComplaintsR GET
+
+    /new/            NewR    POST
+    /create          CreateR POST
 
     /legal  LegalR GET
     /static StaticR Static getStatic

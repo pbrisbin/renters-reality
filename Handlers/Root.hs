@@ -15,15 +15,42 @@ module Handlers.Root (getRootR) where
 
 import Yesod
 import BadLandlords
+import Forms
 import qualified Settings
 
 -- | Home page
 getRootR :: Handler RepHtml
 getRootR = defaultLayout $ do
     setTitle "bad boston landlords | Home"
+
+    addJulius [$julius|
+        $(function() {
+            $('#maintab').tabs();
+
+            $('.tabcontent').accordion({
+                collapsible: true,
+                autoHeight:  false,
+                active:      false
+            });
+
+            // testing values
+            var landlords = [ "Rayce Realty Trust"
+                            , "Brighton Realty"
+                            , "Joe's Realty"
+                            , "Sam's Realty"
+                            , "Eileen Marsky"
+                            , "Joe Allan"
+                            ];
+
+            $('.complete').autocomplete({
+                source: landlords
+            });
+        });
+        |]
+
     [$hamlet|
-        <div id=maintab class=tabbed>
-            <ul class=tabnav>
+        <div #maintab .tabbed>
+            <ul .tabnav>
                 <li #renter>
                     <a href="#renter">renters
                 <li #landlord>
@@ -31,32 +58,32 @@ getRootR = defaultLayout $ do
                 <li #about>
                     <a href="#about">about
 
-            <div id=renter class=tabdiv>
-                <div class=tabcontent>
+            <div #renter .tabdiv>
+                <div .tabcontent>
                     <h3>Register a complaint
                     <div>
-                        ^{landlordSearch NewR}
-                    <h3>Search complaints by property
-                    <div>
-                        <p>Todo:
+                        ^{landlordForm NewR}
                     <h3>Search complaints by landlord name
                     <div>
-                        ^{landlordSearch SearchR}
+                        ^{landlordForm $ SearchR "landlord"}
+                    <h3>Search complaints by property
+                    <div>
+                        <form method="post" action=@{SearchR "property"} >
+                            <table>
+                                ^{addressFormFields}
+                                <tr>
+                                    <td>&nbsp;
+                                    <td #address-button>
+                                        <input type="submit" value="Next">
 
-            <div id=landlord class=tabdiv>
-                <div class=tabcontent>
+            <div #landlord .tabdiv>
+                <div .tabcontent>
                     <h3>Find complaints about you
                     <div>
                         <p>Todo
-                    <h3>Declare ownership of a property
-                    <div>
-                        <p>Todo
-                    <h3>Give up ownership of a property
-                    <div>
-                        <p>Todo
 
-            <div id=about class=tabdiv>
-                <div class=tabcontent>
+            <div #about .tabdiv>
+                <div .tabcontent>
                     <p>
                         We aim to provide an easy to use service where 
                         residents of Boston (or the surrounding area) who 
@@ -73,35 +100,4 @@ getRootR = defaultLayout $ do
                         offering ways to search for complaints in your name, 
                         settle disputes, and declare or absolve ownership of 
                         the properties listed here.
-
-            <script>
-                $(function() {
-                    $('#maintab').tabs();
-
-                    $('.tabcontent').accordion({
-                        collapsible: true,
-                        autoHeight:  false,
-                        active:      false
-                    });
-
-                    var landlords = [ "Rayce Realty Trust", "Brighton Realty" ];
-
-                    $('.complete').autocomplete({
-                        source: landlords
-                    });
-                });
         |]
-
--- | Posts the value as "landlord" to the route specified
-landlordSearch :: BadLandlordsRoute -> Widget ()
-landlordSearch route = [$hamlet|
-    <form method=post action=@{route}>
-        <table>
-            <tr>
-                <th>
-                    <label for=landlord>Landlord name:
-                <td>
-                    <input class=complete name=landlord>
-                <td id=button>
-                    <input type=submit>
-    |]

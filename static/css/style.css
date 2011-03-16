@@ -198,7 +198,7 @@ p#legal {
 
 .tabcontent {
   padding:    10px 20px;
-  height:     500px;
+  min-height: 500px;
   overflow-y: auto;
 }
 
@@ -235,6 +235,28 @@ p#legal {
   color: blue;
 }
 
+form table {
+  margin: 5px;
+  margin-left: 25px;
+}
+
+form textarea {
+  width: 95%;
+  margin: 5px;
+}
+
+form th {
+  text-align: right;
+}
+
+form th, form td {
+  width:   100px;
+  padding: 2px 5px;
+}
+
+form td#address-button {
+  text-align: right;
+}
 
 /* thank you John Hicks! */
 

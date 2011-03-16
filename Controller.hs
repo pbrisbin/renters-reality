@@ -26,6 +26,15 @@ import Database.Persist.GenericSql
 
 import qualified Settings
 
+
+-- TEMP
+getComplaintsR :: Int -> Handler RepHtml
+getComplaintsR = undefined
+
+postCreateR :: Handler RepHtml
+postCreateR = undefined
+
+
 -- | Instantiate the Yesod route types
 mkYesodDispatch "BadLandlords" resourcesBadLandlords
 

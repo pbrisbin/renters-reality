@@ -47,24 +47,22 @@ share2 mkPersist (mkMigrate "doMigration") [$persist|
 
 -- | An address as might be entered into a form by the user
 data Addr = Addr
-    { addrOne :: String -- ^ 112 Main St
-    , addrTwo :: String -- ^ Apt 2
-    , city    :: String -- ^ Cambridge
-    , state   :: String -- ^ MA
-    , zip     :: String -- ^ 02139
+    { addrOne :: Maybe String -- ^ 112 Main St
+    , addrTwo :: Maybe String -- ^ Apt 2
+    , city    :: Maybe String -- ^ Cambridge
+    , state   :: Maybe String -- ^ MA
+    , zip     :: String       -- ^ 02139
     }
 
--- | Search criteria for Properties or complaints
+-- | Search criteria for properties or complaints
 data Criteria = CriteriaLandlord  String
               | CriteriaZip       String
               | CriteriaCityState (String,String)
               | CriteriaAddress   Addr
 
-findOrCreateLandlord :: String -> Handler Landlord
-findOrCreateLandlord = undefined
-
-propertySearch :: Criteria -> Handler [Property]
-propertySearch = undefined
-
-complaintSearch :: Criteria -> Handler [Complaint]
-complaintSearch = undefined
+findOrCreateLandlord :: Landlord -> Handler (Key Landlord)
+findOrCreateLandlord landlord = do
+    result <- runDB $ insertBy landlord
+    case result of
+        Left (k, v) -> return k
+        Right k     -> return k
