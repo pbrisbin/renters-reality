@@ -6,6 +6,8 @@ module Model where
 import Yesod
 import BadLandlords
 import Data.Time                   (UTCTime(..))
+import Data.List                   (intercalate)
+import Data.Maybe                  (fromMaybe)
 import Database.Persist.TH         (share2)
 import Database.Persist.GenericSql (mkMigrate)
 
@@ -20,49 +22,80 @@ share2 mkPersist (mkMigrate "doMigration") [$persist|
         city            String Eq
         state           String Eq
         zip             String Eq
-        formatted       String
+        UniqueProperty addrOne addrTwo city state zip
+
+    Ownership
+        property        PropertyId Eq
         landlord        LandlordId Eq
+        UniqueOwnership property landlord
+
+    Complainer
+        name            String
+        email           String
+        ipAddress       String
 
     Complaint
         createdDate     UTCTime Desc
+        content         String
         moveIn          UTCTime
         moveOut         UTCTime
-        content         String
-        authorName      String Eq
-        authorEmail     String Eq
-        landlord        LandlordId Eq
-        property        PropertyId Eq
+        complainer      ComplainerId Eq
+        landlord        LandlordId   Eq
+        property        PropertyId   Eq
+
+    Commenter
+        name            String
+        email           String
+        ipAddress       String
 
     Comment
         createdDate     UTCTime Desc
-        authorName      String Eq
-        authorEmail     String Eq
         content         String
         complaint       ComplaintId Eq
-
-    Tag
-        name            String Eq
-        complaint       ComplaintId Eq
+        commenter       CommenterId Eq
     |]
 
--- | An address as might be entered into a form by the user
+-- | An address as might be entered into a form by the user, only
+--   zipcode is mandatory
 data Addr = Addr
-    { addrOne :: Maybe String -- ^ 112 Main St
-    , addrTwo :: Maybe String -- ^ Apt 2
-    , city    :: Maybe String -- ^ Cambridge
-    , state   :: Maybe String -- ^ MA
-    , zip     :: String       -- ^ 02139
+    { addrOne   :: Maybe String -- ^ 112 Main St
+    , addrTwo   :: Maybe String -- ^ Apt 2
+    , addrCity  :: Maybe String -- ^ Cambridge
+    , addrState :: Maybe String -- ^ MA
+    , addrZip   :: String       -- ^ 02139
     }
 
--- | Search criteria for properties or complaints
-data Criteria = CriteriaLandlord  String
-              | CriteriaZip       String
-              | CriteriaCityState (String,String)
-              | CriteriaAddress   Addr
+-- | The two ways we can search complaints: by landlord or (partial)
+--   address
+data Search = LandlordSearch Landlord | PropertySearch Addr
 
-findOrCreateLandlord :: Landlord -> Handler (Key Landlord)
+findOrCreateLandlord :: Landlord -> Handler LandlordId
 findOrCreateLandlord landlord = do
     result <- runDB $ insertBy landlord
     case result of
         Left (k, v) -> return k
         Right k     -> return k
+
+findOrCreateProperty :: Addr -> Handler PropertyId
+findOrCreateProperty addr = do
+    let property = Property
+            { propertyAddrOne  = fromMaybe "" $ addrOne   addr
+            , propertyAddrTwo  = fromMaybe "" $ addrTwo   addr
+            , propertyCity     = fromMaybe "" $ addrCity  addr
+            , propertyState    = fromMaybe "" $ addrState addr
+            , propertyZip      = addrZip addr
+            }
+
+    result <- runDB $ insertBy property
+    case result of
+        Left (k, v) -> return k
+        Right k     -> return k
+
+complaintsBySearch :: Search -> Handler [Complaint]
+complaintsBySearch (LandlordSearch landlord) = do
+    key <- findOrCreateLandlord landlord
+    return . map snd =<< runDB (selectList [ComplaintLandlordEq key] [ComplaintCreatedDateDesc] 0 0)
+
+complaintsBySearch (PropertySearch addr) = do
+    key <- findOrCreateProperty addr
+    return . map snd =<< runDB (selectList [ComplaintPropertyEq key] [ComplaintCreatedDateDesc] 0 0)

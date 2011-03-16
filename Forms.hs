@@ -87,5 +87,5 @@ userInfoFields = [$hamlet|
         <th>
             <label for="author-email">Email:
         <td>
-            <input type="email" size=30 name="autho-email" required>
+            <input type="email" size=30 name="author-email" required>
     |]
