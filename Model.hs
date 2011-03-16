@@ -56,6 +56,7 @@ share2 mkPersist (mkMigrate "doMigration") [$persist|
         commenter       CommenterId Eq
     |]
 
+-- | Find or create the entity, returning it's key in both cases
 findOrCreate :: PersistEntity a => a -> Handler (Key a)
 findOrCreate v = do
     result <- runDB $ insertBy v
@@ -63,7 +64,11 @@ findOrCreate v = do
         Left (k,v') -> return k
         Right k     -> return k
 
--- | Get the next available reference for a complaint
+-- | Find an entity by it's key
+findByKey :: PersistEntity a => Key a -> Handler (Maybe a)
+findByKey key = runDB $ get key
+
+-- | Get the next available complaint ref
 newRef :: Handler Int
 newRef = do
     result <- runDB $ selectList [] [ComplaintReferenceDesc] 1 0

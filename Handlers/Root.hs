@@ -27,7 +27,7 @@ getRootR = defaultLayout $ do
         $(function() {
             $('#maintab').tabs();
 
-            $('.tabcontent').accordion({
+            $('.accordian').accordion({
                 collapsible: true,
                 autoHeight:  false,
                 active:      false
@@ -60,21 +60,23 @@ getRootR = defaultLayout $ do
 
             <div #renter .tabdiv>
                 <div .tabcontent>
-                    <h3>Register a complaint
-                    <div>
-                        ^{landlordForm NewR}
-                    <h3>Search complaints by landlord name
-                    <div>
-                        ^{landlordForm $ SearchR LandlordS}
-                    <h3>Search complaints by property
-                    <div>
-                        <p>Todo:
+                    <div .accordian>
+                        <h3>Register a complaint
+                        <div>
+                            ^{landlordForm NewR}
+                        <h3>Search complaints by landlord name
+                        <div>
+                            ^{landlordForm $ SearchR LandlordS}
+                        <h3>Search complaints by property
+                        <div>
+                            <p>Todo:
 
             <div #landlord .tabdiv>
                 <div .tabcontent>
-                    <h3>Find complaints about you
-                    <div>
-                        <p>Todo:
+                    <div .accordian>
+                        <h3>Find complaints about you
+                        <div>
+                            <p>Todo:
 
             <div #about .tabdiv>
                 <div .tabcontent>
@@ -92,4 +94,8 @@ getRootR = defaultLayout $ do
                     <p>
                         We are in pre-pre-beta at this point, and not 
                         alot is working.
+
+                    <p>
+                        Assume any data present is bogus, and anything 
+                        you enter may be unexpectedly removed.
         |]

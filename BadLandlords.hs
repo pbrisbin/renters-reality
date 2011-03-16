@@ -18,6 +18,10 @@ import Yesod
 import Yesod.Form.Core (GFormMonad)
 import Yesod.Helpers.Static
 
+import Data.Time
+import System.Locale
+
+import Data.Char        (isSpace)
 import Control.Monad    (unless)
 import System.Directory (doesFileExist, createDirectoryIfMissing)
 import Text.Jasmine     (minifym)
@@ -84,7 +88,9 @@ instance Yesod BadLandlords where
                         <a href="@{LegalR}">legal
 
                     <section .content>
-                        <h1>Bad Boston Landlords
+                        <h1>
+                            <a href=@{RootR}>Bad Boston Landlords
+
                         ^{pageBody pc}
 
                     <footer>
@@ -115,3 +121,52 @@ instance Yesod BadLandlords where
 instance YesodPersist BadLandlords where
     type YesodDB BadLandlords = SqlPersist
     runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
+
+-- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
+-- <https://github.com/snoyberg/haskellers/blob/master/LICENSE>
+humanReadableTimeDiff :: UTCTime     -- ^ current time
+                      -> UTCTime     -- ^ old time
+                      -> String
+humanReadableTimeDiff curTime oldTime =
+    helper diff
+  where
+    diff    = diffUTCTime curTime oldTime
+
+    minutes :: NominalDiffTime -> Double
+    minutes n = realToFrac $ n / 60
+
+    hours :: NominalDiffTime -> Double
+    hours   n = minutes n / 60
+
+    days :: NominalDiffTime -> Double
+    days    n = hours n / 24
+
+    weeks :: NominalDiffTime -> Double
+    weeks   n = days n / 7
+
+    years :: NominalDiffTime -> Double
+    years   n = days n / 365
+
+    i2s :: RealFrac a => a -> String
+    i2s n = show m where m = truncate n :: Int
+
+    old = utcToLocalTime utc oldTime
+
+    trim = f . f where f = reverse . dropWhile isSpace
+
+    dow           = trim $! formatTime defaultTimeLocale "%l:%M %p on %A" old
+    thisYear      = trim $! formatTime defaultTimeLocale "%b %e" old
+    previousYears = trim $! formatTime defaultTimeLocale "%b %e, %Y" old
+
+    helper  d | d < 1          = "just now"
+              | d < 60         = i2s d ++ " seconds ago"
+              | minutes d < 2  = "one minute ago"
+              | minutes d < 60 =  i2s (minutes d) ++ " minutes ago"
+              | hours d < 2    = "one hour ago"
+              | hours d < 24   = "about " ++ i2s (hours d) ++ " hours ago"
+              | days d < 5     = "at " ++ dow
+              | days d < 10    = i2s (days d)  ++ " days ago"
+              | weeks d < 2    = i2s (weeks d) ++ " week ago"
+              | weeks d < 5    = i2s (weeks d)  ++ " weeks ago"
+              | years d < 1    = "on " ++ thisYear
+              | otherwise      = "on " ++ previousYears

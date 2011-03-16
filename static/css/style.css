@@ -90,12 +90,22 @@ body, select, input, textarea {
   font-family: helvetica,clean,verdana,sans-serif;
 }
 
+p, h1, h2, h3, h4, h5, h6 { padding: 1ex 0px; }
+
+strong { font-weight: bold; }
+em     { font-weight: italic; }
+
+/* limit the width of all content save the footer */
 section.content {
-  width: 680px;
+  width:  680px;
   margin: 0px auto;
 }
 
-p, h1, h2, h3, h4, h5, h6 { padding: 1ex 0px; }
+blockquote {
+  padding:     5px 10px;
+  margin:      5px 25px;
+  border-left: solid 4px #dedbd1;
+}
 
 footer {
   background-color: #f3f1eb;
@@ -202,7 +212,7 @@ p#legal {
   overflow-y: auto;
 }
 
-.tabcontent h3 {
+.accordian h3 {
   cursor:  pointer;
   border:  none;
   outline: none;
@@ -233,6 +243,7 @@ p#legal {
 
 .ui-autocomplete a:hover {
   color: blue;
+  cursor: pointer;
 }
 
 table {
@@ -249,6 +260,16 @@ tr#buttons td { text-align: right; }
 
 /* override the 1px border added by chrome */
 input[type="email"] { padding: 0px; }
+
+h1 a, h1 a:active {
+  color: black;
+  text-decoration: none;
+}
+
+h1 a:hover {
+  cursor: pointer;
+  text-decoration: none;
+}
 
 /* thank you John Hicks! */
 
