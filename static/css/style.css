@@ -98,19 +98,19 @@ section.content {
 p, h1, h2, h3, h4, h5, h6 { padding: 1ex 0px; }
 
 footer {
-  background-color: #dedbd1;
+  background-color: #f3f1eb;
 
-  background-image: -moz-linear-gradient(top, #dedbd1, #ffffff); /* FF3.6 */
-  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #dedbd1),color-stop(1, #ffffff)); /* Saf4+, Chrome */
-  background-image: -webkit-linear-gradient(#dedbd1, #ffffff); /* Chrome 10+, Saf6 */
-  background-image: linear-gradient(top, #dedbd1, #ffffff);
+  background-image: -moz-linear-gradient(top, #f3f1eb, #ffffff); /* FF3.6 */
+  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #f3f1eb),color-stop(1, #ffffff)); /* Saf4+, Chrome */
+  background-image: -webkit-linear-gradient(#f3f1eb, #ffffff); /* Chrome 10+, Saf6 */
+  background-image: linear-gradient(top, #f3f1eb, #ffffff);
 
-  border-top:     solid 1px #dedbd1;
+  border-top:     solid 1px #f3f1eb;
   text-align:     center;
   line-height:    75%;
 
   padding-top:    0.5em;
-  padding-bottom: 5em;
+  padding-bottom: 10em;
 }
 
 small { font-size: 85%; }
@@ -171,23 +171,23 @@ p#legal {
   padding: 0px 20px;
   padding-top: 5px;
 
-  border: 1px solid #dedbd1;
+  border: 1px solid #f3f1eb;
   border-bottom: none;
 }
 
 /* highlight selected tabs */
-.tabnav li.ui-tabs-selected a { background-color: #dedbd1; }
+.tabnav li.ui-tabs-selected a { background-color: #f3f1eb; }
 
 .tabnav li a:hover, .tabnav li a:active {
   color: #222;
-  background: #bebbb1;
-  border: 1px solid #bebbb1;
+  background: #dedbd1;
+  border: 1px solid #dedbd1;
   border-bottom: none;
   text-decoration: none;
 }
 
 .tabdiv {
-  border: 1px solid #dedbd1;
+  border: 1px solid #f3f1eb;
   border-bottom: none;
 }
 
@@ -223,7 +223,7 @@ p#legal {
 .ui-autocomplete {
   width:      60px;
   background: white;
-  border:     solid 1px #dedbd1;
+  border:     solid 1px #f3f1eb;
 }
 
 .ui-autocomplete li {
@@ -232,7 +232,7 @@ p#legal {
 }
 
 .ui-autocomplete a:hover {
-  color: blue;
+  color: #dedbd1;
 }
 
 form table {
