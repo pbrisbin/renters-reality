@@ -65,30 +65,24 @@ getRootR = defaultLayout $ do
                         ^{landlordForm NewR}
                     <h3>Search complaints by landlord name
                     <div>
-                        ^{landlordForm $ SearchR "landlord"}
+                        ^{landlordForm $ SearchR LandlordS}
                     <h3>Search complaints by property
                     <div>
-                        <form method="post" action=@{SearchR "property"} >
-                            <table>
-                                ^{addressFormFields}
-                                <tr>
-                                    <td>&nbsp;
-                                    <td #address-button>
-                                        <input type="submit" value="Next">
+                        <p>Todo:
 
             <div #landlord .tabdiv>
                 <div .tabcontent>
                     <h3>Find complaints about you
                     <div>
-                        <p>Todo
+                        <p>Todo:
 
             <div #about .tabdiv>
                 <div .tabcontent>
                     <p>
                         We aim to provide an easy to use service where 
-                        residents of Boston (or the surrounding area) who 
-                        are dissatisfied with their landlords can register a 
-                        public complaint.
+                        residents of Boston (or the surrounding area) 
+                        who are dissatisfied with their landlords can 
+                        register a public complaint.
 
                     <p>
                         Would-be residents can then search our database 
@@ -96,8 +90,6 @@ getRootR = defaultLayout $ do
                         bad landlord.
 
                     <p>
-                        The service is also designed with Landlords in mind, 
-                        offering ways to search for complaints in your name, 
-                        settle disputes, and declare or absolve ownership of 
-                        the properties listed here.
+                        We are in pre-pre-beta at this point, and not 
+                        alot is working.
         |]

@@ -36,13 +36,13 @@ share2 mkPersist (mkMigrate "doMigration") [$persist|
         UniqueComplainer name email ipAddress
 
     Complaint
+        reference       Int Eq Desc
         createdDate     UTCTime Desc
         content         String
-        moveIn          UTCTime
-        moveOut         UTCTime
         complainer      ComplainerId Eq
         landlord        LandlordId   Eq
         property        PropertyId   Eq
+        UniqueComplaint reference
 
     Commenter
         name            String
@@ -56,63 +56,18 @@ share2 mkPersist (mkMigrate "doMigration") [$persist|
         commenter       CommenterId Eq
     |]
 
--- | An address as might be entered into a form by the user, only
---   zipcode is mandatory
-data Addr = Addr
-    { addrOne   :: Maybe String -- ^ 112 Main St
-    , addrTwo   :: Maybe String -- ^ Apt 2
-    , addrCity  :: Maybe String -- ^ Cambridge
-    , addrState :: Maybe String -- ^ MA
-    , addrZip   :: String       -- ^ 02139
-    }
-
--- | The two ways we can search complaints: by landlord or (partial)
---   address
-data Search = LandlordSearch Landlord | PropertySearch Addr
-
--- todo: factor repeated code
-findOrCreateLandlord :: Landlord -> Handler LandlordId
-findOrCreateLandlord landlord = do
-    result <- runDB $ insertBy landlord
+findOrCreate :: PersistEntity a => a -> Handler (Key a)
+findOrCreate v = do
+    result <- runDB $ insertBy v
     case result of
-        Left (k, v) -> return k
+        Left (k,v') -> return k
         Right k     -> return k
 
-findOrCreateProperty :: Addr -> Handler PropertyId
-findOrCreateProperty addr = do
-    let property = Property
-            { propertyAddrOne  = fromMaybe "" $ addrOne   addr
-            , propertyAddrTwo  = fromMaybe "" $ addrTwo   addr
-            , propertyCity     = fromMaybe "" $ addrCity  addr
-            , propertyState    = fromMaybe "" $ addrState addr
-            , propertyZip      = addrZip addr
-            }
-
-    result <- runDB $ insertBy property
-    case result of
-        Left (k, v) -> return k
-        Right k     -> return k
-
---findOrCreateOwnership :: Ownership -> OwnershipId
---findOrCreateOwnership ownership = do
---    result <- runDB $ insertBy ownership
---    case result of
---        Left (k, v) -> return k
---        Right k     -> return k
-
---findOrCreateComplainer :: Complainer -> ComplainerId
---findOrCreateComplainer complainer = do
---    result <- runDB $ insertBy complainer
---    case result of
---        Left (k, v) -> return k
---        Right k     -> return k
-
--- | Search complaints
-complaintsBySearch :: Search -> Handler [Complaint]
-complaintsBySearch (LandlordSearch landlord) = do
-    key <- findOrCreateLandlord landlord
-    return . map snd =<< runDB (selectList [ComplaintLandlordEq key] [ComplaintCreatedDateDesc] 0 0)
-
-complaintsBySearch (PropertySearch addr) = do
-    key <- findOrCreateProperty addr
-    return . map snd =<< runDB (selectList [ComplaintPropertyEq key] [ComplaintCreatedDateDesc] 0 0)
+-- | Get the next available reference for a complaint
+newRef :: Handler Int
+newRef = do
+    result <- runDB $ selectList [] [ComplaintReferenceDesc] 1 0
+    return . go $ map (complaintReference . snd) result
+    where
+        go []  = 0
+        go [x] = x + 1

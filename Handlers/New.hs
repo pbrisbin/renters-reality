@@ -17,21 +17,5 @@ postNewR = do
 
             <div .tabdiv>
                 <div .tabcontent>
-                    <form method="post" action=@{CreateR}>
-                        <input type=hidden name="landlord" value=#{landlordName landlord}>
-
-                        <h3>Who you are:
-
-                        <table>
-                            ^{userInfoFields}
-
-                        <h3>Where you live:
-
-                        <table>
-                            ^{addressFormFields}
-
-                        <h3>Your complaint:
-
-                        <textarea rows="20" cols="60" name="content" required>
+                    ^{complaintForm $ landlordName landlord}
             |]
-

@@ -7,12 +7,8 @@ import BadLandlords
 import Forms
 import Model
 
+postCreateR :: Handler RepHtml
 postCreateR = do
-    landlord <- landlordFromForm
-    addr     <- addressFromForm
-    user     <- userInfoFromForm
-    
-    landlordId <- findOrCreateLandlord landlord
-    propertyId <- findOrCreateProperty addr
-
-    undefined
+    complaint <- complaintFromForm
+    _         <- findOrCreate complaint
+    redirect RedirectTemporary $ ComplaintsR (complaintReference complaint)

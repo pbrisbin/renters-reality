@@ -70,7 +70,7 @@ textarea { overflow: auto; }
 
 input[type="radio"] { vertical-align: text-bottom; }
 input[type="checkbox"] { vertical-align: bottom; }
-label, input[type="button"], input[type="submit"], input[type="image"], button { cursor: pointer; }
+input[type="button"], input[type="submit"], input[type="reset"], button { cursor: pointer; padding: 2px 5px; }
 
 button, input, select, textarea { margin: 0; }
 
@@ -105,7 +105,7 @@ footer {
   background-image: -webkit-linear-gradient(#f3f1eb, #ffffff); /* Chrome 10+, Saf6 */
   background-image: linear-gradient(top, #f3f1eb, #ffffff);
 
-  border-top:     solid 1px #f3f1eb;
+  border-top:     solid 1px #dedbd1;
   text-align:     center;
   line-height:    75%;
 
@@ -171,7 +171,7 @@ p#legal {
   padding: 0px 20px;
   padding-top: 5px;
 
-  border: 1px solid #f3f1eb;
+  border: 1px solid #dedbd1;
   border-bottom: none;
 }
 
@@ -180,14 +180,14 @@ p#legal {
 
 .tabnav li a:hover, .tabnav li a:active {
   color: #222;
-  background: #dedbd1;
+  background: #f3f1eb;
   border: 1px solid #dedbd1;
   border-bottom: none;
   text-decoration: none;
 }
 
 .tabdiv {
-  border: 1px solid #f3f1eb;
+  border: 1px solid #dedbd1;
   border-bottom: none;
 }
 
@@ -232,31 +232,23 @@ p#legal {
 }
 
 .ui-autocomplete a:hover {
-  color: #dedbd1;
+  color: blue;
 }
 
-form table {
+table {
   margin: 5px;
   margin-left: 25px;
 }
 
-form textarea {
-  width: 96%;
-  margin: 5px 2%;
-}
-
-form th {
+th {
   text-align: right;
+  vertical-align: top;
 }
 
-form th, form td {
-  width:   100px;
-  padding: 2px 5px;
-}
+tr#buttons td { text-align: right; }
 
-form td#address-button {
-  text-align: right;
-}
+/* override the 1px border added by chrome */
+input[type="email"] { padding: 0px; }
 
 /* thank you John Hicks! */
 

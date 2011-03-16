@@ -3,16 +3,15 @@
 module Forms
     ( landlordForm
     , landlordFromForm
-    , addressFormFields
-    , addressFromForm
-    , userInfoFields
-    , userInfoFromForm
+    , complaintForm
+    , complaintFromForm
     ) where
 
 import Yesod
 import BadLandlords
 import Model
 
+import Data.Time (getCurrentTime)
 import Control.Applicative ((<$>),(<*>))
 import Network.Wai (remoteHost)
 
@@ -36,71 +35,101 @@ landlordFromForm = do
     landlord <- runFormPost' $ stringInput "landlord"
     return $ Landlord landlord
 
--- | Just the fields, as these will be part of a larger form some of the 
---   time
-addressFormFields :: Widget ()
-addressFormFields = do
-    -- these are optional, zip is required
-    let rows = [ ("address_one", "Address line 1:", "123 Main St")
-               , ("address_two", "Address line 2:", "Apt 2"      )
-               , ("city"       , "City:"          , ""           )
-               , ("state"      , "State:"         , ""           )
-               ]
-
+complaintForm :: String -> Widget ()
+complaintForm landlord = do
+    ip <- lift $ return . show . remoteHost =<< waiRequest
     [$hamlet|
-        $forall row <- rows
-            ^{addTableRow row}
-
-        <tr>
-            <th>
-                <label for="zip">Zip:
-            <td>
-                <input size=30 name="zip" required>
-        |]
-    where
-        addTableRow :: (String, String, String) -> Widget ()
-        addTableRow (name, label, placeholder) = [$hamlet|
+    <form method="post" action=@{CreateR}>
+        <input type=hidden name="landlord" value=#{landlord}>
+        <input type=hidden name="ip" value=#{ip}>
+        <table>
             <tr>
                 <th>
-                    <label for=#{name}>#{label}
+                    <label for="name"> Name:
                 <td>
-                    <input size=30 name=#{name} placeholder=#{placeholder}>
-            |]
+                    <input size=30 name="name" required>
+            <tr>
+                <th>
+                    <label for="email"> Email:
+                <td>
+                    <input size=30 type="email" name="email" required>
 
-addressFromForm :: Handler Addr
-addressFromForm = do
-    addr <- runFormPost' $ Addr
-        <$> maybeStringInput "address_one"
-        <*> maybeStringInput "address_two"
-        <*> maybeStringInput "city"
-        <*> maybeStringInput "state"
-        <*> stringInput "zip"
+            <tr .spacer>
+                <td colspan="2">&nbsp;
 
-    return addr
+            <tr>
+                <th>
+                    <label for="addrone"> Address line 1:
+                <td>
+                    <input size=30 name="addrone" placeholder="248 Kelton St" required>
+            <tr>
+                <th>
+                    <label for="addrtwo"> Address line 2:
+                <td>
+                    <input size=30 name="addrtwo" placeholder="Apt 1" required>
+            <tr>
+                <th>
+                    <label for="city"> City:
+                <td>
+                    <input size=30 name="city" required>
+            <tr>
+                <th>
+                    <label for="state"> State:
+                <td>
+                    <input size=30 name="state" required>
+            <tr>
+                <th>
+                    <label for="zip"> Zipcode:
+                <td>
+                    <input size=15 name="zip" required>
 
-userInfoFields :: Widget ()
-userInfoFields = [$hamlet|
-    <tr>
-        <th>
-            <label for="author-name">Name:
-        <td>
-            <input size=30 name="author-name" required>
-    <tr>
-        <th>
-            <label for="author-email">Email:
-        <td>
-            <input type="email" size=30 name="author-email" required>
-    |]
+            <tr .spacer>
+                <td colspan="2">&nbsp;
 
-userInfoFromForm :: Handler Complainer
-userInfoFromForm = undefined
---userInfoFromForm = do
---    complainer <- runFormPost' $ Complainer
---        <$> stringInput "author-name"
---        <*> stringInput "author-email"
---        <*> requestIp
---
---    return complainer
---
---    where
---        requestIp = return . show . remoteHost =<< waiRequest
+            <tr>
+                <th>
+                    <label for="complaint"> Your complaint:
+                <td>
+                    <textarea rows=10 cols=60 name="complaint" required>
+
+            <tr #buttons>
+                <td>&nbsp;
+                <td>
+                    <input type="submit">
+                    <input type="reset">
+|]
+
+complaintFromForm :: Handler Complaint
+complaintFromForm = do
+    now     <- liftIO getCurrentTime
+    content <- runFormPost' $ stringInput "complaint"
+
+    landlordId <- findOrCreate =<< landlordFromForm
+
+    propertyId <- findOrCreate =<< 
+        (runFormPost' $ Property
+            <$> stringInput "addrone"
+            <*> stringInput "addrtwo"
+            <*> stringInput "city"
+            <*> stringInput "state"
+            <*> stringInput "zip")
+
+    -- establish ownership
+    _ <- findOrCreate $ Ownership propertyId landlordId
+
+    complainerId <- findOrCreate =<<
+        (runFormPost' $ Complainer
+            <$> stringInput "name"
+            <*> stringInput "email"
+            <*> stringInput "ip")
+
+    ref <- newRef
+
+    return $ Complaint
+        { complaintReference   = ref
+        , complaintCreatedDate = now
+        , complaintContent     = content
+        , complaintComplainer  = complainerId
+        , complaintLandlord    = landlordId
+        , complaintProperty    = propertyId
+        }

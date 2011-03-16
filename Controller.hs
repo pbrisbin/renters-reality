@@ -22,16 +22,11 @@ import Handlers.Legal
 import Handlers.Search
 import Handlers.New
 import Handlers.Create
+import Handlers.Complaints
 
 import Database.Persist.GenericSql
 
 import qualified Settings
-
-
--- TEMP
-getComplaintsR :: Int -> Handler RepHtml
-getComplaintsR = undefined
-
 
 -- | Instantiate the Yesod route types
 mkYesodDispatch "BadLandlords" resourcesBadLandlords

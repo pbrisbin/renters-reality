@@ -30,25 +30,32 @@ import qualified Settings
 -- | The main site type
 data BadLandlords = BadLandlords 
     { getStatic :: Static 
-    , connPool   :: ConnectionPool 
+    , connPool  :: ConnectionPool 
     }
 
 type Handler     = GHandler   BadLandlords BadLandlords
 type Widget      = GWidget    BadLandlords BadLandlords
 type FormMonad a = GFormMonad BadLandlords BadLandlords a
 
+data SearchType = LandlordS | PropertyS deriving (Show,Read,Eq)
+
+instance SinglePiece SearchType where
+    toSinglePiece LandlordS = "landlord"
+    toSinglePiece PropertyS = "property"
+
+    fromSinglePiece "landlord" = Right LandlordS
+    fromSinglePiece "property" = Right PropertyS
+    fromSinglePiece _          = Left "invalid search type"
+
 -- | Define all of the routes and handlers
 mkYesodData "BadLandlords" [$parseRoutes|
-    /       RootR    GET
-
-    /search/#String  SearchR POST
-    /complaints/#Int ComplaintsR GET
-
-    /new/            NewR    POST
-    /create          CreateR POST
-
-    /legal  LegalR GET
-    /static StaticR Static getStatic
+    /                   RootR       GET
+    /new/               NewR        POST
+    /create             CreateR     POST
+    /search/#SearchType SearchR     POST
+    /complaints/#Int    ComplaintsR GET POST
+    /legal              LegalR      GET
+    /static             StaticR Static getStatic
     |]
 
 staticFiles Settings.staticDir
