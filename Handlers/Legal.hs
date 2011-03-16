@@ -9,10 +9,9 @@ getLegalR :: Handler RepHtml
 getLegalR = defaultLayout $ do
     setTitle "bad boston landlords | Legal"
     addHamlet [$hamlet|
+        <h2>Legal information
         <div .tabdiv>
             <div .tabcontent>
-                <h2>Legal information
-
                 <p>
                     At this time, we simply cannot guarantee the accuracy of any 
                     information on this site.
