@@ -34,7 +34,8 @@ getRootR = defaultLayout $ do
             });
 
             $('.complete').autocomplete({
-                source: "@{JsonR LandlordJ}"
+                source: "@{JsonR LandlordJ}",
+                selectFirst: true
             });
         });
         |]
