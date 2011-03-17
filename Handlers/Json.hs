@@ -6,19 +6,21 @@ import Yesod
 import BadLandlords
 import Model
 
+import Data.Char (toLower)
 import Data.List (isInfixOf)
 
 -- todo: case-insensitive searches
 getJsonR :: JsonSearch -> Handler RepJson
 getJsonR LandlordJ = do
-    params <- return . reqGetParams =<< getRequest
-    let term = getParam "term" params
+    req       <- getRequest
+    landlords <- return . map (landlordName . snd) =<< runDB (selectList [] [LandlordNameAsc] 0 0)
 
-    landlords' <- return . map (landlordName . snd) =<< runDB (selectList [] [LandlordNameAsc] 0 0)
-    let landlords = if term /= [] then filter (isInfixOf term) landlords' else landlords'
-    jsonToRepJson . jsonList $ map jsonScalar landlords
+    let results = case getParam req "term" of
+            Just term -> filter (isMatch term) landlords
+            Nothing   -> landlords
+
+    jsonToRepJson . jsonList $ map jsonScalar results
+
     where
-        -- poor man's lookup
-        getParam :: String -> [(String,String)] -> String
-        getParam k []            = []
-        getParam k ((k',v):rest) = if k == k' then v else getParam k rest
+        isMatch :: String -> String -> Bool
+        isMatch x y = (map toLower x) `isInfixOf` (map toLower y)

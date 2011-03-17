@@ -28,6 +28,7 @@ import Text.Jasmine     (minifym)
 
 import Database.Persist.GenericSql
 import qualified Data.ByteString.Lazy as L
+import qualified Data.Map as M
 
 import qualified Settings
 
@@ -132,6 +133,9 @@ instance Yesod BadLandlords where
 instance YesodPersist BadLandlords where
     type YesodDB BadLandlords = SqlPersist
     runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
+
+getParam :: Request -> ParamName -> Maybe ParamValue
+getParam req param = M.lookup param . M.fromList $ reqGetParams req
 
 -- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
 -- <https://github.com/snoyberg/haskellers/blob/master/LICENSE>
