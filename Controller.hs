@@ -23,6 +23,7 @@ import Handlers.Search
 import Handlers.New
 import Handlers.Create
 import Handlers.Complaints
+import Handlers.Json
 
 import Database.Persist.GenericSql
 

@@ -13,7 +13,7 @@ import Database.Persist.GenericSql (mkMigrate)
 
 share2 mkPersist (mkMigrate "doMigration") [$persist|
     Landlord
-        name String Eq
+        name String Eq Asc
         UniqueLandlord name
 
     Property
@@ -76,3 +76,8 @@ newRef = do
     where
         go []  = 0
         go [x] = x + 1
+
+complaintsByLandlord :: Landlord -> Handler [Complaint]
+complaintsByLandlord landlord = do
+    key <- findOrCreate landlord
+    return . map snd =<< runDB (selectList [ComplaintLandlordEq key] [ComplaintCreatedDateDesc] 0 0)

@@ -93,7 +93,7 @@ body, select, input, textarea {
 p, h1, h2, h3, h4, h5, h6 { padding: 1ex 0px; }
 
 strong { font-weight: bold; }
-em     { font-weight: italic; }
+em     { font-style: italic; }
 
 /* limit the width of all content save the footer */
 section.content {
@@ -218,7 +218,7 @@ p#legal {
   outline: none;
 }
 
-.tabcontent th, .tabcontent td {
+th, td {
   padding: 2px 5px;
 }
 
@@ -252,8 +252,15 @@ table {
 }
 
 th {
+  text-align:    left;
+  font-weight:   bold;
+  border-bottom: solid 1px;
+}
+
+form th {
   text-align: right;
   vertical-align: top;
+  border: none;
 }
 
 tr#buttons td { text-align: right; }

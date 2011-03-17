@@ -33,17 +33,8 @@ getRootR = defaultLayout $ do
                 active:      false
             });
 
-            // testing values
-            var landlords = [ "Rayce Realty Trust"
-                            , "Brighton Realty"
-                            , "Joe's Realty"
-                            , "Sam's Realty"
-                            , "Eileen Marsky"
-                            , "Joe Allan"
-                            ];
-
             $('.complete').autocomplete({
-                source: landlords
+                source: "@{JsonR LandlordJ}"
             });
         });
         |]

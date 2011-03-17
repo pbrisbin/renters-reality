@@ -51,6 +51,16 @@ instance SinglePiece SearchType where
     fromSinglePiece "property" = Right PropertyS
     fromSinglePiece _          = Left "invalid search type"
 
+data JsonSearch = LandlordJ | ComplaintsJ deriving (Show,Read,Eq)
+
+instance SinglePiece JsonSearch where
+    toSinglePiece LandlordJ   = "landlord"
+    toSinglePiece ComplaintsJ = "complaints"
+
+    fromSinglePiece "landlord"   = Right LandlordJ
+    fromSinglePiece "complaints" = Right ComplaintsJ
+    fromSinglePiece _            = Left "invalid json search parameter"
+
 -- | Define all of the routes and handlers
 mkYesodData "BadLandlords" [$parseRoutes|
     /                   RootR       GET
@@ -58,6 +68,7 @@ mkYesodData "BadLandlords" [$parseRoutes|
     /create             CreateR     POST
     /search/#SearchType SearchR     POST
     /complaints/#Int    ComplaintsR GET POST
+    /json/#JsonSearch   JsonR       GET
     /legal              LegalR      GET
     /static             StaticR Static getStatic
     |]
