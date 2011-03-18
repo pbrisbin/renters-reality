@@ -1,10 +1,17 @@
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Forms
-    ( landlordForm
+    ( 
+    -- * Standard forms 
+      landlordForm
     , landlordFromForm
     , complaintForm
     , complaintFromForm
+
+    -- * Property search
+    , AddrSearch(..)
+    , propertySearchForm
+    , addrFromForm
     ) where
 
 import Yesod
@@ -14,6 +21,14 @@ import Model
 import Data.Time (getCurrentTime)
 import Control.Applicative ((<$>),(<*>))
 import Network.Wai (remoteHost)
+
+data AddrSearch = AddrSearch
+    { addrOne   :: Maybe String
+    , addrTwo   :: Maybe String
+    , addrCity  :: Maybe String
+    , addrState :: Maybe String
+    , addrZip   :: String
+    }
 
 -- | The landlord entry is a one field input, so the button is included 
 --   here. Pass the route th POST to.
@@ -133,3 +148,41 @@ complaintFromForm = do
         , complaintLandlord    = landlordId
         , complaintProperty    = propertyId
         }
+
+propertySearchForm :: Widget ()
+propertySearchForm = [$hamlet|
+    <form method="post" action=@{SearchR PropertyS}>
+        <table>
+            ^{tableRow "addrone" "Address line 1:" "248 Kelton St"}
+            ^{tableRow "addrtwo" "Address line 2:" "Apt 1"        }
+            ^{tableRow "city"    "City:"           ""             }
+            ^{tableRow "state"   "State:"          ""             }
+            <tr>
+                <th>
+                    <label for="zip">Zip:
+                <td>
+                    <input size=30 name="zip" required>
+
+            <tr #buttons>
+                <td>&nbsp;
+                <td>
+                    <input type=submit>
+                    <input type=reset>
+    |]
+    where
+        tableRow :: String -> String -> String -> Widget ()
+        tableRow name label placeholder = [$hamlet|
+            <tr>
+                <th>
+                    <label for=#{name}> #{label}
+                <td>
+                    <input size=30 name=#{name} placeholder=#{placeholder}>
+            |]
+
+addrFromForm :: Handler AddrSearch
+addrFromForm = runFormPost' $ AddrSearch
+    <$> maybeStringInput "addrone"
+    <*> maybeStringInput "addrtwo"
+    <*> maybeStringInput "city"
+    <*> maybeStringInput "state"
+    <*> stringInput "zip"

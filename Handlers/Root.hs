@@ -61,14 +61,14 @@ getRootR = defaultLayout $ do
                             ^{landlordForm $ SearchR LandlordS}
                         <h3>Search complaints by property
                         <div>
-                            <p>Todo:
+                            ^{propertySearchForm}
 
             <div #landlord .tabdiv>
                 <div .tabcontent>
                     <div .accordian>
                         <h3>Find complaints about you
                         <div>
-                            <p>Todo:
+                            ^{landlordForm $ SearchR LandlordS}
 
             <div #about .tabdiv>
                 <div .tabcontent>
@@ -80,7 +80,7 @@ getRootR = defaultLayout $ do
 
                     <p>
                         Would-be residents can then search our database 
-                        before unkowingly renting an apartment from a 
+                        before unknowingly renting an apartment from a 
                         bad landlord.
 
                     <p>

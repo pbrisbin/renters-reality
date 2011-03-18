@@ -8,7 +8,7 @@ import Forms
 import Model
 
 import Data.List  (intercalate)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromJust, fromMaybe, isJust)
 import Data.Time  (getCurrentTime)
 
 postSearchR :: SearchType -> Handler RepHtml
@@ -33,6 +33,61 @@ postSearchR LandlordS = do
                                 ^{shortComplaint complaint}
             |]
 
+-- | On a property search, on zip is mandatory, specifying any other 
+--   fields just narrows the search, resulting in a different db select
+postSearchR PropertyS = do
+    addr <- addrFromForm
+    let criteria = case addr of
+            (AddrSearch Nothing Nothing Nothing Nothing zip) -> 
+                [ PropertyZipEq zip ]
+
+            (AddrSearch Nothing Nothing Nothing (Just state) zip) ->
+                [ PropertyZipEq zip
+                , PropertyStateEq state
+                ]
+
+            (AddrSearch Nothing Nothing (Just city) (Just state) zip) ->
+                [ PropertyZipEq zip
+                , PropertyStateEq state
+                , PropertyCityEq city
+                ]
+
+            (AddrSearch (Just addrOne) Nothing (Just city) (Just state) zip) ->
+                [ PropertyZipEq zip
+                , PropertyStateEq state
+                , PropertyCityEq city
+                , PropertyAddrOneEq addrOne
+                ]
+
+            (AddrSearch (Just addrOne) (Just addrTwo) (Just city) (Just state) zip) ->
+                [ PropertyZipEq zip
+                , PropertyStateEq state
+                , PropertyCityEq city
+                , PropertyAddrOneEq addrOne
+                , PropertyAddrTwoEq addrTwo
+                ]
+
+    properties <- return . map snd =<< runDB (selectList criteria [] 0 0)
+    complaints <- complaintsByProperty properties
+    let empty = null complaints
+    defaultLayout [$hamlet|
+        <h2>Complaints about #{formatAddr addr}
+        <div .tabdiv>
+            <div .tabcontent>
+                $if empty
+                    ^{noComplaintsFound}
+                $else
+                    <table>
+                        <tr>
+                            <th>Property
+                            <th>Complaint
+                            <td>&nbsp;
+
+                        $forall complaint <- complaints
+                            ^{shortComplaint complaint}
+            |]
+
+
 shortComplaint :: Complaint -> Widget ()
 shortComplaint complaint = do
     now <- lift $ liftIO getCurrentTime
@@ -51,11 +106,11 @@ shortComplaint complaint = do
 
 noComplaintsFound :: Widget ()
 noComplaintsFound = [$hamlet|
-    <p>I'm sorry, there are no complaints for your search.
     <p>
-        Would you like to 
-        <a href="#">create one
-        ?
+        <em>This fish is clean...
+
+    <p>
+        I'm sorry, there are no complaints for your search.
     |]
 
 formatProperty :: Property -> String
@@ -64,6 +119,16 @@ formatProperty property = intercalate ", "
     , propertyState   property
     , propertyZip     property
     ]
+
+formatAddr :: AddrSearch -> String
+formatAddr a = intercalate ", " $ maybeFields ++ [addrZip a]
+    where
+        maybeFields = map fromJust $ filter isJust
+            [ addrOne   a
+            , addrTwo   a
+            , addrCity  a
+            , addrState a
+            ]
 
 shorten :: String -> String
 shorten s = if length s > 30 then take 30 s ++ "..." else s

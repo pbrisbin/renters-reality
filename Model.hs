@@ -5,6 +5,8 @@ module Model where
 
 import Yesod
 import BadLandlords
+
+import Control.Monad               (liftM)
 import Data.Time                   (UTCTime(..))
 import Data.List                   (intercalate)
 import Data.Maybe                  (fromMaybe)
@@ -17,8 +19,8 @@ share2 mkPersist (mkMigrate "doMigration") [$persist|
         UniqueLandlord name
 
     Property
-        addrOne         String
-        addrTwo         String
+        addrOne         String Eq
+        addrTwo         String Eq
         city            String Eq
         state           String Eq
         zip             String Eq
@@ -81,3 +83,11 @@ complaintsByLandlord :: Landlord -> Handler [Complaint]
 complaintsByLandlord landlord = do
     key <- findOrCreate landlord
     return . map snd =<< runDB (selectList [ComplaintLandlordEq key] [ComplaintCreatedDateDesc] 0 0)
+
+complaintsByProperty :: [Property] -> Handler [Complaint]
+complaintsByProperty properties = liftM concat $ mapM go properties 
+    where
+        go :: Property -> Handler [Complaint]
+        go property = do
+            key <- findOrCreate property
+            return . map snd =<< runDB (selectList [ComplaintPropertyEq key] [ComplaintCreatedDateDesc] 0 0)
