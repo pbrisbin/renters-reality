@@ -30,18 +30,14 @@ getComplaintsR ref = do
                             <h2>Complaint ##{show ref}
                             <div .tabdiv>
                                 <div .tabcontent>
-                                    <p>
-                                        <strong>Landlord: 
+                                    <h3>
                                         #{landlordName landlord}
+                                        \ - #{formatProperty property}
+
                                     <p>
-                                        <strong>Property: 
-                                        #{formatProperty property}
-                                    <p>
-                                        <strong>Submitted: 
-                                        #{humanReadableTimeDiff now $ complaintCreatedDate complaint}
-                                    <p>
-                                        <strong>Submited by: 
-                                        #{formatComplainer complainer}
+                                        Submitted #{humanReadableTimeDiff now $ complaintCreatedDate complaint} 
+                                        by #{formatComplainer complainer}
+
                                     <p>
                                         <strong>Complaint:
 

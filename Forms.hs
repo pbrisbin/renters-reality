@@ -54,18 +54,20 @@ complaintForm :: String -> Widget ()
 complaintForm landlord = do
     ip <- lift $ return . show . remoteHost =<< waiRequest
     [$hamlet|
+    <p>
+        <em>all fields are required
     <form method="post" action=@{CreateR}>
         <input type=hidden name="landlord" value=#{landlord}>
         <input type=hidden name="ip" value=#{ip}>
         <table>
             <tr>
                 <th>
-                    <label for="name"> Name:
+                    <label for="name"> Your name:
                 <td>
                     <input size=30 name="name" required>
             <tr>
                 <th>
-                    <label for="email"> Email:
+                    <label for="email"> Your email:
                 <td>
                     <input size=30 type="email" name="email" required>
 
@@ -166,8 +168,7 @@ propertySearchForm = [$hamlet|
             <tr #buttons>
                 <td>&nbsp;
                 <td>
-                    <input type=submit>
-                    <input type=reset>
+                    <input type=submit valud="Next">
     |]
     where
         tableRow :: String -> String -> String -> Widget ()

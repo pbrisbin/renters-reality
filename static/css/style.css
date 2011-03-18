@@ -131,8 +131,7 @@ h3, h4, h5, h6 { font-size: 1.25em; }
 h1, h2, h3, h4, h5, h6 { font-weight: normal; text-shadow: #cecbc1 1px 1px 5px; }
 
 h1 { 
-  padding-top:    50px;
-  padding-bottom: 25px;
+  padding-top: 50px;
 }
 
 ::-moz-selection {
@@ -219,7 +218,7 @@ p#legal {
 }
 
 th, td {
-  padding: 1px 5px;
+  padding: 2px 5px;
 }
 
 .tabcontent td#button {
@@ -274,7 +273,10 @@ form.landlord input:invalid, form.landlord textarea:invalid {
 
 tr#buttons td { 
   text-align: right;
-  padding: 2px 5px;
+}
+
+tr#buttons input {
+  margin-left: 2px;
 }
 
 /* override the 1px border added by chrome */
