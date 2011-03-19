@@ -95,6 +95,8 @@ p, h1, h2, h3, h4, h5, h6 { padding: 1ex 0px; }
 strong { font-weight: bold; }
 em     { font-style: italic; }
 
+.tabcontent ul, .tabcontent ol { margin: 10px 50px; }
+
 /* limit the width of all content save the footer */
 section.content {
   width:  680px;
