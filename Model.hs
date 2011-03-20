@@ -9,7 +9,7 @@ import BadLandlords
 import Control.Monad               (liftM)
 import Data.Time                   (UTCTime(..))
 import Data.List                   (intercalate)
-import Data.Maybe                  (fromMaybe)
+import Data.Maybe                  (fromMaybe, fromJust)
 import Database.Persist.TH         (derivePersistField, share2)
 import Database.Persist.GenericSql (mkMigrate)
 
@@ -61,7 +61,9 @@ share2 mkPersist (mkMigrate "doMigration") [$persist|
         commenter       CommenterId Eq
     |]
 
--- | Find or create the entity, returning it's key in both cases
+-- General db helpers:
+
+-- | Find or create an entity, returning its key in both cases
 findOrCreate :: PersistEntity a => a -> Handler (Key a)
 findOrCreate v = do
     result <- runDB $ insertBy v
@@ -69,9 +71,28 @@ findOrCreate v = do
         Left (k,v') -> return k
         Right k     -> return k
 
--- | Find an entity by it's key
+-- | Find an entity by its key
 findByKey :: PersistEntity a => Key a -> Handler (Maybe a)
 findByKey key = runDB $ get key
+
+-- | Takes a filter type constructor (SqlFooEq) and a Maybe value, if 
+--   the value is not Nothing or Just "", then it returns a listed 
+--   application of the constructor on the unwrapped value ([SqlFooEq 
+--   x]) to be added to a select statement, otherwise the list is 
+--   returned empty and that condition is discarded by the caller. It 
+--   sounds more complicated than it really is...
+--
+--   todo: generalize this beyond Maybe String...
+--
+maybeCriteria :: (String -> t) -> Maybe String -> [t]
+maybeCriteria f v = if notNull v then [ f (fromJust v) ] else []
+    where
+        notNull :: Maybe String -> Bool
+        notNull Nothing   = False
+        notNull (Just "") = False
+        notNull _         = True
+
+-- Site-specific helpers
 
 -- | Get the next available review ref
 newRef :: Handler Int
