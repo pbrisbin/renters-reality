@@ -12,13 +12,18 @@
 -------------------------------------------------------------------------------
 module Settings
     ( approot
+    , setTitle
     , staticDir
     , staticRoot
     , withConnectionPool
     ) where
 
+import Yesod hiding (approot, setTitle)
 import Control.Monad.IO.Peel (MonadPeelIO)
 import Database.Persist.Sqlite
+import Text.Blaze (toHtml)
+
+import qualified Yesod as Y
 
 approot :: String
 #ifdef PROD
@@ -32,6 +37,9 @@ staticDir = "static"
 
 staticRoot :: String
 staticRoot = approot ++ "/static"
+
+setTitle :: (Yesod m) => String -> GWidget s m ()
+setTitle s = Y.setTitle . toHtml $ "Landlord reviews | " ++ s
 
 dataBase :: String
 dataBase = "db.s3db"

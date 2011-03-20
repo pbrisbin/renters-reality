@@ -13,24 +13,24 @@ import Data.Time  (getCurrentTime)
 
 postSearchR :: SearchType -> Handler RepHtml
 postSearchR LandlordS = do
-    landlord   <- landlordFromForm
-    complaints <- complaintsByLandlord landlord
-    let empty = null complaints
+    landlord <- landlordFromForm
+    reviews  <- reviewsByLandlord landlord
+    let empty = null reviews
     defaultLayout $ [$hamlet|
-            <h2>Complaints for #{landlordName landlord}
+            <h2>Reviews for #{landlordName landlord}
             <div .tabdiv>
                 <div .tabcontent>
                     $if empty
-                        ^{noComplaintsFound}
+                        ^{noReviewsFound}
                     $else
                         <table>
                             <tr>
                                 <th>Property
-                                <th>Complaint
+                                <th>Review
                                 <td>&nbsp;
 
-                            $forall complaint <- complaints
-                                ^{shortComplaint complaint}
+                            $forall review <- reviews
+                                ^{shortReview review}
             |]
 
 -- | On a property search, on zip is mandatory, specifying any other 
@@ -68,30 +68,29 @@ postSearchR PropertyS = do
                 ]
 
     properties <- return . map snd =<< runDB (selectList criteria [] 0 0)
-    complaints <- complaintsByProperty properties
-    let empty = null complaints
+    reviews <- reviewsByProperty properties
+    let empty = null reviews
     defaultLayout [$hamlet|
-        <h2>Complaints about #{formatAddr addr}
+        <h2>Reviews about #{formatAddr addr}
         <div .tabdiv>
             <div .tabcontent>
                 $if empty
-                    ^{noComplaintsFound}
+                    ^{noReviewsFound}
                 $else
                     <table>
                         <tr>
                             <th>Property
-                            <th>Complaint
+                            <th>Review
                             <td>&nbsp;
 
-                        $forall complaint <- complaints
-                            ^{shortComplaint complaint}
+                        $forall review <- reviews
+                            ^{shortReview review}
             |]
 
-
-shortComplaint :: Complaint -> Widget ()
-shortComplaint complaint = do
+shortReview :: Review -> Widget ()
+shortReview review = do
     now <- lift $ liftIO getCurrentTime
-    mproperty <- lift $ findByKey (complaintProperty complaint)
+    mproperty <- lift $ findByKey (reviewProperty review)
     case mproperty of
         Nothing       -> return ()
         Just property -> [$hamlet|
@@ -99,18 +98,18 @@ shortComplaint complaint = do
                 <td>
                     #{formatProperty property}
                 <td>
-                    <a href="@{ComplaintsR $ complaintReference complaint}"> #{shorten $ complaintContent complaint}
+                    <a href="@{ReviewsR $ reviewReference review}"> #{shorten $ reviewContent review}
                 <td>
-                    <em>submitted #{humanReadableTimeDiff now $ complaintCreatedDate complaint}
+                    <em>submitted #{humanReadableTimeDiff now $ reviewCreatedDate review}
             |]
 
-noComplaintsFound :: Widget ()
-noComplaintsFound = [$hamlet|
+noReviewsFound :: Widget ()
+noReviewsFound = [$hamlet|
     <p>
         <em>This fish is clean...
 
     <p>
-        I'm sorry, there are no complaints for your search.
+        I'm sorry, there are no reviews for your search.
     |]
 
 formatProperty :: Property -> String

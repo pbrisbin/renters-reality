@@ -7,8 +7,8 @@ import BadLandlords
 import Forms
 import Model
 
-postCreateR :: Handler RepHtml
-postCreateR = do
-    complaint <- complaintFromForm
-    _         <- findOrCreate complaint
-    redirect RedirectTemporary $ ComplaintsR (complaintReference complaint)
+postCreateR :: ReviewType -> Handler RepHtml
+postCreateR rtype = do
+    review <- reviewFromForm rtype
+    _      <- findOrCreate review
+    redirect RedirectTemporary $ ReviewsR (reviewReference review)

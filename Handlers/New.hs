@@ -7,15 +7,17 @@ import BadLandlords
 import Model
 import Forms
 
-postNewR :: Handler RepHtml
-postNewR = do
+import qualified Settings
+
+postNewR :: ReviewType -> Handler RepHtml
+postNewR rtype = do
     landlord <- landlordFromForm
     defaultLayout $ do
-        setTitle "bad boston landlords | New complaint"
+        Settings.setTitle $ "New: " ++ landlordName landlord
         [$hamlet|
-            <h2>New complaint about #{landlordName landlord}
+            <h2>New review for #{landlordName landlord}
 
             <div .tabdiv>
                 <div .tabcontent>
-                    ^{complaintForm $ landlordName landlord}
+                    ^{reviewForm landlord rtype}
             |]

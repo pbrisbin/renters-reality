@@ -62,15 +62,29 @@ instance SinglePiece JsonSearch where
     fromSinglePiece "complaints" = Right ComplaintsJ
     fromSinglePiece _            = Left "invalid json search parameter"
 
+data ReviewType = Positive | Negative deriving (Show,Read,Eq)
+
+instance SinglePiece ReviewType where
+    toSinglePiece Positive = "good"
+    toSinglePiece Negative = "bad"
+
+    fromSinglePiece "good" = Right Positive
+    fromSinglePiece "bad"  = Right Negative
+    fromSinglePiece _      = Left "invalid review type"
+
 -- | Define all of the routes and handlers
 mkYesodData "BadLandlords" [$parseRoutes|
-    /                   RootR       GET
-    /new/               NewR        POST
-    /create             CreateR     POST
-    /search/#SearchType SearchR     POST
-    /complaints/#Int    ComplaintsR GET POST
-    /json/#JsonSearch   JsonR       GET
-    /legal              LegalR      GET
+    /                   RootR    GET
+
+    /reviews/#Int       ReviewsR GET POST
+
+    /json/#JsonSearch   JsonR    GET
+    /search/#SearchType SearchR  POST
+
+    /new/#ReviewType    NewR     POST
+    /create/#ReviewType CreateR  POST
+
+    /legal              LegalR   GET
     /static             StaticR Static getStatic
     |]
 
@@ -88,7 +102,7 @@ instance Yesod BadLandlords where
                 <head>
                     <meta charset="utf-8">
                     <title>#{pageTitle pc}
-                    <meta name="description" content="Find and report bad landlords in or around the city of boston and surrounding areas">
+                    <meta name="description" content="Submit and search reviews for landlords in your area.">
                     <meta name="author" content="Patrick Brisbin">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <link rel="stylesheet" href="@{StaticR css_style_css}">
@@ -102,7 +116,7 @@ instance Yesod BadLandlords where
 
                     <section .content>
                         <h1>
-                            <a href=@{RootR}>Bad Boston Landlords
+                            <a href=@{RootR}>Landlord reviews
 
                         ^{pageBody pc}
 

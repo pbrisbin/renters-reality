@@ -5,9 +5,11 @@ module Handlers.Legal (getLegalR) where
 import Yesod
 import BadLandlords
 
+import qualified Settings
+
 getLegalR :: Handler RepHtml
 getLegalR = defaultLayout $ do
-    setTitle "bad boston landlords | Legal"
+    Settings.setTitle "Legal information"
     addHamlet [$hamlet|
         <h2>Legal information
         <div .tabdiv>

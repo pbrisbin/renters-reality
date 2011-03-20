@@ -10,8 +10,10 @@ import Control.Monad               (liftM)
 import Data.Time                   (UTCTime(..))
 import Data.List                   (intercalate)
 import Data.Maybe                  (fromMaybe)
-import Database.Persist.TH         (share2)
+import Database.Persist.TH         (derivePersistField, share2)
 import Database.Persist.GenericSql (mkMigrate)
+
+derivePersistField "ReviewType"
 
 share2 mkPersist (mkMigrate "doMigration") [$persist|
     Landlord
@@ -31,20 +33,21 @@ share2 mkPersist (mkMigrate "doMigration") [$persist|
         landlord        LandlordId Eq
         UniqueOwnership property landlord
 
-    Complainer
+    Reviewer
         name            String
         email           String
         ipAddress       String
-        UniqueComplainer name email ipAddress
+        UniqueReviewer name email ipAddress
 
-    Complaint
-        reference       Int Eq Desc
+    Review
         createdDate     UTCTime Desc
+        reference       Int Eq Desc
+        type            ReviewType Eq
         content         String
-        complainer      ComplainerId Eq
+        reviewer        ReviewerId Eq
         landlord        LandlordId   Eq
         property        PropertyId   Eq
-        UniqueComplaint reference
+        UniqueReview reference
 
     Commenter
         name            String
@@ -54,7 +57,7 @@ share2 mkPersist (mkMigrate "doMigration") [$persist|
     Comment
         createdDate     UTCTime Desc
         content         String
-        complaint       ComplaintId Eq
+        review          ReviewId Eq
         commenter       CommenterId Eq
     |]
 
@@ -70,24 +73,24 @@ findOrCreate v = do
 findByKey :: PersistEntity a => Key a -> Handler (Maybe a)
 findByKey key = runDB $ get key
 
--- | Get the next available complaint ref
+-- | Get the next available review ref
 newRef :: Handler Int
 newRef = do
-    result <- runDB $ selectList [] [ComplaintReferenceDesc] 1 0
-    return . go $ map (complaintReference . snd) result
+    result <- runDB $ selectList [] [ReviewReferenceDesc] 1 0
+    return . go $ map (reviewReference . snd) result
     where
         go []  = 0
         go [x] = x + 1
 
-complaintsByLandlord :: Landlord -> Handler [Complaint]
-complaintsByLandlord landlord = do
+reviewsByLandlord :: Landlord -> Handler [Review]
+reviewsByLandlord landlord = do
     key <- findOrCreate landlord
-    return . map snd =<< runDB (selectList [ComplaintLandlordEq key] [ComplaintCreatedDateDesc] 0 0)
+    return . map snd =<< runDB (selectList [ReviewLandlordEq key] [ReviewCreatedDateDesc] 0 0)
 
-complaintsByProperty :: [Property] -> Handler [Complaint]
-complaintsByProperty properties = liftM concat $ mapM go properties 
+reviewsByProperty :: [Property] -> Handler [Review]
+reviewsByProperty properties = liftM concat $ mapM go properties 
     where
-        go :: Property -> Handler [Complaint]
+        go :: Property -> Handler [Review]
         go property = do
             key <- findOrCreate property
-            return . map snd =<< runDB (selectList [ComplaintPropertyEq key] [ComplaintCreatedDateDesc] 0 0)
+            return . map snd =<< runDB (selectList [ReviewPropertyEq key] [ReviewCreatedDateDesc] 0 0)

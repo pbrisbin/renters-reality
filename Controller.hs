@@ -22,7 +22,7 @@ import Handlers.Legal
 import Handlers.Search
 import Handlers.New
 import Handlers.Create
-import Handlers.Complaints
+import Handlers.Reviews
 import Handlers.Json
 
 import Database.Persist.GenericSql

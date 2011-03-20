@@ -21,7 +21,7 @@ import qualified Settings
 -- | Home page
 getRootR :: Handler RepHtml
 getRootR = defaultLayout $ do
-    setTitle "bad boston landlords | Home"
+    Settings.setTitle "Home"
 
     addJulius [$julius|
         $(function() {
@@ -53,13 +53,16 @@ getRootR = defaultLayout $ do
             <div #renter .tabdiv>
                 <div .tabcontent>
                     <div .accordian>
-                        <h3>Register a complaint
+                        <h3>Submit a positive review
                         <div>
-                            ^{landlordForm NewR}
-                        <h3>Search complaints by landlord name
+                            ^{landlordForm $ NewR Positive}
+                        <h3>Submit a negative review
                         <div>
-                            ^{landlordForm $ SearchR LandlordS}
-                        <h3>Search complaints by property
+                            ^{landlordForm $ NewR Negative}
+                        <h3>Search reviews by landlord
+                        <div>
+                            ^{landlordSearchForm}
+                        <h3>Search reviews by property
                         <div>
                             ^{propertySearchForm}
 
@@ -68,20 +71,24 @@ getRootR = defaultLayout $ do
                     <div .accordian>
                         <h3>Find complaints about you
                         <div>
-                            ^{landlordForm $ SearchR LandlordS}
+                            <p>Todo:
 
             <div #about .tabdiv>
                 <div .tabcontent>
                     <p>
                         We aim to provide an easy to use service where 
-                        residents of Boston (or the surrounding area) 
-                        who are dissatisfied with their landlords can 
-                        register a public complaint.
+                        residents can write a review of their landlord.
 
                     <p>
                         Would-be residents can then search our database 
                         before unknowingly renting an apartment from a 
                         bad landlord.
+
+                    <p>
+                        We also aggregate the number of positive and 
+                        negative reviews, combined with the total amount 
+                        of properties we know a landlord manages to come 
+                        with a general rating.
 
                     <p>
                         We are in pre-pre-beta at this point, and not 

@@ -5,11 +5,12 @@ module Forms
     -- * Standard forms 
       landlordForm
     , landlordFromForm
-    , complaintForm
-    , complaintFromForm
+    , reviewForm
+    , reviewFromForm
 
     -- * Property search
     , AddrSearch(..)
+    , landlordSearchForm
     , propertySearchForm
     , addrFromForm
     ) where
@@ -19,8 +20,11 @@ import BadLandlords
 import Model
 
 import Data.Time (getCurrentTime)
+import Data.Maybe (fromMaybe)
 import Control.Applicative ((<$>),(<*>))
 import Network.Wai (remoteHost)
+
+import qualified Data.Map as M
 
 data AddrSearch = AddrSearch
     { addrOne   :: Maybe String
@@ -38,7 +42,7 @@ landlordForm route = [$hamlet|
         <table>
             <tr>
                 <th>
-                    <label for="landlord">Landlord name:
+                    <label for="landlord">Landlord:
                 <td>
                     <input .complete size=45 placeholder="Name of landlord or management company" name="landlord" required>
                 <td .landlord-button>
@@ -50,24 +54,22 @@ landlordFromForm = do
     landlord <- runFormPost' $ stringInput "landlord"
     return $ Landlord landlord
 
-complaintForm :: String -> Widget ()
-complaintForm landlord = do
+reviewForm :: Landlord -> ReviewType -> Widget ()
+reviewForm landlord rtype = do
     ip <- lift $ return . show . remoteHost =<< waiRequest
     [$hamlet|
-    <p>
-        <em>all fields are required
-    <form method="post" action=@{CreateR}>
-        <input type=hidden name="landlord" value=#{landlord}>
+    <form method="post" action=@{CreateR rtype}>
+        <input type=hidden name="landlord" value=#{landlordName landlord}>
         <input type=hidden name="ip" value=#{ip}>
         <table>
             <tr>
                 <th>
-                    <label for="name"> Your name:
+                    <label for="name">Your name:
                 <td>
                     <input size=30 name="name" required>
             <tr>
                 <th>
-                    <label for="email"> Your email:
+                    <label for="email">Your email:
                 <td>
                     <input size=30 type="email" name="email" required>
 
@@ -76,27 +78,27 @@ complaintForm landlord = do
 
             <tr>
                 <th>
-                    <label for="addrone"> Address line 1:
+                    <label for="addrone">Address line 1:
                 <td>
                     <input size=30 name="addrone" placeholder="248 Kelton St" required>
             <tr>
                 <th>
-                    <label for="addrtwo"> Address line 2:
+                    <label for="addrtwo">Address line 2:
                 <td>
-                    <input size=30 name="addrtwo" placeholder="Apt 1" required>
+                    <input size=30 name="addrtwo" placeholder="Apt 1 (optional)">
             <tr>
                 <th>
-                    <label for="city"> City:
+                    <label for="city">City:
                 <td>
                     <input size=30 name="city" required>
             <tr>
                 <th>
-                    <label for="state"> State:
+                    <label for="state">State:
                 <td>
                     <input size=30 name="state" required>
             <tr>
                 <th>
-                    <label for="zip"> Zipcode:
+                    <label for="zip">Zipcode:
                 <td>
                     <input size=15 name="zip" required>
 
@@ -105,51 +107,66 @@ complaintForm landlord = do
 
             <tr>
                 <th>
-                    <label for="complaint"> Your complaint:
+                    <label for="review">Review:
                 <td>
-                    <textarea rows=10 cols=60 name="complaint" required>
+                    <textarea rows=10 cols=60 name="review" required>
 
             <tr #buttons>
                 <td>&nbsp;
                 <td>
                     <input type="submit">
                     <input type="reset">
-|]
+    |]
 
-complaintFromForm :: Handler Complaint
-complaintFromForm = do
+reviewFromForm :: ReviewType -> Handler Review
+reviewFromForm rtype = do
     now     <- liftIO getCurrentTime
-    content <- runFormPost' $ stringInput "complaint"
+    content <- runFormPost' $ stringInput "review"
 
     landlordId <- findOrCreate =<< landlordFromForm
 
-    propertyId <- findOrCreate =<< 
-        (runFormPost' $ Property
-            <$> stringInput "addrone"
-            <*> stringInput "addrtwo"
-            <*> stringInput "city"
-            <*> stringInput "state"
-            <*> stringInput "zip")
+    -- todo: how else to fit a fromMaybe on a single field?
+    addrOne   <- runFormPost' $ stringInput "addrone"
+    addrTwo   <- fmap (fromMaybe "") $ runFormPost' $ maybeStringInput "addrtwo"
+    addrCity  <- runFormPost' $ stringInput "city"
+    addrState <- runFormPost' $ stringInput "state"
+    addrZip   <- runFormPost' $ stringInput "zip"
+
+    propertyId <- findOrCreate $ Property addrOne addrTwo addrCity addrState addrZip
 
     -- establish ownership
     _ <- findOrCreate $ Ownership propertyId landlordId
 
-    complainerId <- findOrCreate =<<
-        (runFormPost' $ Complainer
+    reviewerId <- findOrCreate =<<
+        (runFormPost' $ Reviewer
             <$> stringInput "name"
             <*> stringInput "email"
             <*> stringInput "ip")
 
     ref <- newRef
 
-    return $ Complaint
-        { complaintReference   = ref
-        , complaintCreatedDate = now
-        , complaintContent     = content
-        , complaintComplainer  = complainerId
-        , complaintLandlord    = landlordId
-        , complaintProperty    = propertyId
+    return $ Review
+        { reviewReference   = ref
+        , reviewType        = rtype
+        , reviewCreatedDate = now
+        , reviewContent     = content
+        , reviewReviewer    = reviewerId
+        , reviewLandlord    = landlordId
+        , reviewProperty    = propertyId
         }
+
+landlordSearchForm :: Widget ()
+landlordSearchForm = [$hamlet|
+    <form .landlord method="post" action="@{SearchR LandlordS}">
+        <table>
+            <tr>
+                <th>
+                    <label for="landlord">Landlord:
+                <td>
+                    <input .complete size=45 placeholder="Name of landlord or management company" name="landlord" required>
+                <td .landlord-button>
+                    <input type="submit" value="Search">
+    |]
 
 propertySearchForm :: Widget ()
 propertySearchForm = [$hamlet|
@@ -168,7 +185,7 @@ propertySearchForm = [$hamlet|
             <tr #buttons>
                 <td>&nbsp;
                 <td>
-                    <input type=submit valud="Next">
+                    <input type=submit value="Search">
     |]
     where
         tableRow :: String -> String -> String -> Widget ()
