@@ -7,88 +7,81 @@ import BadLandlords
 import Forms
 import Model
 
-import Data.List  (intercalate)
-import Data.Maybe (fromJust, fromMaybe, isJust)
+import Data.List  (intercalate, partition)
+import Data.Maybe (fromJust, isJust)
 import Data.Time  (getCurrentTime)
 
 postSearchR :: SearchType -> Handler RepHtml
 postSearchR LandlordS = do
     landlord <- landlordFromForm
     reviews  <- reviewsByLandlord landlord
-    let empty = null reviews
     defaultLayout $ [$hamlet|
             <h2>Reviews for #{landlordName landlord}
             <div .tabdiv>
                 <div .tabcontent>
-                    $if empty
-                        ^{noReviewsFound}
-                    $else
-                        <table>
-                            <tr>
-                                <th>Property
-                                <th>Review
-                                <td>&nbsp;
-
-                            $forall review <- reviews
-                                ^{shortReview review}
+                    ^{showReviews LandlordS reviews}
             |]
 
--- | On a property search, on zip is mandatory, specifying any other 
+-- | On a property search, only zip is mandatory, specifying any other 
 --   fields just narrows the search, resulting in a different db select
+--
+--   todo: Search on f.e. Steet name only? need the sql /like/ keyword
+--
 postSearchR PropertyS = do
     addr <- addrFromForm
-    let criteria = case addr of
-            (AddrSearch Nothing Nothing Nothing Nothing zip) -> 
-                [ PropertyZipEq zip ]
 
-            (AddrSearch Nothing Nothing Nothing (Just state) zip) ->
-                [ PropertyZipEq zip
-                , PropertyStateEq state
-                ]
-
-            (AddrSearch Nothing Nothing (Just city) (Just state) zip) ->
-                [ PropertyZipEq zip
-                , PropertyStateEq state
-                , PropertyCityEq city
-                ]
-
-            (AddrSearch (Just addrOne) Nothing (Just city) (Just state) zip) ->
-                [ PropertyZipEq zip
-                , PropertyStateEq state
-                , PropertyCityEq city
-                , PropertyAddrOneEq addrOne
-                ]
-
-            (AddrSearch (Just addrOne) (Just addrTwo) (Just city) (Just state) zip) ->
-                [ PropertyZipEq zip
-                , PropertyStateEq state
-                , PropertyCityEq city
-                , PropertyAddrOneEq addrOne
-                , PropertyAddrTwoEq addrTwo
-                ]
+    let criteria = [ PropertyZipEq (addrZip addr) ] -- zip is mandatory
+            ++ maybeCriteria PropertyAddrOneEq (addrOne addr)
+            ++ maybeCriteria PropertyAddrTwoEq (addrTwo addr)
+            ++ maybeCriteria PropertyCityEq    (addrCity addr)
+            ++ maybeCriteria PropertyStateEq   (addrState addr)
 
     properties <- return . map snd =<< runDB (selectList criteria [] 0 0)
-    reviews <- reviewsByProperty properties
-    let empty = null reviews
+    reviews    <- reviewsByProperty properties
     defaultLayout [$hamlet|
         <h2>Reviews about #{formatAddr addr}
         <div .tabdiv>
             <div .tabcontent>
-                $if empty
-                    ^{noReviewsFound}
-                $else
-                    <table>
-                        <tr>
-                            <th>Property
-                            <th>Review
-                            <td>&nbsp;
-
-                        $forall review <- reviews
-                            ^{shortReview review}
+                ^{showReviews PropertyS reviews}
             |]
 
-shortReview :: Review -> Widget ()
-shortReview review = do
+showReviews :: SearchType -> [Review] -> Widget ()
+showReviews stype reviews = do
+    let (good, bad) = partition ((== Positive) . reviewType) reviews
+    go Positive good
+    go Negative bad
+    where
+        go :: ReviewType -> [Review] -> Widget ()
+        go rtype reviews' = do
+            let notnull = not $ null reviews'
+            [$hamlet|
+                <div .#{show rtype}>
+                    <h3>#{doShow rtype (length reviews')}:
+
+                    $if notnull
+                        <table>
+                            <tr>
+                                <th>#{dataHeading stype}
+                                <th>Review
+                                <td>&nbsp;
+                            $forall review <- reviews'
+                                ^{shortReview stype review}
+            |]
+            where
+                dataHeading :: SearchType -> String
+                dataHeading PropertyS = "Landlord"
+                dataHeading LandlordS = "Property"
+
+                doShow :: ReviewType -> Int -> String
+                doShow Positive 0 = "No positive reviews"
+                doShow Positive 1 = "1 positive review"
+                doShow Positive n = show n ++ " positive reviews"
+                doShow Negative 0 = "No negative reviews"
+                doShow Negative 1 = "1 negative review"
+                doShow Negative n = show n ++ " negative reviews"
+
+shortReview :: SearchType -> Review -> Widget ()
+shortReview LandlordS review = do
     now <- lift $ liftIO getCurrentTime
     mproperty <- lift $ findByKey (reviewProperty review)
     case mproperty of
@@ -100,23 +93,30 @@ shortReview review = do
                 <td>
                     <a href="@{ReviewsR $ reviewReference review}"> #{shorten $ reviewContent review}
                 <td>
+                    <small>
+                        <em>submitted #{humanReadableTimeDiff now $ reviewCreatedDate review}
+            |]
+
+shortReview PropertyS review = do
+    now <- lift $ liftIO getCurrentTime
+    mlandlord <- lift $ findByKey (reviewLandlord review)
+    case mlandlord of
+        Nothing       -> return ()
+        Just landlord -> [$hamlet|
+            <tr>
+                <td>
+                    #{landlordName landlord}
+                <td>
+                    <a href="@{ReviewsR $ reviewReference review}"> #{shorten $ reviewContent review}
+                <td>
                     <em>submitted #{humanReadableTimeDiff now $ reviewCreatedDate review}
             |]
 
-noReviewsFound :: Widget ()
-noReviewsFound = [$hamlet|
-    <p>
-        <em>This fish is clean...
-
-    <p>
-        I'm sorry, there are no reviews for your search.
-    |]
-
 formatProperty :: Property -> String
 formatProperty property = intercalate ", "
-    [ propertyCity    property
+    [ propertyAddrOne property
+    , propertyCity    property
     , propertyState   property
-    , propertyZip     property
     ]
 
 formatAddr :: AddrSearch -> String
