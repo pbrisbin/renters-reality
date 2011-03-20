@@ -1,6 +1,7 @@
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies    #-}
-{-# LANGUAGE QuasiQuotes     #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE TypeFamilies      #-}
+{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE OverloadedStrings #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  BadLandlords
@@ -86,6 +87,9 @@ mkYesodData "BadLandlords" [$parseRoutes|
 
     /legal              LegalR   GET
     /static             StaticR Static getStatic
+
+    /favicon.ico FaviconR GET
+    /robots.txt  RobotsR  GET
     |]
 
 staticFiles Settings.staticDir
@@ -149,6 +153,16 @@ instance YesodPersist BadLandlords where
     type YesodDB BadLandlords = SqlPersist
     runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
 
+
+-- | Favicon
+getFaviconR :: Handler ()
+getFaviconR = sendFile "image/x-icon" "favicon.ico"
+
+-- | Robots
+getRobotsR :: Handler RepPlain
+getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: String)
+
+-- | Return values by key the query string
 getParam :: Request -> ParamName -> Maybe ParamValue
 getParam req param = M.lookup param . M.fromList $ reqGetParams req
 
