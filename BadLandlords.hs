@@ -53,16 +53,17 @@ instance SinglePiece SearchType where
     fromSinglePiece "property" = Right PropertyS
     fromSinglePiece _          = Left "invalid search type"
 
-data JsonSearch = LandlordJ | ComplaintsJ deriving (Show,Read,Eq)
+data JsonSearch = LandlordJ | ReviewsJ deriving (Show,Read,Eq)
 
 instance SinglePiece JsonSearch where
-    toSinglePiece LandlordJ   = "landlord"
-    toSinglePiece ComplaintsJ = "complaints"
+    toSinglePiece LandlordJ = "landlord"
+    toSinglePiece ReviewsJ  = "reviews"
 
-    fromSinglePiece "landlord"   = Right LandlordJ
-    fromSinglePiece "complaints" = Right ComplaintsJ
-    fromSinglePiece _            = Left "invalid json search parameter"
+    fromSinglePiece "landlord" = Right LandlordJ
+    fromSinglePiece "reviews"  = Right ReviewsJ
+    fromSinglePiece _          = Left "invalid json search parameter"
 
+-- | Reviews can be good or bad
 data ReviewType = Positive | Negative deriving (Show,Read,Eq)
 
 instance SinglePiece ReviewType where
