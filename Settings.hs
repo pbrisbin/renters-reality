@@ -27,9 +27,9 @@ import qualified Yesod as Y
 
 approot :: String
 #ifdef PROD
-approot = "http://badbostonlandlords.com"
+approot = "http://50.56.101.27"
 #else
-approot = "http://pbrisbin.com:8080"
+approot = "http://localhost:3000"
 #endif
 
 staticDir :: String
