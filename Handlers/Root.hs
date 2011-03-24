@@ -88,11 +88,11 @@ getRootR = defaultLayout $ do
                         We also aggregate the number of positive and 
                         negative reviews, combined with the total amount 
                         of properties we know a landlord manages to come 
-                        with a general rating.
+                        up with a general rating.
 
                     <p>
                         We are in pre-pre-beta at this point, and not 
-                        alot is working.
+                        a lot is working.
 
                     <p>
                         Assume any data present is bogus, and anything 
