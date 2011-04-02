@@ -14,7 +14,7 @@ postNewR rtype = do
     landlord <- landlordFromForm
     defaultLayout $ do
         Settings.setTitle $ "New: " ++ landlordName landlord
-        [$hamlet|
+        [hamlet|
             <h2>New review for #{landlordName landlord}
 
             <div .tabdiv>

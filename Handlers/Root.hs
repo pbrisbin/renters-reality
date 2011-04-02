@@ -23,7 +23,7 @@ getRootR :: Handler RepHtml
 getRootR = defaultLayout $ do
     Settings.setTitle "Home"
 
-    addJulius [$julius|
+    addJulius [julius|
         $(function() {
             $('#maintab').tabs();
 
@@ -40,7 +40,7 @@ getRootR = defaultLayout $ do
         });
         |]
 
-    [$hamlet|
+    [hamlet|
         <div #maintab .tabbed>
             <ul .tabnav>
                 <li #renter>

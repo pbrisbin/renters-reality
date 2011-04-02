@@ -15,7 +15,7 @@ postSearchR :: SearchType -> Handler RepHtml
 postSearchR LandlordS = do
     landlord <- landlordFromForm
     reviews  <- reviewsByLandlord landlord
-    defaultLayout $ [$hamlet|
+    defaultLayout $ [hamlet|
             <h2>Reviews for #{landlordName landlord}
             <div .tabdiv>
                 <div .tabcontent>
@@ -38,7 +38,7 @@ postSearchR PropertyS = do
 
     properties <- return . map snd =<< runDB (selectList criteria [] 0 0)
     reviews    <- reviewsByProperty properties
-    defaultLayout [$hamlet|
+    defaultLayout [hamlet|
         <h2>Reviews about #{formatAddr addr}
         <div .tabdiv>
             <div .tabcontent>
@@ -54,7 +54,7 @@ showReviews stype reviews = do
         go :: ReviewType -> [Review] -> Widget ()
         go rtype reviews' = do
             let notnull = not $ null reviews'
-            [$hamlet|
+            [hamlet|
                 <div .#{show rtype}>
                     <h3>#{doShow rtype (length reviews')}:
 
@@ -86,7 +86,7 @@ shortReview LandlordS review = do
     mproperty <- lift $ findByKey (reviewProperty review)
     case mproperty of
         Nothing       -> return ()
-        Just property -> [$hamlet|
+        Just property -> [hamlet|
             <tr>
                 <td>
                     #{formatProperty property}
@@ -102,7 +102,7 @@ shortReview PropertyS review = do
     mlandlord <- lift $ findByKey (reviewLandlord review)
     case mlandlord of
         Nothing       -> return ()
-        Just landlord -> [$hamlet|
+        Just landlord -> [hamlet|
             <tr>
                 <td>
                     #{landlordName landlord}

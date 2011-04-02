@@ -29,7 +29,7 @@ getReviewsR ref = do
                     now <- liftIO getCurrentTime
                     defaultLayout $ do
                         Settings.setTitle $ "Review #" ++ show ref
-                        [$hamlet|
+                        [hamlet|
                             <h2>Review ##{show ref}
                             <div .tabdiv>
                                 <div .tabcontent>

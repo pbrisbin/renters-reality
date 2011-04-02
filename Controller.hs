@@ -1,4 +1,5 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TemplateHaskell       #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Controller

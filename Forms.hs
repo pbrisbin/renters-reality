@@ -37,7 +37,7 @@ data AddrSearch = AddrSearch
 -- | The landlord entry is a one field input, so the button is included 
 --   here. Pass the route th POST to.
 landlordForm :: RentersRoute -> Widget ()
-landlordForm route = [$hamlet|
+landlordForm route = [hamlet|
     <form .landlord method="post" action="@{route}">
         <table>
             <tr>
@@ -57,7 +57,7 @@ landlordFromForm = do
 reviewForm :: Landlord -> ReviewType -> Widget ()
 reviewForm landlord rtype = do
     ip <- lift $ return . show . remoteHost =<< waiRequest
-    [$hamlet|
+    [hamlet|
     <form method="post" action=@{CreateR rtype}>
         <input type=hidden name="landlord" value=#{landlordName landlord}>
         <input type=hidden name="ip" value=#{ip}>
@@ -156,7 +156,7 @@ reviewFromForm rtype = do
         }
 
 landlordSearchForm :: Widget ()
-landlordSearchForm = [$hamlet|
+landlordSearchForm = [hamlet|
     <form .landlord method="post" action="@{SearchR LandlordS}">
         <table>
             <tr>
@@ -169,7 +169,7 @@ landlordSearchForm = [$hamlet|
     |]
 
 propertySearchForm :: Widget ()
-propertySearchForm = [$hamlet|
+propertySearchForm = [hamlet|
     <form method="post" action=@{SearchR PropertyS}>
         <table>
             ^{tableRow "addrone" "Address line 1:" "248 Kelton St"}
@@ -189,7 +189,7 @@ propertySearchForm = [$hamlet|
     |]
     where
         tableRow :: String -> String -> String -> Widget ()
-        tableRow name label placeholder = [$hamlet|
+        tableRow name label placeholder = [hamlet|
             <tr>
                 <th>
                     <label for=#{name}> #{label}

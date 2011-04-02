@@ -1,6 +1,7 @@
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TemplateHaskell            #-}
 module Model where
 
 import Yesod
@@ -15,7 +16,7 @@ import Database.Persist.GenericSql (mkMigrate)
 
 derivePersistField "ReviewType"
 
-share2 mkPersist (mkMigrate "doMigration") [$persist|
+share2 mkPersist (mkMigrate "doMigration") [persist|
     Landlord
         name String Eq Asc
         UniqueLandlord name

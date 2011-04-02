@@ -75,7 +75,7 @@ instance SinglePiece ReviewType where
     fromSinglePiece _      = Left "invalid review type"
 
 -- | Define all of the routes and handlers
-mkYesodData "Renters" [$parseRoutes|
+mkYesodData "Renters" [parseRoutes|
     /                   RootR    GET
 
     /reviews/#Int       ReviewsR GET POST
@@ -101,7 +101,7 @@ instance Yesod Renters where
     defaultLayout widget = do
         pc <- widgetToPageContent widget
 
-        hamletToRepHtml [$hamlet|
+        hamletToRepHtml [hamlet|
             \<!DOCTYPE html>
             <html lang="en">
                 <head>

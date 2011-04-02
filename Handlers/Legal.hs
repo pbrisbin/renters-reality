@@ -10,7 +10,7 @@ import qualified Settings
 getLegalR :: Handler RepHtml
 getLegalR = defaultLayout $ do
     Settings.setTitle "Legal information"
-    addHamlet [$hamlet|
+    addHamlet [hamlet|
         <h2>Legal information
         <div .tabdiv>
             <div .tabcontent>
