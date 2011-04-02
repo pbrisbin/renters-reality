@@ -34,7 +34,7 @@ getRootR = defaultLayout $ do
             });
 
             $('.complete').autocomplete({
-                source: "@{JsonR LandlordJ}",
+                source: "@{JsonLandlordsR}",
                 selectFirst: true
             });
         });
@@ -55,13 +55,28 @@ getRootR = defaultLayout $ do
                     <div .accordian>
                         <h3>Submit a positive review
                         <div>
-                            ^{landlordForm $ NewR Positive}
+                            <form .landlord method="get" action="@{NewR Positive}">
+                                <p>
+                                    <label for="landlord">Landlord: 
+                                    <input .complete size=45 placeholder="Name of landlord or management company" name="landlord" required> 
+                                    <input type="submit" value="Next">
+
                         <h3>Submit a negative review
                         <div>
-                            ^{landlordForm $ NewR Negative}
+                            <form .landlord method="get" action="@{NewR Negative}">
+                                <p>
+                                    <label for="landlord">Landlord: 
+                                    <input .complete size=45 placeholder="Name of landlord or management company" name="landlord" required> 
+                                    <input type="submit" value="Next">
+
                         <h3>Search reviews by landlord
                         <div>
-                            ^{landlordSearchForm}
+                            <form .landlord method="get" action="@{SearchR}">
+                                <p>
+                                    <label for="landlord">Landlord: 
+                                    <input .complete size=45 placeholder="Name of landlord or management company" name="landlord" required> 
+                                    <input type="submit" value="Search">
+
                         <h3>Search reviews by property
                         <div>
                             ^{propertySearchForm}
@@ -69,9 +84,29 @@ getRootR = defaultLayout $ do
             <div #landlord .tabdiv>
                 <div .tabcontent>
                     <div .accordian>
-                        <h3>Find complaints about you
+                        <h3>*TODO*
                         <div>
-                            <p>Todo:
+                            <p>
+                                Landlords,
+
+                            <p>
+                                We hope to some day ofter a suite of 
+                                tools to help you maintain your own 
+                                reputation on this site.
+
+                            <p>
+                                We would like to provide ways to track, 
+                                discuss, and resolve negative reviews as 
+                                well as ways to easily use the positive 
+                                reviews found here to better promote 
+                                your business.
+
+                            <p>
+                                If you have any ideas for how to make 
+                                this site useful for yourself, please 
+                                open an issue at this site's 
+                                <a href="https://github.com/pbrisbin/renters-reality/issues">project page
+                                \.
 
             <div #about .tabdiv>
                 <div .tabcontent>
@@ -85,15 +120,8 @@ getRootR = defaultLayout $ do
                         bad landlord.
 
                     <p>
-                        We also aggregate the number of positive and 
-                        negative reviews, combined with the total amount 
-                        of properties we know a landlord manages to come 
-                        up with a general rating.
-
-                    <p>
                         We are in pre-pre-beta at this point, and not 
                         a lot is working.
-
                     <p>
                         Assume any data present is bogus, and anything 
                         you enter may be unexpectedly removed.

@@ -1,16 +1,9 @@
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Forms
-    ( 
-    -- * Standard forms 
-      landlordForm
-    , landlordFromForm
-    , reviewForm
+    ( reviewForm
     , reviewFromForm
-
-    -- * Property search
     , AddrSearch(..)
-    , landlordSearchForm
     , propertySearchForm
     , addrFromForm
     ) where
@@ -19,10 +12,10 @@ import Yesod
 import Renters
 import Model
 
-import Data.Time (getCurrentTime)
-import Data.Maybe (fromMaybe)
+import Data.Time           (getCurrentTime)
+import Data.Maybe          (fromMaybe)
 import Control.Applicative ((<$>),(<*>))
-import Network.Wai (remoteHost)
+import Network.Wai         (remoteHost)
 
 import qualified Data.Map as M
 
@@ -34,88 +27,73 @@ data AddrSearch = AddrSearch
     , addrZip   :: String
     }
 
--- | The landlord entry is a one field input, so the button is included 
---   here. Pass the route th POST to.
-landlordForm :: RentersRoute -> Widget ()
-landlordForm route = [hamlet|
-    <form .landlord method="post" action="@{route}">
-        <table>
-            <tr>
-                <th>
-                    <label for="landlord">Landlord:
-                <td>
-                    <input .complete size=45 placeholder="Name of landlord or management company" name="landlord" required>
-                <td .landlord-button>
-                    <input type="submit" value="Next">
-    |]
-
-landlordFromForm :: Handler Landlord
-landlordFromForm = do
-    landlord <- runFormPost' $ stringInput "landlord"
-    return $ Landlord landlord
-
 reviewForm :: Landlord -> ReviewType -> Widget ()
 reviewForm landlord rtype = do
     ip <- lift $ return . show . remoteHost =<< waiRequest
     [hamlet|
-    <form method="post" action=@{CreateR rtype}>
-        <input type=hidden name="landlord" value=#{landlordName landlord}>
-        <input type=hidden name="ip" value=#{ip}>
-        <table>
-            <tr>
-                <th>
-                    <label for="name">Your name:
-                <td>
-                    <input size=30 name="name" required>
-            <tr>
-                <th>
-                    <label for="email">Your email:
-                <td>
-                    <input size=30 type="email" name="email" required>
+        <form method="post" action=@{CreateR rtype}>
+            <input type=hidden name="landlord" value=#{landlordName landlord}>
+            <input type=hidden name="ip" value=#{ip}>
+            <table>
+                <tr>
+                    <th>
+                        <label for="name">Your name:
+                    <td>
+                        <input size=30 name="name" required>
+                <tr>
+                    <th>
+                        <label for="email">Your email:
+                    <td>
+                        <input size=30 type="email" name="email" required>
 
-            <tr .spacer>
-                <td colspan="2">&nbsp;
+                <tr .spacer>
+                    <td colspan="2">&nbsp;
 
-            <tr>
-                <th>
-                    <label for="addrone">Address line 1:
-                <td>
-                    <input size=30 name="addrone" placeholder="248 Kelton St" required>
-            <tr>
-                <th>
-                    <label for="addrtwo">Address line 2:
-                <td>
-                    <input size=30 name="addrtwo" placeholder="Apt 1 (optional)">
-            <tr>
-                <th>
-                    <label for="city">City:
-                <td>
-                    <input size=30 name="city" required>
-            <tr>
-                <th>
-                    <label for="state">State:
-                <td>
-                    <input size=30 name="state" required>
-            <tr>
-                <th>
-                    <label for="zip">Zipcode:
-                <td>
-                    <input size=15 name="zip" required>
+                <tr>
+                    <th>
+                        <label for="addrone">Address line 1:
+                    <td>
+                        <input size=30 name="addrone" placeholder="248 Kelton St" required>
+                <tr>
+                    <th>
+                        <label for="addrtwo">Address line 2:
+                    <td>
+                        <input size=30 name="addrtwo" placeholder="Apt 1 (optional)">
+                <tr>
+                    <th>
+                        <label for="city">City:
+                    <td>
+                        <input size=30 name="city" required>
+                <tr>
+                    <th>
+                        <label for="state">State:
+                    <td>
+                        <input size=30 name="state" required>
+                <tr>
+                    <th>
+                        <label for="zip">Zipcode:
+                    <td>
+                        <input size=15 name="zip" required>
+                <tr>
+                    <th>
+                        <label for="timeframe">Time frame:
+                    <td>
+                        <input size=20 name="timeframe" placeholder="Sept 2009" required>
 
-            <tr .spacer>
-                <td colspan="2">&nbsp;
+                <tr .spacer>
+                    <td colspan="2">&nbsp;
 
-            <tr>
-                <th>
-                    <label for="review">Review:
-                <td>
-                    <textarea rows=10 cols=60 name="review" required>
+                <tr>
+                    <th>
+                        <label for="review">Review:
+                    <td>
+                        <textarea rows=10 cols=60 name="review" required>
 
-            <tr #buttons>
-                <td>&nbsp;
-                <td>
-                    <input type="submit">
-                    <input type="reset">
+                <tr #buttons>
+                    <td>&nbsp;
+                    <td>
+                        <input type="submit">
+                        <input type="reset">
     |]
 
 reviewFromForm :: ReviewType -> Handler Review
@@ -123,7 +101,9 @@ reviewFromForm rtype = do
     now     <- liftIO getCurrentTime
     content <- runFormPost' $ stringInput "review"
 
-    landlordId <- findOrCreate =<< landlordFromForm
+    -- todo:
+    --landlordId <- findOrCreate =<< landlordFromForm
+    landlordId <- findOrCreate =<< return (Landlord "foo")
 
     -- todo: how else to fit a fromMaybe on a single field?
     addrOne   <- runFormPost' $ stringInput "addrone"
@@ -131,6 +111,7 @@ reviewFromForm rtype = do
     addrCity  <- runFormPost' $ stringInput "city"
     addrState <- runFormPost' $ stringInput "state"
     addrZip   <- runFormPost' $ stringInput "zip"
+    timeframe <- runFormPost' $ stringInput "timeframe"
 
     propertyId <- findOrCreate $ Property addrOne addrTwo addrCity addrState addrZip
 
@@ -150,27 +131,15 @@ reviewFromForm rtype = do
         , reviewType        = rtype
         , reviewCreatedDate = now
         , reviewContent     = content
+        , reviewTimeframe   = timeframe
         , reviewReviewer    = reviewerId
         , reviewLandlord    = landlordId
         , reviewProperty    = propertyId
         }
 
-landlordSearchForm :: Widget ()
-landlordSearchForm = [hamlet|
-    <form .landlord method="post" action="@{SearchR LandlordS}">
-        <table>
-            <tr>
-                <th>
-                    <label for="landlord">Landlord:
-                <td>
-                    <input .complete size=45 placeholder="Name of landlord or management company" name="landlord" required>
-                <td .landlord-button>
-                    <input type="submit" value="Search">
-    |]
-
 propertySearchForm :: Widget ()
 propertySearchForm = [hamlet|
-    <form method="post" action=@{SearchR PropertyS}>
+    <form method="post" action=@{SearchR}>
         <table>
             ^{tableRow "addrone" "Address line 1:" "248 Kelton St"}
             ^{tableRow "addrtwo" "Address line 2:" "Apt 1"        }

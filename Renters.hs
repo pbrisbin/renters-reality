@@ -43,52 +43,28 @@ type Handler     = GHandler   Renters Renters
 type Widget      = GWidget    Renters Renters
 type FormMonad a = GFormMonad Renters Renters a
 
-data SearchType = LandlordS | PropertyS deriving (Show,Read,Eq)
-
-instance SinglePiece SearchType where
-    toSinglePiece LandlordS = "landlord"
-    toSinglePiece PropertyS = "property"
-
-    fromSinglePiece "landlord" = Right LandlordS
-    fromSinglePiece "property" = Right PropertyS
-    fromSinglePiece _          = Left "invalid search type"
-
-data JsonSearch = LandlordJ | ReviewsJ deriving (Show,Read,Eq)
-
-instance SinglePiece JsonSearch where
-    toSinglePiece LandlordJ = "landlord"
-    toSinglePiece ReviewsJ  = "reviews"
-
-    fromSinglePiece "landlord" = Right LandlordJ
-    fromSinglePiece "reviews"  = Right ReviewsJ
-    fromSinglePiece _          = Left "invalid json search parameter"
-
 -- | Reviews can be good or bad
 data ReviewType = Positive | Negative deriving (Show,Read,Eq)
 
 instance SinglePiece ReviewType where
-    toSinglePiece Positive = "good"
-    toSinglePiece Negative = "bad"
+    toSinglePiece Positive = "positive"
+    toSinglePiece Negative = "negative"
 
-    fromSinglePiece "good" = Right Positive
-    fromSinglePiece "bad"  = Right Negative
-    fromSinglePiece _      = Left "invalid review type"
+    fromSinglePiece "positive" = Right Positive
+    fromSinglePiece "negative" = Right Negative
+    fromSinglePiece _          = Left "invalid review type"
 
 -- | Define all of the routes and handlers
 mkYesodData "Renters" [parseRoutes|
     /                   RootR    GET
-
-    /reviews/#Int       ReviewsR GET POST
-
-    /json/#JsonSearch   JsonR    GET
-    /search/#SearchType SearchR  POST
-
+    /search/            SearchR  GET POST
     /new/#ReviewType    NewR     POST
     /create/#ReviewType CreateR  POST
-
+    /reviews/#Int       ReviewsR GET POST
+    /json/landlords     JsonLandlordsR  GET
+    /json/reviews       JsonReviewsR    GET
     /legal              LegalR   GET
     /static             StaticR Static getStatic
-
     /favicon.ico FaviconR GET
     /robots.txt  RobotsR  GET
     |]
@@ -121,7 +97,7 @@ instance Yesod Renters where
 
                     <section .content>
                         <h1>
-                            <a href=@{RootR}>Landlord reviews
+                            <a href=@{RootR}>Renters' reality
 
                         ^{pageBody pc}
 
@@ -153,7 +129,6 @@ instance Yesod Renters where
 instance YesodPersist Renters where
     type YesodDB Renters = SqlPersist
     runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
-
 
 -- | Favicon
 getFaviconR :: Handler ()

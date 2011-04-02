@@ -1,6 +1,9 @@
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Handlers.Json (getJsonR) where
+module Handlers.Json
+    ( getJsonLandlordsR
+    , getJsonReviewsR
+    ) where
 
 import Yesod
 import Renters
@@ -10,9 +13,8 @@ import Data.Char (toLower)
 import Data.List (isInfixOf, intercalate)
 import Data.Time (getCurrentTime)
 
--- todo: case-insensitive searches
-getJsonR :: JsonSearch -> Handler RepJson
-getJsonR LandlordJ = do
+getJsonLandlordsR :: Handler RepJson
+getJsonLandlordsR = do
     req       <- getRequest
     landlords <- return . map (landlordName . snd) =<< runDB (selectList [] [LandlordNameAsc] 0 0)
 
@@ -26,7 +28,7 @@ getJsonR LandlordJ = do
         isMatch :: String -> String -> Bool
         isMatch x y = (map toLower x) `isInfixOf` (map toLower y)
 
-getJsonR ReviewsJ = do
+getJsonReviewsR = do
     req <- getRequest
 
     let limit = case getParam req "lim" of

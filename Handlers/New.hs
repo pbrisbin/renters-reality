@@ -11,13 +11,15 @@ import qualified Settings
 
 postNewR :: ReviewType -> Handler RepHtml
 postNewR rtype = do
-    landlord <- landlordFromForm
-    defaultLayout $ do
-        Settings.setTitle $ "New: " ++ landlordName landlord
-        [hamlet|
-            <h2>New review for #{landlordName landlord}
+    req <- getRequest
+    case getParam req "landlord" of
+        Nothing -> undefined
+        Just landlord -> defaultLayout $ do
+            Settings.setTitle $ "New review: " ++ landlord
+            [hamlet|
+                <h2>New review for #{landlord}
 
-            <div .tabdiv>
-                <div .tabcontent>
-                    ^{reviewForm landlord rtype}
-            |]
+                <div .tabdiv>
+                    <div .tabcontent>
+                        ^{reviewForm (Landlord landlord) rtype}
+                |]

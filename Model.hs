@@ -45,9 +45,10 @@ share2 mkPersist (mkMigrate "doMigration") [persist|
         reference       Int Eq Desc
         type            ReviewType Eq
         content         String
+        timeframe       String
         reviewer        ReviewerId Eq
-        landlord        LandlordId   Eq
-        property        PropertyId   Eq
+        landlord        LandlordId Eq
+        property        PropertyId Eq
         UniqueReview reference
 
     Commenter
@@ -57,8 +58,9 @@ share2 mkPersist (mkMigrate "doMigration") [persist|
 
     Comment
         createdDate     UTCTime Desc
+        reference       Int Eq Desc
         content         String
-        review          ReviewId Eq
+        review          ReviewId    Eq
         commenter       CommenterId Eq
     |]
 
@@ -100,6 +102,14 @@ newRef :: Handler Int
 newRef = do
     result <- runDB $ selectList [] [ReviewReferenceDesc] 1 0
     return . go $ map (reviewReference . snd) result
+    where
+        go []  = 0
+        go [x] = x + 1
+
+newRefComment :: Handler Int
+newRefComment = do
+    result <- runDB $ selectList [] [CommentReferenceDesc] 1 0
+    return . go $ map (commentReference . snd) result
     where
         go []  = 0
         go [x] = x + 1
