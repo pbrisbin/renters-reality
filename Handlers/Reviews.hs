@@ -10,7 +10,7 @@ import Yesod.Markdown
 import Renters
 import Model
 
-import Data.List  (intercalate)
+import Data.List  (intercalate, partition)
 import Data.Maybe (fromMaybe)
 import Data.Time  (getCurrentTime)
 
@@ -27,8 +27,9 @@ getReviewsR ref = do
             mreviewer <- findByKey (reviewReviewer  review)
             case (mlandlord,mproperty,mreviewer) of
                 (Just landlord, Just property, Just reviewer) -> do
-                    now     <- liftIO getCurrentTime
-                    content <- markdownToHtml $ Markdown $ reviewContent review
+                    now       <- liftIO getCurrentTime
+                    content   <- markdownToHtml $ Markdown $ reviewContent review
+                    plusminus <- getPlusMinus landlord
                     defaultLayout $ do
                         Settings.setTitle "View review"
                         [hamlet|
@@ -36,21 +37,36 @@ getReviewsR ref = do
                             <div .tabdiv>
                                 <div .tabcontent>
                                     <h3>
-                                        #{landlordName landlord}
-                                        \ - #{formatProperty property}
+                                        <a href="@{SearchR}?landlord=#{landlordName landlord}">#{landlordName landlord} (#{plusminus}) 
+                                        <span .property>#{formatProperty property}
 
-                                    <p>
-                                        Submitted by #{reviewerName reviewer} 
-                                        #{humanReadableTimeDiff now $ reviewCreatedDate review}
+                                    <div .view-review>
+                                        <p>Review:
 
-                                    <p>
-                                        <strong>Review:
+                                        <div .#{show $ reviewType review}>
+                                            <blockquote>
+                                                #{content}
 
-                                    <blockquote>
-                                        #{content}
+                                    <div .by>
+                                        <p>
+                                            Submitted by #{reviewerName reviewer} 
+                                            #{humanReadableTimeDiff now $ reviewCreatedDate review}
                             |]
 
                 _ -> notFound
+
+getPlusMinus :: Landlord -> Handler String
+getPlusMinus landlord = do
+    reviews   <- reviewsByLandlord landlord
+    let (pos,neg)    = partition ((== Positive) . reviewType) reviews
+    let (plus,minus) = (length pos, length neg)
+    let spread       = (-) plus minus
+    return $ go spread
+    where
+        go n
+            | n == 0 = ""
+            | n <  0 = "-" ++ show (abs n)
+            | n >  0 = "+" ++ show n
 
 postReviewsR :: Int -> Handler RepHtml
 postReviewsR = getReviewsR
@@ -62,5 +78,4 @@ formatProperty p = intercalate ", "
                     , propertyAddrTwo p
                     , propertyCity    p
                     , propertyState   p
-                    , propertyZip     p
                     ]

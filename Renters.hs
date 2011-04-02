@@ -80,9 +80,8 @@ instance Yesod Renters where
     approot _   = Settings.approot
 
     defaultLayout widget = do
-        pc <- widgetToPageContent widget
-
-        -- todo: breadcrumbs
+        (t,h) <- breadcrumbs
+        pc    <- widgetToPageContent widget
         hamletToRepHtml [hamlet|
             \<!DOCTYPE html>
             <html lang="en">
@@ -98,6 +97,12 @@ instance Yesod Renters where
                     <script src="@{StaticR js_jquery_ui_autocomplete_selectFirst_js}">
                     ^{pageHead pc}
                 <body>
+                    <p #breadcrumbs>
+                        $forall node <- h
+                            <a href="@{fst node}">#{snd node} 
+                            \ >
+                            \ #{t}
+
                     <p #legal>
                         <a href="@{LegalR}">legal
 
@@ -132,6 +137,13 @@ instance Yesod Renters where
 instance YesodPersist Renters where
     type YesodDB Renters = SqlPersist
     runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
+
+instance YesodBreadcrumbs Renters where
+    breadcrumb RootR        = return ("Home"          , Nothing   )
+    breadcrumb SearchR      = return ("Search reviews", Just RootR)
+    breadcrumb (ReviewsR _) = return ("View review"   , Just RootR)
+    breadcrumb (NewR _)     = return ("New review"    , Just RootR)
+    breadcrumb LegalR       = return ("Legal info"    , Just RootR)
 
 -- | Favicon
 getFaviconR :: Handler ()

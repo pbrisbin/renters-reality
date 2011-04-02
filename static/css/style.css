@@ -106,8 +106,10 @@ section.content {
 blockquote {
   padding:     5px 10px;
   margin:      5px 25px;
-  border-left: solid 4px #cecbc1;
 }
+
+.Positive blockquote { border-left: solid 4px #b0d87c; }
+.Negative blockquote { border-left: solid 4px #fc4930; }
 
 footer {
   background-color: #dedbd1;
@@ -136,6 +138,8 @@ h1 {
   padding-top: 50px;
 }
 
+a:link, a:hover, a:visited { text-decoration: none; }
+
 ::-moz-selection {
   color:       white;
   background:  black;
@@ -157,12 +161,21 @@ p#legal {
   right:     10px;
 }
 
-.tabbed a {
+p#breadcrumbs {
+  font-size: 85%;
+  padding:   0px;
+  margin:    0px;
+  position:  absolute;
+  top:       5px;
+  left:     10px;
+}
+
+.tabnav a {
   color: #222;
   text-decoration: none;
 }
 
-.tabbed a:hover {
+.tabnav a:hover {
   color: #009;
   text-decoration: none;
 }
@@ -170,7 +183,6 @@ p#legal {
 .tabnav li {
   display:    inline;
   list-style: none;
-
   padding-right: 5px;
 }
 
@@ -265,12 +277,6 @@ form th {
   border: none;
 }
 
-form.landlord input:invalid, form.landlord textarea:invalid {
-  -webkit-box-shadow: none;
-     -moz-box-shadow: none;
-          box-shadow: none;
-}
-
 form p { margin-left: 25px; }
 
 tr#ip { display: none; }
@@ -280,6 +286,7 @@ tr#review textarea {
   height: 500px;
 
 }
+
 td.buttons { 
   text-align: right;
 }
@@ -290,9 +297,9 @@ td.buttons input { margin: 2px; }
   margin-bottom: 10px;
   border: solid 1px #dedbd1;
 
-  -webkit-border-radius: 10px;
-     -moz-border-radius: 10px;
-          border-radius: 10px;
+  -webkit-border-radius: 8px;
+     -moz-border-radius: 8px;
+          border-radius: 8px;
 
   -webkit-box-shadow: #cecbc1 3px 3px 7px;
      -moz-box-shadow: #cecbc1 3px 3px 7px;
@@ -303,18 +310,18 @@ td.buttons input { margin: 2px; }
   padding: 2px 5px;
 }
 
-.review .property p, .review .by p { 
-  font-size: 90%;
+.review .property p, .by p { 
+  font-size: 85%;
   font-style: italic;
 }
 
 .review .property {
-  -webkit-border-top-left-radius:  10px;
-  -webkit-border-top-right-radius: 10px;
-     -moz-border-radius-topleft:   10px;
-     -moz-border-radius-topright:  10px;
-          border-top-left-radius:  10px;
-          border-top-right-radius: 10px;
+  -webkit-border-top-left-radius:  8px;
+  -webkit-border-top-right-radius: 8px;
+     -moz-border-radius-topleft:   8px;
+     -moz-border-radius-topright:  8px;
+          border-top-left-radius:  8px;
+          border-top-right-radius: 8px;
 }
 
 .Positive .property {
@@ -336,6 +343,8 @@ td.buttons input { margin: 2px; }
   background-image: linear-gradient(top, #fc4930, white);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#fc4930', EndColorStr='white'); /* IE6–IE9 */
 }
+
+h3 .property { float: right; }
 
 /* override the 1px border added by chrome */
 input[type="email"] { padding: 0px; }

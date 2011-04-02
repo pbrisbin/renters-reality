@@ -39,7 +39,7 @@ staticRoot :: String
 staticRoot = approot ++ "/static"
 
 setTitle :: (Yesod m) => String -> GWidget s m ()
-setTitle s = Y.setTitle . toHtml $ "Landlord reviews | " ++ s
+setTitle s = Y.setTitle . toHtml $ "Renters' reality | " ++ s
 
 dataBase :: String
 dataBase = "db.s3db"

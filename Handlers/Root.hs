@@ -41,8 +41,7 @@ getRootR = defaultLayout $ do
         |]
 
     [hamlet|
-        <h1>
-            <a href="@{RootR}">Renters' reality
+        <h1>Renters' reality
 
         <div #maintab .tabbed>
             <ul .tabnav>
@@ -61,7 +60,7 @@ getRootR = defaultLayout $ do
                             <form .landlord method="get" action="@{NewR Positive}">
                                 <p>
                                     <label for="landlord">Landlord: 
-                                    <input .complete size=45 placeholder="Name of landlord or management company" name="landlord" required> 
+                                    <input .complete size=45 placeholder="Name of landlord or management company" name="landlord"> 
                                     <input type="submit" value="Next">
 
                         <h3>Submit a negative review
@@ -69,7 +68,7 @@ getRootR = defaultLayout $ do
                             <form .landlord method="get" action="@{NewR Negative}">
                                 <p>
                                     <label for="landlord">Landlord: 
-                                    <input .complete size=45 placeholder="Name of landlord or management company" name="landlord" required> 
+                                    <input .complete size=45 placeholder="Name of landlord or management company" name="landlord"> 
                                     <input type="submit" value="Next">
 
                         <h3>Search reviews by landlord
@@ -77,7 +76,7 @@ getRootR = defaultLayout $ do
                             <form .landlord method="get" action="@{SearchR}">
                                 <p>
                                     <label for="landlord">Landlord: 
-                                    <input .complete size=45 placeholder="Name of landlord or management company" name="landlord" required> 
+                                    <input .complete size=45 placeholder="Name of landlord or management company" name="landlord"> 
                                     <input type="submit" value="Search">
 
                         <h3>Search reviews by property
@@ -86,30 +85,26 @@ getRootR = defaultLayout $ do
 
             <div #landlord .tabdiv>
                 <div .tabcontent>
-                    <div .accordian>
-                        <h3>*TODO*
-                        <div>
-                            <p>
-                                Landlords,
+                    <p>
+                        Landlords,
 
-                            <p>
-                                We hope to some day ofter a suite of 
-                                tools to help you maintain your own 
-                                reputation on this site.
+                    <p>
+                        We hope to some day ofter a suite of tools to 
+                        help you maintain your own reputation on this 
+                        site.
 
-                            <p>
-                                We would like to provide ways to track, 
-                                discuss, and resolve negative reviews as 
-                                well as ways to easily use the positive 
-                                reviews found here to better promote 
-                                your business.
+                    <p>
+                        We would like to provide ways to track, discuss, 
+                        and resolve negative reviews as well as easily 
+                        use the positive reviews found here to better 
+                        promote your business.
 
-                            <p>
-                                If you have any ideas for how to make 
-                                this site useful for yourself, please 
-                                open an issue at this site's 
-                                <a href="https://github.com/pbrisbin/renters-reality/issues">project page
-                                \.
+                    <p>
+                        If you have any ideas for how to make this site 
+                        useful for yourself, please open an issue at 
+                        this site's 
+                        <a href="https://github.com/pbrisbin/renters-reality/issues">project page
+                        \.
 
             <div #about .tabdiv>
                 <div .tabcontent>

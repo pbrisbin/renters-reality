@@ -4,9 +4,12 @@ module Handlers.Search (getSearchR, postSearchR) where
 
 import Yesod
 import Yesod.Markdown
+
 import Renters
 import Forms
 import Model
+
+import qualified Settings
 
 import Data.List  (intercalate, partition)
 import Data.Maybe (fromJust, isJust, fromMaybe)
@@ -19,9 +22,12 @@ getSearchR = do
     req <- getRequest
     case getParam req "landlord" of
         Nothing       -> showAllReviews
+        Just ""       -> showAllReviews
         Just landlord -> do
             reviews <- reviewsByLandlord $ Landlord landlord
-            defaultLayout $ [hamlet|
+            defaultLayout $ do
+                Settings.setTitle "Search" 
+                [hamlet|
                     <h1>Reviews for #{landlord}
                     <div .tabdiv>
                         <div .tabcontent>
@@ -57,20 +63,22 @@ postSearchR = getSearchR
 showAllReviews :: Handler RepHtml
 showAllReviews = do
     reviews <- return . map snd =<< runDB (selectList [] [ReviewCreatedDateDesc] 0 0)
-    defaultLayout $ [hamlet|
-        <h1>All reviews
-        <div .tabdiv>
-            <div .tabcontent>
-                $forall review <- reviews
-                    ^{shortReview review}
-        |]
+    defaultLayout $ do
+        Settings.setTitle "Search"
+        [hamlet|
+            <h1>All reviews
+            <div .tabdiv>
+                <div .tabcontent>
+                    $forall review <- reviews
+                        ^{shortReview review}
+            |]
 
 shortReview :: Review -> Widget ()
 shortReview review = do
     now       <- lift $ liftIO getCurrentTime
     mreviewer <- lift $ findByKey (reviewReviewer review)
     mproperty <- lift $ findByKey (reviewProperty review)
-    content   <- lift . markdownToHtml . Markdown . shorten 200 $ reviewContent review
+    content   <- lift . markdownToHtml . Markdown . shorten 400 $ reviewContent review
     
     [hamlet|
         <div .review>
@@ -82,11 +90,16 @@ shortReview review = do
                         <p>No property info...
 
                 <div .content>#{content}
+
                 <div .by>
                     $maybe reviewer <- mreviewer
-                        <p>Reviewed by #{reviewerName reviewer} #{humanReadableTimeDiff now $ reviewCreatedDate review}
+                        <p>
+                            Reviewed by #{reviewerName reviewer} #{humanReadableTimeDiff now $ reviewCreatedDate review}. 
+                            <a href="@{ReviewsR $ reviewReference review}">View
                     $nothing
-                        <p>Reviewed #{humanReadableTimeDiff now $ reviewCreatedDate review}
+                        <p>
+                            Reviewed #{humanReadableTimeDiff now $ reviewCreatedDate review}. 
+                            <a href="@{ReviewsR $ reviewReference review}">View
         |]
 
 formatProperty :: Property -> String
