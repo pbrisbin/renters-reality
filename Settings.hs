@@ -27,7 +27,7 @@ import qualified Yesod as Y
 
 approot :: String
 #ifdef PROD
-approot = "http://50.56.101.27"
+approot = "http://rentersreality.com"
 #else
 approot = "http://localhost:3000"
 #endif
