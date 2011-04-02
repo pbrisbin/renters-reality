@@ -79,9 +79,25 @@ getRootR = defaultLayout $ do
                                     <input .complete size=45 placeholder="Name of landlord or management company" name="landlord"> 
                                     <input type="submit" value="Search">
 
+                            <div .note>
+                                <p>
+                                    <strong>Note: 
+                                    Partial searches are not supported. 
+                                    The autocomplete will populate with 
+                                    matches as you type. If you don't 
+                                    see a match for what you've entered, 
+                                    that landlord is not in the system.
+
                         <h3>Search reviews by property
                         <div>
                             ^{propertySearchForm}
+
+                            <div .note>
+                                <p>
+                                    <strong>Note: 
+                                    This feature is disabled for now, 
+                                    searching with this will just show 
+                                    all reviews.
 
             <div #landlord .tabdiv>
                 <div .tabcontent>

@@ -346,6 +346,12 @@ td.buttons input { margin: 2px; }
 
 h3 .property { float: right; }
 
+.note {
+  font-size: 90%;
+  font-style: italic;
+  padding: 5px 25px;
+}
+
 /* override the 1px border added by chrome */
 input[type="email"] { padding: 0px; }
 
