@@ -286,18 +286,59 @@ td.buttons {
 
 td.buttons input { margin: 2px; }
 
+.review {
+  margin-bottom: 10px;
+  border: solid 1px #dedbd1;
+
+  -webkit-border-radius: 10px;
+     -moz-border-radius: 10px;
+          border-radius: 10px;
+
+  -webkit-box-shadow: #cecbc1 3px 3px 7px;
+     -moz-box-shadow: #cecbc1 3px 3px 7px;
+          box-shadow: #cecbc1 3px 3px 7px;
+}
+
+.review .property, .review .by, .review .content {
+  padding: 2px 5px;
+}
+
+.review .property p, .review .by p { 
+  font-size: 90%;
+  font-style: italic;
+}
+
+.review .property {
+  -webkit-border-top-left-radius:  10px;
+  -webkit-border-top-right-radius: 10px;
+     -moz-border-radius-topleft:   10px;
+     -moz-border-radius-topright:  10px;
+          border-top-left-radius:  10px;
+          border-top-right-radius: 10px;
+}
+
+.Positive .property {
+  background-color: #b0d87c;
+  background-image: -moz-linear-gradient(top, #b0d87c, white); /* FF3.6 */
+  background-image: -o-linear-gradient(top, #b0d87c, white); /* Opera 11.10+ */
+  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #b0d87c),color-stop(1, white)); /* Saf4+, Chrome */
+  background-image: -webkit-linear-gradient(#b0d87c, white); /* Chrome 10+, Saf5.1+ */
+  background-image: linear-gradient(top, #b0d87c, white);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#b0d87c', EndColorStr='white'); /* IE6–IE9 */
+}
+
+.Negative .property {
+  background-color: #fc4930;
+  background-image: -moz-linear-gradient(top, #fc4930, white); /* FF3.6 */
+  background-image: -o-linear-gradient(top, #fc4930, white); /* Opera 11.10+ */
+  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #fc4930),color-stop(1, white)); /* Saf4+, Chrome */
+  background-image: -webkit-linear-gradient(#fc4930, white); /* Chrome 10+, Saf5.1+ */
+  background-image: linear-gradient(top, #fc4930, white);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#fc4930', EndColorStr='white'); /* IE6–IE9 */
+}
+
 /* override the 1px border added by chrome */
 input[type="email"] { padding: 0px; }
-
-h1 a, h1 a:active {
-  color: black;
-  text-decoration: none;
-}
-
-h1 a:hover {
-  cursor: pointer;
-  text-decoration: none;
-}
 
 /* thank you John Hicks! */
 

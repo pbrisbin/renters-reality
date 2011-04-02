@@ -3,12 +3,13 @@
 module Handlers.Search (getSearchR, postSearchR) where
 
 import Yesod
+import Yesod.Markdown
 import Renters
 import Forms
 import Model
 
 import Data.List  (intercalate, partition)
-import Data.Maybe (fromJust, isJust)
+import Data.Maybe (fromJust, isJust, fromMaybe)
 import Data.Time  (getCurrentTime)
 
 -- | On a landlord search, the landlord name is a GET param. omitting 
@@ -21,10 +22,11 @@ getSearchR = do
         Just landlord -> do
             reviews <- reviewsByLandlord $ Landlord landlord
             defaultLayout $ [hamlet|
-                    <h2>Reviews for #{landlord}
+                    <h1>Reviews for #{landlord}
                     <div .tabdiv>
                         <div .tabcontent>
-                            <p>*TODO*
+                            $forall review <- reviews
+                                ^{shortReview review}
                     |]
 
 -- | On a property search, the address criteria is POSTed. only zip is 
@@ -33,37 +35,59 @@ getSearchR = do
 --
 --   todo: Search on f.e. Steet name only? need the sql /like/ keyword
 --
-postSearchR = do
-    addr <- addrFromForm
-
-    let criteria = [ PropertyZipEq (addrZip addr) ] -- zip is mandatory
-            ++ maybeCriteria PropertyAddrOneEq (addrOne addr)
-            ++ maybeCriteria PropertyAddrTwoEq (addrTwo addr)
-            ++ maybeCriteria PropertyCityEq    (addrCity addr)
-            ++ maybeCriteria PropertyStateEq   (addrState addr)
-
-    properties <- return . map snd =<< runDB (selectList criteria [] 0 0)
-    reviews    <- reviewsByProperty properties
-    defaultLayout [hamlet|
-        <h2>Reviews about #{formatAddr addr}
-        <div .tabdiv>
-            <div .tabcontent>
-                <p>*TODO*
-            |]
+postSearchR :: Handler RepHtml
+postSearchR = getSearchR
+--    addr <- addrFromForm
+--
+--    let criteria = [ PropertyZipEq (addrZip addr) ] -- zip is mandatory
+--            ++ maybeCriteria PropertyAddrOneEq (addrOne addr)
+--            ++ maybeCriteria PropertyAddrTwoEq (addrTwo addr)
+--            ++ maybeCriteria PropertyCityEq    (addrCity addr)
+--            ++ maybeCriteria PropertyStateEq   (addrState addr)
+--
+--    properties <- return . map snd =<< runDB (selectList criteria [] 0 0)
+--    reviews    <- reviewsByProperty properties
+--
+--    defaultLayout [hamlet|
+--        <div .tabdiv>
+--            <div .tabcontent>
+--                <p>*TODO*
+--            |]
 
 showAllReviews :: Handler RepHtml
-showAllReviews = undefined
+showAllReviews = do
+    reviews <- return . map snd =<< runDB (selectList [] [ReviewCreatedDateDesc] 0 0)
+    defaultLayout $ [hamlet|
+        <h1>All reviews
+        <div .tabdiv>
+            <div .tabcontent>
+                $forall review <- reviews
+                    ^{shortReview review}
+        |]
 
-shortReview ::  Review -> Widget ()
+shortReview :: Review -> Widget ()
 shortReview review = do
     now       <- lift $ liftIO getCurrentTime
+    mreviewer <- lift $ findByKey (reviewReviewer review)
     mproperty <- lift $ findByKey (reviewProperty review)
-    case mproperty of
-        Nothing       -> return ()
-        Just property -> [hamlet|
+    content   <- lift . markdownToHtml . Markdown . shorten 200 $ reviewContent review
+    
+    [hamlet|
+        <div .review>
+            <div .#{show $ reviewType review}>
+                <div .property>
+                    $maybe property <- mproperty
+                        <p>#{formatProperty property}
+                    $nothing
+                        <p>No property info...
 
-                       <em>submitted #{humanReadableTimeDiff now $ reviewCreatedDate review}
-            |]
+                <div .content>#{content}
+                <div .by>
+                    $maybe reviewer <- mreviewer
+                        <p>Reviewed by #{reviewerName reviewer} #{humanReadableTimeDiff now $ reviewCreatedDate review}
+                    $nothing
+                        <p>Reviewed #{humanReadableTimeDiff now $ reviewCreatedDate review}
+        |]
 
 formatProperty :: Property -> String
 formatProperty p = intercalate ", "
