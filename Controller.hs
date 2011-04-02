@@ -22,7 +22,6 @@ import Handlers.Root
 import Handlers.Legal
 import Handlers.Search
 import Handlers.New
-import Handlers.Create
 import Handlers.Reviews
 import Handlers.Json
 

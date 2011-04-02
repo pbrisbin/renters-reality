@@ -87,7 +87,7 @@ input:invalid, textarea:invalid {
 
 /* site-wide font */
 body, select, input, textarea {
-  font-family: helvetica,clean,verdana,sans-serif;
+  font-family: helvetica,"Georgia Sans",verdana,sans-serif;
 }
 
 p, h1, h2, h3, h4, h5, h6 { padding: 1ex 0px; }
@@ -95,13 +95,13 @@ p, h1, h2, h3, h4, h5, h6 { padding: 1ex 0px; }
 strong { font-weight: bold; }
 em     { font-style: italic; }
 
-.tabcontent ul, .tabcontent ol { margin: 10px 50px; }
-
 /* limit the width of all content save the footer */
 section.content {
   width:  680px;
   margin: 0px auto;
 }
+
+.tabcontent ul, .tabcontent ol { margin: 10px 50px; }
 
 blockquote {
   padding:     5px 10px;
@@ -265,21 +265,26 @@ form th {
   border: none;
 }
 
-form.landlord th { vertical-align: middle; }
-
 form.landlord input:invalid, form.landlord textarea:invalid {
   -webkit-box-shadow: none;
      -moz-box-shadow: none;
           box-shadow: none;
 }
 
-tr#buttons td { 
+form p { margin-left: 25px; }
+
+tr#ip { display: none; }
+
+tr#review textarea {
+  width: 450px;
+  height: 500px;
+
+}
+td.buttons { 
   text-align: right;
 }
 
-tr#buttons input {
-  margin-left: 2px;
-}
+td.buttons input { margin: 2px; }
 
 /* override the 1px border added by chrome */
 input[type="email"] { padding: 0px; }

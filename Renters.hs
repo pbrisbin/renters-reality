@@ -16,12 +16,14 @@
 module Renters where
 
 import Yesod
+import Yesod.Markdown
 import Yesod.Form.Core (GFormMonad)
 import Yesod.Helpers.Static
 
 import Data.Time
 import System.Locale
 
+import Control.Applicative ((<$>))
 import Data.Char        (isSpace)
 import Control.Monad    (unless)
 import System.Directory (doesFileExist, createDirectoryIfMissing)
@@ -57,14 +59,17 @@ instance SinglePiece ReviewType where
 -- | Define all of the routes and handlers
 mkYesodData "Renters" [parseRoutes|
     /                   RootR    GET
+
+    /new/#ReviewType    NewR     GET POST
     /search/            SearchR  GET POST
-    /new/#ReviewType    NewR     POST
-    /create/#ReviewType CreateR  POST
     /reviews/#Int       ReviewsR GET POST
+
     /json/landlords     JsonLandlordsR  GET
     /json/reviews       JsonReviewsR    GET
+
     /legal              LegalR   GET
     /static             StaticR Static getStatic
+
     /favicon.ico FaviconR GET
     /robots.txt  RobotsR  GET
     |]
@@ -77,6 +82,7 @@ instance Yesod Renters where
     defaultLayout widget = do
         pc <- widgetToPageContent widget
 
+        -- todo: breadcrumbs
         hamletToRepHtml [hamlet|
             \<!DOCTYPE html>
             <html lang="en">
@@ -96,9 +102,6 @@ instance Yesod Renters where
                         <a href="@{LegalR}">legal
 
                     <section .content>
-                        <h1>
-                            <a href=@{RootR}>Renters' reality
-
                         ^{pageBody pc}
 
                     <footer>
@@ -190,3 +193,9 @@ humanReadableTimeDiff curTime oldTime =
               | weeks d < 5    = i2s (weeks d)  ++ " weeks ago"
               | years d < 1    = "on " ++ thisYear
               | otherwise      = "on " ++ previousYears
+
+-- | Render from markdown, yesod-style
+markdownToHtml :: Markdown -> Handler Html
+markdownToHtml = (writePandoc yesodDefaultWriterOptions <$>) 
+               . addTitles
+               . parseMarkdown yesodDefaultParserStateTrusted

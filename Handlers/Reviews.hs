@@ -6,6 +6,7 @@ module Handlers.Reviews
     ) where
 
 import Yesod
+import Yesod.Markdown
 import Renters
 import Model
 
@@ -26,11 +27,12 @@ getReviewsR ref = do
             mreviewer <- findByKey (reviewReviewer  review)
             case (mlandlord,mproperty,mreviewer) of
                 (Just landlord, Just property, Just reviewer) -> do
-                    now <- liftIO getCurrentTime
+                    now     <- liftIO getCurrentTime
+                    content <- markdownToHtml $ Markdown $ reviewContent review
                     defaultLayout $ do
-                        Settings.setTitle $ "Review #" ++ show ref
+                        Settings.setTitle "View review"
                         [hamlet|
-                            <h2>Review ##{show ref}
+                            <h1>View review
                             <div .tabdiv>
                                 <div .tabcontent>
                                     <h3>
@@ -38,14 +40,14 @@ getReviewsR ref = do
                                         \ - #{formatProperty property}
 
                                     <p>
-                                        Submitted #{humanReadableTimeDiff now $ reviewCreatedDate review} 
-                                        by #{reviewerName reviewer}
+                                        Submitted by #{reviewerName reviewer} 
+                                        #{humanReadableTimeDiff now $ reviewCreatedDate review}
 
                                     <p>
-                                        <strong>review:
+                                        <strong>Review:
 
                                     <blockquote>
-                                        #{Textarea $ reviewContent review}
+                                        #{content}
                             |]
 
                 _ -> notFound

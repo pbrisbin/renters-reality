@@ -41,6 +41,9 @@ getRootR = defaultLayout $ do
         |]
 
     [hamlet|
+        <h1>
+            <a href="@{RootR}">Renters' reality
+
         <div #maintab .tabbed>
             <ul .tabnav>
                 <li #renter>
