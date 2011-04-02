@@ -1,4 +1,4 @@
-# Bad Boston Landlords
+# Renters' reality
 
-A simple, crowdsourcing site where renters in the Boston area can create 
-or search for complaints by either Landlord name or Property.
+A simple, crowdsourcing site where renters can create or search for 
+reviews by Landlord name or Property.
