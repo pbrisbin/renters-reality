@@ -16,7 +16,7 @@ module Forms
     ) where
 
 import Yesod
-import BadLandlords
+import Renters
 import Model
 
 import Data.Time (getCurrentTime)
@@ -36,7 +36,7 @@ data AddrSearch = AddrSearch
 
 -- | The landlord entry is a one field input, so the button is included 
 --   here. Pass the route th POST to.
-landlordForm :: BadLandlordsRoute -> Widget ()
+landlordForm :: RentersRoute -> Widget ()
 landlordForm route = [$hamlet|
     <form .landlord method="post" action="@{route}">
         <table>

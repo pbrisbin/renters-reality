@@ -3,7 +3,7 @@
 module Handlers.New (postNewR) where
 
 import Yesod
-import BadLandlords
+import Renters
 import Model
 import Forms
 

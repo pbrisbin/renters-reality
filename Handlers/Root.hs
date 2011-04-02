@@ -14,7 +14,7 @@
 module Handlers.Root (getRootR) where
 
 import Yesod
-import BadLandlords
+import Renters
 import Forms
 import qualified Settings
 

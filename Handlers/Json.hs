@@ -3,7 +3,7 @@
 module Handlers.Json (getJsonR) where
 
 import Yesod
-import BadLandlords
+import Renters
 import Model
 
 import Data.Char (toLower)

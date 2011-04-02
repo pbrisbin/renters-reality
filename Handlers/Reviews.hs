@@ -6,7 +6,7 @@ module Handlers.Reviews
     ) where
 
 import Yesod
-import BadLandlords
+import Renters
 import Model
 
 import Data.List  (intercalate)

@@ -3,7 +3,7 @@
 module Handlers.Create (postCreateR) where
 
 import Yesod
-import BadLandlords
+import Renters
 import Forms
 import Model
 

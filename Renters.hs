@@ -4,7 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 -------------------------------------------------------------------------------
 -- |
--- Module      :  BadLandlords
+-- Module      :  Renters
 -- Copyright   :  (c) Patrick Brisbin 2010 
 -- License     :  as-is
 --
@@ -13,7 +13,7 @@
 -- Portability :  unportable
 --
 -------------------------------------------------------------------------------
-module BadLandlords where
+module Renters where
 
 import Yesod
 import Yesod.Form.Core (GFormMonad)
@@ -34,14 +34,14 @@ import qualified Data.Map as M
 import qualified Settings
 
 -- | The main site type
-data BadLandlords = BadLandlords 
+data Renters = Renters
     { getStatic :: Static 
     , connPool  :: ConnectionPool 
     }
 
-type Handler     = GHandler   BadLandlords BadLandlords
-type Widget      = GWidget    BadLandlords BadLandlords
-type FormMonad a = GFormMonad BadLandlords BadLandlords a
+type Handler     = GHandler   Renters Renters
+type Widget      = GWidget    Renters Renters
+type FormMonad a = GFormMonad Renters Renters a
 
 data SearchType = LandlordS | PropertyS deriving (Show,Read,Eq)
 
@@ -75,7 +75,7 @@ instance SinglePiece ReviewType where
     fromSinglePiece _      = Left "invalid review type"
 
 -- | Define all of the routes and handlers
-mkYesodData "BadLandlords" [$parseRoutes|
+mkYesodData "Renters" [$parseRoutes|
     /                   RootR    GET
 
     /reviews/#Int       ReviewsR GET POST
@@ -95,7 +95,7 @@ mkYesodData "BadLandlords" [$parseRoutes|
 
 staticFiles Settings.staticDir
 
-instance Yesod BadLandlords where 
+instance Yesod Renters where 
     approot _   = Settings.approot
 
     defaultLayout widget = do
@@ -150,8 +150,8 @@ instance Yesod BadLandlords where
 
     clientSessionDuration _ = 60 * 24 * 7 -- one week
 
-instance YesodPersist BadLandlords where
-    type YesodDB BadLandlords = SqlPersist
+instance YesodPersist Renters where
+    type YesodDB Renters = SqlPersist
     runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
 
 

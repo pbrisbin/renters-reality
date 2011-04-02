@@ -4,7 +4,7 @@
 module Model where
 
 import Yesod
-import BadLandlords
+import Renters
 
 import Control.Monad               (liftM)
 import Data.Time                   (UTCTime(..))

@@ -3,7 +3,7 @@
 module Handlers.Search (postSearchR) where
 
 import Yesod
-import BadLandlords
+import Renters
 import Forms
 import Model
 

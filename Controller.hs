@@ -14,7 +14,7 @@ module Controller (withServer) where
 
 import Yesod
 import Yesod.Helpers.Static
-import BadLandlords
+import Renters
 import Model
 
 import Handlers.Root
@@ -30,12 +30,12 @@ import Database.Persist.GenericSql
 import qualified Settings
 
 -- | Instantiate the Yesod route types
-mkYesodDispatch "BadLandlords" resourcesBadLandlords
+mkYesodDispatch "Renters" resourcesRenters
 
 -- | Create a Wai App of the site
 withServer :: (Application -> IO a) -> IO a
 withServer f = Settings.withConnectionPool $ \p -> do
     runSqlPool (runMigration doMigration) p
-    f =<< toWaiApp (BadLandlords s p)
+    f =<< toWaiApp (Renters s p)
     where
         s = static Settings.staticDir
