@@ -54,7 +54,7 @@ input[type="submit"],
 input[type="reset"],
 input[type="image"] { cursor: pointer; }
 
-button, input, select, textarea { margin: 0; }
+button, input, select, textarea { margin: 0; padding: 1px 2px;}
 
 input:valid, textarea:valid {  }
 input:invalid, textarea:invalid {
@@ -234,7 +234,6 @@ tr#review textarea {
   height: 500px;
 }
 
-td.buttons       { text-align: right; }
 td.buttons input { margin: 2px; }
 
 .ui-tabs-hide {
@@ -316,6 +315,37 @@ h3 .property { float: right; }
   font-style: italic;
   padding: 5px 25px;
 }
+
+#markdown-help {
+  display: none; /* toggled via jquery */
+  z-index: 10;
+  background-color: white;
+  padding:    20px;
+
+  font-size:   90%;
+  text-align: left;
+
+  height: 30%;
+  width:  70%;
+
+  position: fixed;
+  top:      25%;
+  left:     15%;
+
+  border: solid 1px #dedbd1;
+
+  overflow-y: auto;
+
+  -webkit-border-radius: 4px; 
+     -moz-border-radius: 4px; 
+          border-radius: 4px; 
+
+  -webkit-box-shadow: 3px 3px 40px #333;
+     -moz-box-shadow: 3px 3px 40px #333;
+          box-shadow: 3px 3px 40px #333;
+}
+
+#markdown-help p.example { margin-left: 10px; }
 
 /* thank you John Hicks! */
 

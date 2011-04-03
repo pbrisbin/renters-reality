@@ -42,23 +42,25 @@ getSearchR = do
 --   todo: Search on f.e. Steet name only? need the sql /like/ keyword
 --
 postSearchR :: Handler RepHtml
-postSearchR = getSearchR
---    addr <- addrFromForm
---
---    let criteria = [ PropertyZipEq (addrZip addr) ] -- zip is mandatory
---            ++ maybeCriteria PropertyAddrOneEq (addrOne addr)
---            ++ maybeCriteria PropertyAddrTwoEq (addrTwo addr)
---            ++ maybeCriteria PropertyCityEq    (addrCity addr)
---            ++ maybeCriteria PropertyStateEq   (addrState addr)
---
---    properties <- return . map snd =<< runDB (selectList criteria [] 0 0)
---    reviews    <- reviewsByProperty properties
---
---    defaultLayout [hamlet|
---        <div .tabdiv>
---            <div .tabcontent>
---                <p>*TODO*
---            |]
+postSearchR = do
+    addr <- addrFromForm
+
+    let criteria = [ PropertyZipEq (addrZip addr) ] -- zip is mandatory
+            ++ maybeCriteria PropertyAddrOneEq (addrOne addr)
+            ++ maybeCriteria PropertyAddrTwoEq (addrTwo addr)
+            ++ maybeCriteria PropertyCityEq    (addrCity addr)
+            ++ maybeCriteria PropertyStateEq   (addrState addr)
+
+    properties <- return . map snd =<< runDB (selectList criteria [] 0 0)
+    reviews    <- reviewsByProperty properties
+
+    defaultLayout [hamlet|
+        <h1>Reviews by area
+        <div .tabdiv>
+            <div .tabcontent>
+                $forall review <- reviews
+                    ^{shortReview review}
+            |]
 
 showAllReviews :: Handler RepHtml
 showAllReviews = do
@@ -78,6 +80,7 @@ shortReview review = do
     now       <- lift $ liftIO getCurrentTime
     mreviewer <- lift $ findByKey (reviewReviewer review)
     mproperty <- lift $ findByKey (reviewProperty review)
+    mlandlord <- lift $ findByKey (reviewLandlord review)
     content   <- lift . markdownToHtml . Markdown . shorten 400 $ reviewContent review
     
     [hamlet|
@@ -85,9 +88,9 @@ shortReview review = do
             <div .#{show $ reviewType review}>
                 <div .property>
                     $maybe property <- mproperty
-                        <p>#{formatProperty property}
+                        <p>#{maybe "No landlord info" landlordName mlandlord} - #{formatProperty property}
                     $nothing
-                        <p>No property info...
+                        <p>#{maybe "No landlord info" landlordName mlandlord} - No property info
 
                 <div .content>#{content}
 

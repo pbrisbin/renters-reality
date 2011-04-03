@@ -89,15 +89,7 @@ getRootR = defaultLayout $ do
                                     that landlord is not in the system.
 
                         <h3>Search reviews by property
-                        <div>
-                            ^{propertySearchForm}
-
-                            <div .note>
-                                <p>
-                                    <strong>Note: 
-                                    This feature is disabled for now, 
-                                    searching with this will just show 
-                                    all reviews.
+                        <div>^{propertySearchForm}
 
             <div #landlord .tabdiv>
                 <div .tabcontent>

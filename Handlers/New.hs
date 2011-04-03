@@ -10,6 +10,7 @@ import Model
 import Forms
 
 import Control.Applicative ((<$>),(<*>))
+import Control.Monad       (forM)
 import Data.Maybe          (fromMaybe)
 import Data.Monoid         (mempty)
 import Data.Time           (getCurrentTime)
@@ -31,18 +32,72 @@ data ReviewForm = ReviewForm
     , rfReview    :: Markdown
     }
 
+data MarkdownExample = MarkdownExample
+    { mdText :: String
+    , mdHtml :: Widget ()
+    }
+
 getNewR :: ReviewType -> Handler RepHtml
 getNewR rtype = do
     req <- getRequest
     defaultLayout $ do
         Settings.setTitle "New review"
+
+        addJulius [julius|
+            $(function() {
+                /* add help onclick handlers */
+                $("#open-help").click(function() { $("#markdown-help").fadeIn(); return false; });
+                $("#close-help").click(function() { $("#markdown-help").fadeOut(); return false; });
+
+                /* add some placeholder texts */
+                $("input#addrone").attr("placeholder"  , "248 Kelton St."          );
+                $("input#addrtwo").attr("placeholder"  , "Apt 4"                   );
+                $("input#timeframe").attr("placeholder", "2009 - 2010"             );
+                $("textarea#review").attr("placeholder", "What was it really like?");
+            });
+            |]
+
         [hamlet|
             <h1>New review
 
             <div .tabdiv>
                 <div .tabcontent>
                     ^{runReviewForm (getParam req "landlord") rtype}
+
+            <div #markdown-help>
+                <span style="float: right;">
+                    <a #close-help href="#">[close]
+
+                <h3>Some quick examples:
+
+                $forall mdExample <- mdExamples
+                    <p .example>
+                        <code>#{mdText mdExample} 
+                        will render as ^{mdHtml mdExample}
+
+                <p>
+                    <em>
+                        Additional documentation can be found 
+                        <a href="http://daringfireball.net/projects/markdown/syntax">here
+                        \.
             |]
+
+mdExamples :: [MarkdownExample]
+mdExamples = [ MarkdownExample "*italic text*"
+                    [hamlet|<em>italic text|]
+
+             , MarkdownExample "**bold text**"
+                    [hamlet|<strong>bold text|]
+
+             , MarkdownExample "[some link](http://example.com \"link title\")"
+                    [hamlet|<a href="http://example.com" title="link title">some link|]
+
+             , MarkdownExample "![some image](http://pbrisbin.com/static/images/feed.png)"
+                    [hamlet|<img alt="even images" src="http://pbrisbin.com/static/images/feed.png">|]
+
+             , MarkdownExample "raw <abbr title=\"hypertext markup language\">HTML</abbr>"
+                    [hamlet|<abbr title="hypertext markup language">HTML|]
+             ]
 
 postNewR :: ReviewType -> Handler RepHtml
 postNewR = getNewR
@@ -59,9 +114,7 @@ runReviewForm ml rtype = do
             ref <- insertFromForm rtype rf
             redirect RedirectTemporary $ tm (ReviewsR ref)
 
-    [hamlet|
-        <form enctype="#{enctype}" method="post"> ^{form}
-        |]
+    [hamlet|<form enctype="#{enctype}" method="post"> ^{form}|]
 
 reviewForm :: Maybe String -- ^ maybe landlord name
            -> String      -- ^ IP address of submitter
@@ -88,22 +141,36 @@ reviewForm ml ip rtype = do
             <table .review-form>
                 ^{fieldRow fiIp}
                 ^{fieldRow fiLandlord}
+
+                <tr .spacer>
+                    <td colspan="3">&nbsp;
+
                 ^{fieldRow fiName}
                 ^{fieldRow fiEmail}
+
+                <tr .spacer>
+                    <td colspan="3">&nbsp;
+
                 ^{fieldRow fiAddrOne}
                 ^{fieldRow fiAddrTwo}
                 ^{fieldRow fiCity}
                 ^{fieldRow fiState}
                 ^{fieldRow fiZip}
                 ^{fieldRow fiTimeframe}
-                ^{fieldRow fiReview}
+
+                <tr .spacer>
+                    <td colspan="3">&nbsp;
+
                 <tr>
                     <td>&nbsp;
-                    <td .markdown-help colspan="2">
+                    <td colspan="2">
                         <small>
                             <em>
                                 Reviews are parsed as pandoc-style markdown. 
-                                <a #pandoc-tips href="#">Tips.
+                                <a #open-help href="#">Tips.
+
+                ^{fieldRow fiReview}
+
                 <tr>
                     <td>&nbsp;
                     <td .buttons colspan="2">
