@@ -100,20 +100,17 @@ h1             { font-size: 2em;    }
 h2             { font-size: 1.5em;  }
 h3, h4, h5, h6 { font-size: 1.25em; }
 
+body {
+  text-align:  justify;
+  width:       90%;
+  max-width:   680px;
+  margin:      0px auto;
+  padding: 50px 0px;
+}
+
 footer {
-  background-color: #dedbd1;
-
-  background-image: -moz-linear-gradient(top, #dedbd1, #ffffff); /* FF3.6 */
-  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #dedbd1),color-stop(1, #ffffff)); /* Saf4+, Chrome */
-  background-image: -webkit-linear-gradient(#dedbd1, #ffffff); /* Chrome 10+, Saf6 */
-  background-image: linear-gradient(top, #dedbd1, #ffffff);
-
-  border-top:     solid 1px #cecbc1;
-  text-align:     center;
-  line-height:    75%;
-
-  padding-top:    0.25em;
-  padding-bottom: 5em;
+  font-size: 90%;
+  text-align: center;
 }
 
 a:link, a:hover, a:visited { text-decoration: none; }
@@ -128,15 +125,6 @@ a:link, a:hover, a:visited { text-decoration: none; }
   color:       white;
   background:  black;
   text-shadow: none;
-}
-
-/* limit the width of all content save the footer */
-section.content {
-  text-align:  justify;
-  padding-top: 50px;
-  width:       90%;
-  max-width:   680px;
-  margin:      0px auto;
 }
 
 blockquote {
@@ -200,15 +188,12 @@ ul.tabnav { margin: 0px; padding: 0px; }
 }
 
 .tabdiv {
-  min-height: 450px;
   border: 1px solid #cecbc1;
-  border-bottom: none;
 }
 
 /* also used as an inner container on non-tabbed pages */
 .tabcontent {
-  padding:    10px 20px;
-  overflow-y: auto;
+  padding: 10px 20px;
 }
 
 .accordian h3 {
