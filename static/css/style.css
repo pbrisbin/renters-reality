@@ -3,14 +3,8 @@
  *
  */
 
-/* begin html5boilerplate stuffs {{{ */
+/* begin modified reset based on html5boilerplate {{{ */
  
-/**
- * html5doctor.com Reset Stylesheet (Eric Meyer's Reset Reloaded + HTML5 baseline)
- * v1.6.1 2010-09-17 | Authors: Eric Meyer & Richard Clark
- * html5doctor.com/html-5-reset-stylesheet/
- */
-
 html, body, div, span, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp,
@@ -20,18 +14,13 @@ table, caption, tbody, tfoot, thead, tr, th, td,
 article, aside, canvas, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section, summary,
 time, mark, audio, video {
-  margin: 0;
+  margin:  0;
   padding: 0;
-  border: 0;
-  font-size: 100%;
-  font: inherit;
-  vertical-align: baseline;
+  border:  0;
 }
 
 article, aside, details, figcaption, figure,
-footer, header, hgroup, menu, nav, section {
-  display: block;
-}
+footer, header, hgroup, menu, nav, section { display: block; }
 
 blockquote, q { quotes: none; }
 
@@ -52,25 +41,18 @@ hr { display: block; height: 1px; border: 0; border-top: 1px solid #ccc; margin:
 
 input, select { vertical-align: middle; }
 
-/**
- * Font normalization inspired by YUI Library's fonts.css: developer.yahoo.com/yui/
- */
-
-/* *font-size doesn't validate? */
-body { font:13px/1.231 sans-serif; *font-size:small; } /* Hack retained to preserve specificity */
-select, input, textarea, button { font:99% sans-serif; }
-
-/* Normalize monospace sizing:
-   en.wikipedia.org/wiki/MediaWiki_talk:Common.css/Archive_11#Teletype_style_fix_for_Chrome */
-pre, code, kbd, samp { font-family: monospace, sans-serif; }
-
-html { overflow-y: scroll; }
+body { font: 13px/1.231 sans-serif; }
 
 textarea { overflow: auto; }
 
-input[type="radio"] { vertical-align: text-bottom; }
-input[type="checkbox"] { vertical-align: bottom; }
-input[type="button"], input[type="submit"], input[type="reset"], button { cursor: pointer; padding: 2px 5px; }
+input[type="radio"]    { vertical-align: text-bottom; }
+input[type="checkbox"] { vertical-align: bottom;      }
+
+label, button,
+input[type="button"], 
+input[type="submit"], 
+input[type="reset"],
+input[type="image"] { cursor: pointer; }
 
 button, input, select, textarea { margin: 0; }
 
@@ -79,37 +61,44 @@ input:invalid, textarea:invalid {
   -webkit-border-radius: 1px; 
      -moz-border-radius: 1px; 
           border-radius: 1px; 
-  -webkit-box-shadow: 0px 0px 3px red; 
-     -moz-box-shadow: 0px 0px 3px red; 
-          box-shadow: 0px 0px 3px red;
-}
-/* end html5boilerplate stuffs }}} */
-
-/* site-wide font */
-body, select, input, textarea {
-  font-family: helvetica,"Georgia Sans",verdana,sans-serif;
+  -webkit-box-shadow: 0px 0px 5px red; 
+     -moz-box-shadow: 0px 0px 5px red; 
+          box-shadow: 0px 0px 5px red;
 }
 
-p, h1, h2, h3, h4, h5, h6 { padding: 1ex 0px; }
+html { overflow-y: scroll; }
 
-strong { font-weight: bold; }
-em     { font-style: italic; }
+/* end reset }}} */
 
-/* limit the width of all content save the footer */
-section.content {
-  width:  680px;
-  margin: 0px auto;
+body, 
+select, 
+input,     /* site-wide font for all elements */
+textarea { font-family: helvetica,"Georgia Sans",verdana,sans-serif; }
+
+em     { font-style:  italic; }
+strong { font-weight: bold;   }
+small  { font-size:   90%;    }
+
+p, 
+h1, h2, h3, 
+h4, h5, h6 { padding: 1ex 0px; }
+
+/* indented elements */
+pre, table { margin-left:  1em; }
+ul, ol, dl {
+  margin-left:  1em;
+  padding-left: 1em;
 }
 
-.tabcontent ul, .tabcontent ol { margin: 10px 50px; }
-
-blockquote {
-  padding:     5px 10px;
-  margin:      5px 25px;
+h1, h2, h3, 
+h4, h5, h6 { 
+  font-weight: normal;
+  text-shadow: #cecbc1 1px 1px 5px;
 }
 
-.Positive blockquote { border-left: solid 4px #b0d87c; }
-.Negative blockquote { border-left: solid 4px #fc4930; }
+h1             { font-size: 2em;    }
+h2             { font-size: 1.5em;  }
+h3, h4, h5, h6 { font-size: 1.25em; }
 
 footer {
   background-color: #dedbd1;
@@ -127,17 +116,6 @@ footer {
   padding-bottom: 5em;
 }
 
-small { font-size: 85%; }
-
-h1 { font-size: 2em;    }
-h2 { font-size: 1.5em;  }
-h3, h4, h5, h6 { font-size: 1.25em; }
-h1, h2, h3, h4, h5, h6 { font-weight: normal; text-shadow: #cecbc1 1px 1px 5px; }
-
-h1 { 
-  padding-top: 50px;
-}
-
 a:link, a:hover, a:visited { text-decoration: none; }
 
 ::-moz-selection {
@@ -152,23 +130,35 @@ a:link, a:hover, a:visited { text-decoration: none; }
   text-shadow: none;
 }
 
-p#legal {
-  font-size: 85%;
-  padding:   0px;
-  margin:    0px;
-  position:  absolute;
-  top:       5px;
-  right:     10px;
+/* limit the width of all content save the footer */
+section.content {
+  text-align:  justify;
+  padding-top: 50px;
+  width:       90%;
+  max-width:   680px;
+  margin:      0px auto;
 }
 
-p#breadcrumbs {
+blockquote {
+  padding: 5px 10px;
+  margin:  5px 25px;
+}
+
+.Positive blockquote { border-left: solid 4px #b0d87c; }
+.Negative blockquote { border-left: solid 4px #fc4930; }
+
+p#breadcrumbs, p#legal {
   font-size: 85%;
   padding:   0px;
   margin:    0px;
   position:  absolute;
   top:       5px;
-  left:     10px;
 }
+
+p#breadcrumbs { left:  10px; }
+p#legal       { right: 10px; }
+
+ul.tabnav { margin: 0px; padding: 0px; }
 
 .tabnav a {
   color: #222;
@@ -181,8 +171,8 @@ p#breadcrumbs {
 }
 
 .tabnav li {
-  display:    inline;
-  list-style: none;
+  display:       inline;
+  list-style:    none;
   padding-right: 5px;
 }
 
@@ -191,8 +181,8 @@ p#breadcrumbs {
   text-transform: uppercase;
   text-decoration: none;
 
-  padding: 0px 20px;
-  padding-top: 5px;
+  padding: 5px 20px;
+  padding-bottom: 2px;
 
   border: 1px solid #cecbc1;
   border-bottom: none;
@@ -210,18 +200,14 @@ p#breadcrumbs {
 }
 
 .tabdiv {
+  min-height: 450px;
   border: 1px solid #cecbc1;
   border-bottom: none;
 }
 
-.tabdiv p {
-  text-align: justify;
-  font-size:  110%;
-}
-
+/* also used as an inner container on non-tabbed pages */
 .tabcontent {
   padding:    10px 20px;
-  min-height: 500px;
   overflow-y: auto;
 }
 
@@ -231,13 +217,25 @@ p#breadcrumbs {
   outline: none;
 }
 
-th, td {
-  padding: 2px 5px;
+form { margin: 5px 25px; }
+
+th, td { padding: 2px 5px; }
+
+th {
+  font-weight:    normal;
+  text-align:     right;
+  vertical-align: top;
 }
 
-.tabcontent td#button {
-  text-align: right;
+tr#ip { display: none; }
+
+tr#review textarea {
+  width:  450px;
+  height: 500px;
 }
+
+td.buttons       { text-align: right; }
+td.buttons input { margin: 2px; }
 
 .ui-tabs-hide {
   display: none;
@@ -254,47 +252,17 @@ th, td {
   padding:    2px 5px;
 }
 
-.ui-autocomplete a:hover {
-  color: blue;
-  cursor: pointer;
+.ui-autocomplete li:hover {
+  color:            blue;
+  background-color: #dedbd1;
+  cursor:           pointer;
 }
 
-table {
-  margin: 5px;
-  margin-left: 25px;
-}
-
-th {
-  text-align:    left;
-  font-weight:   bold;
-  border-bottom: solid 1px;
-}
-
-form th {
-  font-weight: normal;
-  text-align: right;
-  vertical-align: top;
-  border: none;
-}
-
-form p { margin-left: 25px; }
-
-tr#ip { display: none; }
-
-tr#review textarea {
-  width: 450px;
-  height: 500px;
-
-}
-
-td.buttons { 
-  text-align: right;
-}
-
-td.buttons input { margin: 2px; }
+h3 .property { float: right; }
 
 .review {
   margin-bottom: 10px;
+
   border: solid 1px #dedbd1;
 
   -webkit-border-radius: 8px;
@@ -306,9 +274,7 @@ td.buttons input { margin: 2px; }
           box-shadow: #cecbc1 3px 3px 7px;
 }
 
-.review .property, .review .by, .review .content {
-  padding: 2px 5px;
-}
+.review p { margin: 0px; padding: 5px 15px; }
 
 .review .property p, .by p { 
   font-size: 85%;
@@ -344,46 +310,26 @@ td.buttons input { margin: 2px; }
   filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#fc4930', EndColorStr='white'); /* IE6–IE9 */
 }
 
-h3 .property { float: right; }
-
+/* todo: make this prettier */
 .note {
   font-size: 90%;
   font-style: italic;
   padding: 5px 25px;
 }
 
-/* override the 1px border added by chrome */
-input[type="email"] { padding: 0px; }
-
 /* thank you John Hicks! */
 
 /* mobile layout */
 @media all and (max-width: 800px) {
-  /* site-dependant */
-
+  /* todo:  */
 }
 
 /* desktop layout */
 @media all and (min-width: 801px) {
-  /* site-dependant */
-
+  /* todo: */
 }
 
 /* widescreen desktop layout */
 @media all and (min-width: 1280px) {
-  /* site-dependant */
-
+  /* todo: */
 }
-
-/* print */
-/*
-@media print {
-  body {
-    color: #bbb;
-    background-color: #ffffff;
-  }
-  h1, h2, h3, h4, h5, h6,
-  pre, strong { color: #000000; }
-  strong { font-weight: bold; }
-}
-*/
