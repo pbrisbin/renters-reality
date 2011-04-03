@@ -103,7 +103,7 @@ reviewForm ml ip rtype = do
                         <small>
                             <em>
                                 Reviews are parsed as pandoc-style markdown. 
-                                <a #pandoc-tips hef="#">Tips.
+                                <a #pandoc-tips href="#">Tips.
                 <tr>
                     <td>&nbsp;
                     <td .buttons colspan="2">
