@@ -244,6 +244,8 @@ td.buttons input { margin: 2px; }
   width:      60px;
   background: white;
   border:     solid 1px #dedbd1;
+  padding: 0px;
+  margin:  0px;
 }
 
 .ui-autocomplete li {

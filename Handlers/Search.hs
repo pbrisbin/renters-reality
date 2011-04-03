@@ -31,8 +31,11 @@ getSearchR = do
                     <h1>Reviews for #{landlord}
                     <div .tabdiv>
                         <div .tabcontent>
-                            $forall review <- reviews
-                                ^{shortReview review}
+                            $if null reviews
+                                ^{noneFound}
+                            $else
+                                $forall review <- reviews
+                                    ^{shortReview review}
                     |]
 
 -- | On a property search, the address criteria is POSTed. only zip is 
@@ -58,9 +61,25 @@ postSearchR = do
         <h1>Reviews by area
         <div .tabdiv>
             <div .tabcontent>
-                $forall review <- reviews
-                    ^{shortReview review}
+                $if null reviews
+                    ^{noneFound}
+                $else
+                    $forall review <- reviews
+                        ^{shortReview review}
             |]
+
+noneFound :: Widget ()
+noneFound = [hamlet|
+    <p>
+        I'm sorry, there are no reviews that meet your 
+        search criteria.
+
+    <p>
+        Would you like to 
+        <a href="@{NewR Positive}">write 
+        <a href="@{NewR Negative}">one
+        ?
+    |]
 
 showAllReviews :: Handler RepHtml
 showAllReviews = do

@@ -54,6 +54,12 @@ getNewR rtype = do
                 $("input#addrtwo").attr("placeholder"  , "Apt 4"                   );
                 $("input#timeframe").attr("placeholder", "2009 - 2010"             );
                 $("textarea#review").attr("placeholder", "What was it really like?");
+
+                /* auto complete the landlords */
+                $('input#landlord').autocomplete({
+                    source: "@{JsonLandlordsR}",
+                    selectFirst: true
+                });
             });
             |]
 
