@@ -182,7 +182,7 @@ ul.tabnav { margin: 0px; padding: 0px; }
   text-decoration: none;
 
   padding: 5px 20px;
-  padding-bottom: 2px;
+  padding-bottom: 0px;
 
   border: 1px solid #cecbc1;
   border-bottom: none;
