@@ -100,8 +100,8 @@ instance Yesod Renters where
                     <p #breadcrumbs>
                         $forall node <- h
                             <a href="@{fst node}">#{snd node} 
-                            \ >
-                            \ #{t}
+                            \ > 
+                        #{t}
 
                     <p #legal>
                         <a href="@{LegalR}">legal
@@ -153,7 +153,7 @@ getFaviconR = sendFile "image/x-icon" "favicon.ico"
 getRobotsR :: Handler RepPlain
 getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: String)
 
--- | Return values by key the query string
+-- | Return values by key from the query string
 getParam :: Request -> ParamName -> Maybe ParamValue
 getParam req param = M.lookup param . M.fromList $ reqGetParams req
 
@@ -208,4 +208,4 @@ humanReadableTimeDiff curTime oldTime =
 
 -- | Render from markdown, yesod-style
 markdownToHtml :: Markdown -> Html
-markdownToHtml = writePandoc yesodDefaultWriterOptions . parseMarkdown yesodDefaultParserStateTrusted
+markdownToHtml = writePandoc yesodDefaultWriterOptions . parseMarkdown yesodDefaultParserState
