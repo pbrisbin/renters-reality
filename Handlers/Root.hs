@@ -15,7 +15,6 @@ module Handlers.Root (getRootR) where
 
 import Yesod
 import Renters
-import Forms
 import qualified Settings
 
 -- | Home page
@@ -88,8 +87,25 @@ getRootR = defaultLayout $ do
                                     see a match for what you've entered, 
                                     that landlord is not in the system.
 
+
                         <h3>Search reviews by property
-                        <div>^{propertySearchForm}
+                        <div>
+                            <form method="post" action=@{SearchR}>
+                                    <table>
+                                        ^{tableRow "addrone" "Address line 1:" "248 Kelton St"}
+                                        ^{tableRow "addrtwo" "Address line 2:" "Apt 1"        }
+                                        ^{tableRow "city"    "City:"           ""             }
+                                        ^{tableRow "state"   "State:"          ""             }
+                                        <tr>
+                                            <th>
+                                                <label for="zip">Zip:
+                                            <td>
+                                                <input size=30 name="zip" required>
+
+                                        <tr #buttons>
+                                            <td>&nbsp;
+                                            <td>
+                                                <input type=submit value="Search">
 
             <div #landlord .tabdiv>
                 <div .tabcontent>
@@ -132,3 +148,13 @@ getRootR = defaultLayout $ do
                         Assume any data present is bogus, and anything 
                         you enter may be unexpectedly removed.
         |]
+
+        where
+            tableRow :: String -> String -> String -> Widget ()
+            tableRow name label placeholder = [hamlet|
+                <tr>
+                    <th>
+                        <label for=#{name}> #{label}
+                    <td>
+                        <input size=30 name=#{name} placeholder=#{placeholder}>
+                |]

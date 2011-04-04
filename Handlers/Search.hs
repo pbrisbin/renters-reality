@@ -6,14 +6,22 @@ import Yesod
 import Yesod.Markdown
 
 import Renters
-import Forms
 import Model
 
 import qualified Settings
 
-import Data.List  (intercalate, partition)
-import Data.Maybe (fromJust, isJust, fromMaybe)
-import Data.Time  (getCurrentTime)
+import Control.Applicative ((<$>),(<*>))
+import Data.List           (intercalate, partition)
+import Data.Maybe          (fromJust, isJust, fromMaybe)
+import Data.Time           (getCurrentTime)
+
+data AddrSearch = AddrSearch
+    { addrOne   :: Maybe String
+    , addrTwo   :: Maybe String
+    , addrCity  :: Maybe String
+    , addrState :: Maybe String
+    , addrZip   :: String
+    }
 
 -- | On a landlord search, the landlord name is a GET param. omitting 
 --   this value should display all results
@@ -68,18 +76,15 @@ postSearchR = do
                         ^{shortReview review}
             |]
 
-noneFound :: Widget ()
-noneFound = [hamlet|
-    <p>
-        I'm sorry, there are no reviews that meet your 
-        search criteria.
+    where
+        addrFromForm :: Handler AddrSearch
+        addrFromForm = runFormPost' $ AddrSearch
+            <$> maybeStringInput "addrone"
+            <*> maybeStringInput "addrtwo"
+            <*> maybeStringInput "city"
+            <*> maybeStringInput "state"
+            <*> stringInput "zip"
 
-    <p>
-        Would you like to 
-        <a href="@{NewR Positive}">write 
-        <a href="@{NewR Negative}">one
-        ?
-    |]
 
 showAllReviews :: Handler RepHtml
 showAllReviews = do
@@ -93,6 +98,19 @@ showAllReviews = do
                     $forall review <- reviews
                         ^{shortReview review}
             |]
+
+noneFound :: Widget ()
+noneFound = [hamlet|
+    <p>
+        I'm sorry, there are no reviews that meet your 
+        search criteria.
+
+    <p>
+        Would you like to 
+        <a href="@{NewR Positive}">write 
+        <a href="@{NewR Negative}">one
+        ?
+    |]
 
 shortReview :: Review -> Widget ()
 shortReview review = do
@@ -130,15 +148,6 @@ formatProperty p = intercalate ", "
     , propertyCity    p
     , propertyState   p
     ]
-
-formatAddr :: AddrSearch -> String
-formatAddr a = intercalate ", " $ maybeFields ++ [addrZip a]
-    where
-        maybeFields = map fromJust $ filter isJust
-            [ addrOne   a
-            , addrCity  a
-            , addrState a
-            ]
 
 shorten :: Int -> String -> String
 shorten n s = if length s > n then take n s ++ "..." else s

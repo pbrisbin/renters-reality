@@ -7,7 +7,6 @@ import Yesod.Markdown
 
 import Renters
 import Model
-import Forms
 
 import Control.Applicative ((<$>),(<*>))
 import Control.Monad       (forM)
