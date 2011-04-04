@@ -207,7 +207,5 @@ humanReadableTimeDiff curTime oldTime =
               | otherwise      = "on " ++ previousYears
 
 -- | Render from markdown, yesod-style
-markdownToHtml :: Markdown -> Handler Html
-markdownToHtml = (writePandoc yesodDefaultWriterOptions <$>) 
-               . addTitles
-               . parseMarkdown yesodDefaultParserStateTrusted
+markdownToHtml :: Markdown -> Html
+markdownToHtml = writePandoc yesodDefaultWriterOptions . parseMarkdown yesodDefaultParserStateTrusted

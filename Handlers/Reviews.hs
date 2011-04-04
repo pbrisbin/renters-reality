@@ -28,8 +28,9 @@ getReviewsR ref = do
             case (mlandlord,mproperty,mreviewer) of
                 (Just landlord, Just property, Just reviewer) -> do
                     now       <- liftIO getCurrentTime
-                    content   <- markdownToHtml $ Markdown $ reviewContent review
                     plusminus <- getPlusMinus landlord
+
+                    let content = markdownToHtml . Markdown $ reviewContent review
                     defaultLayout $ do
                         Settings.setTitle "View review"
                         [hamlet|

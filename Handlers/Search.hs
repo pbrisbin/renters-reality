@@ -118,7 +118,8 @@ shortReview review = do
     mreviewer <- lift $ findByKey (reviewReviewer review)
     mproperty <- lift $ findByKey (reviewProperty review)
     mlandlord <- lift $ findByKey (reviewLandlord review)
-    content   <- lift . markdownToHtml . Markdown . shorten 400 $ reviewContent review
+
+    let content = markdownToHtml . Markdown . shorten 400 $ reviewContent review
     
     [hamlet|
         <div .review>
