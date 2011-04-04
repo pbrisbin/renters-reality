@@ -192,9 +192,7 @@ ul.tabnav { margin: 0px; padding: 0px; }
 }
 
 /* also used as an inner container on non-tabbed pages */
-.tabcontent {
-  padding: 10px 20px;
-}
+.tabcontent { padding: 10px 20px; }
 
 .accordian h3 {
   cursor:  pointer;

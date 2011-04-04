@@ -106,12 +106,12 @@ instance Yesod Renters where
                     <p #legal>
                         <a href="@{LegalR}">legal
 
-                    <section .content>
-                        ^{pageBody pc}
+                    ^{pageBody pc}
 
                     <footer>
                         <p>
-                            <small>copyright patrick brisbin 2011
+                            <small>copyright patrick brisbin 2011. 
+                            <a href="https://github.com/pbrisbin/renters-reality">source code.
             |]
 
     urlRenderOverride a (StaticR s) = Just $ uncurry (joinPath a Settings.staticRoot) $ renderRoute s
