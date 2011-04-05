@@ -87,6 +87,7 @@ instance Yesod Renters where
             <html lang="en">
                 <head>
                     <meta charset="utf-8">
+                    <link href="http://fonts.googleapis.com/css?family=Cardo" rel=stylesheet type=text/css>
                     <title>#{pageTitle pc}
                     <meta name="description" content="Submit and search reviews for landlords in your area.">
                     <meta name="author" content="Patrick Brisbin">

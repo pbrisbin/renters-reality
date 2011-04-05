@@ -92,6 +92,7 @@ ul, ol, dl {
 
 h1, h2, h3, 
 h4, h5, h6 { 
+  font-family: "Cardio","Georgia Sans",sans-serif;
   font-weight: normal;
   text-shadow: black 1px 1px 1px;
 }
@@ -102,7 +103,14 @@ h3, h4, h5, h6 { font-size: 1.25em; }
 
 body {
   color: white;
+
   background-color: #615b5b;
+  background-image: -moz-linear-gradient(top, #212121, #615b5b); /* FF3.6 */
+  background-image: -o-linear-gradient(top, #212121, #615b5b); /* Opera 11.10+ */
+  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #212121),color-stop(1, #615b5b)); /* Saf4+, Chrome */
+  background-image: -webkit-linear-gradient(#212121, #615b5b); /* Chrome 10+, Saf5.1+ */
+  background-image: linear-gradient(top, #212121, #615b5b);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#212121', EndColorStr= '#615b5b'); /* IE6–IE9 */
 
   text-align:  justify;
   width:       90%;
@@ -114,10 +122,16 @@ body {
 footer {
   font-size: 90%;
   text-align: center;
+  text-shadow: black 1px 1px 1px;
 }
 
 a:link, a:hover, a:visited { 
   color: #1af269;
+  text-decoration: none;
+}
+
+.tabdiv a:link, .tabdiv a:hover, .tabdiv a:visited {
+  color: blue;
   text-decoration: none;
 }
 
@@ -147,6 +161,7 @@ p#breadcrumbs, p#legal {
   margin:    0px;
   position:  absolute;
   top:       5px;
+  text-shadow: black 1px 1px 1px;
 }
 
 p#breadcrumbs { left:  10px; }
@@ -166,27 +181,30 @@ ul.tabnav { margin: 0px; padding: 0px; }
 }
 
 .tabnav li a {
-  color: black;
-  background-color: #f3861d;
+  color: inherit;
+  background-color: inherit;
   font-weight: bold;
   text-transform: uppercase;
   text-decoration: none;
+  text-shadow: black 1px 1px 1px;
 
+  z-index: 5;
   padding: 5px 20px;
   padding-bottom: 1px;
 
-  border: 1px solid black;
-  border-bottom: none;
 }
 
 /* selected tab */
 .tabnav li.ui-tabs-selected a { 
-
+  color: black;
+  background-color: white;
+  border: 1px solid black;
+  border-bottom: 1px solid white;
+  text-shadow: none;
 }
 
 .tabnav li a:hover, .tabnav li a:active {
-  color: inherit;
-  background-color: #ff4800;
+  color: #1af269;
 }
 
 .tabdiv {
@@ -194,9 +212,9 @@ ul.tabnav { margin: 0px; padding: 0px; }
   background-color: white;
   border: 1px solid black;
 
-  -webkit-box-shadow: black 0px 2px 8px;
-     -moz-box-shadow: black 0px 2px 8px;
-          box-shadow: black 0px 2px 8px;
+  -webkit-box-shadow: black 0px 2px 12px;
+     -moz-box-shadow: black 0px 2px 12px;
+          box-shadow: black 0px 2px 12px;
 }
 
 .tabdiv h1, .tabdiv h2, .tabdiv h3,
@@ -238,41 +256,46 @@ td.buttons input { margin: 2px; }
 .ui-autocomplete {
   width:      60px;
   background: white;
-  border:     solid 1px;
+  border:     solid 1px black;
   padding:    0px;
   margin:     0px;
 }
 
 .ui-autocomplete li {
+  color:      black;
   list-style: none;
   padding:    2px 5px;
 }
 
-.ui-autocomplete li:hover {
-  color:            blue;
-  cursor:           pointer;
-}
+.ui-autocomplete li:hover { cursor: pointer; }
 
 /* review summaries */
 h3 .property { float: right; }
 
 .review {
+  color: black;
+  background-color: white;
+
   margin-bottom: 10px;
 
-  border: solid 1px;
+  border: solid 1px black;
 
   -webkit-border-radius: 6px;
      -moz-border-radius: 6px;
           border-radius: 6px;
 
-  -webkit-box-shadow: #bbb 3px 3px 7px;
-     -moz-box-shadow: #bbb 3px 3px 7px;
-          box-shadow: #bbb 3px 3px 7px;
+  -webkit-box-shadow: black 3px 3px 7px;
+     -moz-box-shadow: black 3px 3px 7px;
+          box-shadow: black 3px 3px 7px;
 }
 
 .review p { margin: 0px; padding: 5px 15px; }
 
-.review .property p, .by p { 
+.review .property p {
+  font-size: 120%;
+}
+
+.by p { 
   font-size: 85%;
   font-style: italic;
 }
@@ -287,23 +310,23 @@ h3 .property { float: right; }
 }
 
 .Positive .property {
-  background-color: #b0d87c;
-  background-image: -moz-linear-gradient(top, #b0d87c, white); /* FF3.6 */
-  background-image: -o-linear-gradient(top, #b0d87c, white); /* Opera 11.10+ */
-  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #b0d87c),color-stop(1, white)); /* Saf4+, Chrome */
-  background-image: -webkit-linear-gradient(#b0d87c, white); /* Chrome 10+, Saf5.1+ */
-  background-image: linear-gradient(top, #b0d87c, white);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#b0d87c', EndColorStr='white'); /* IE6–IE9 */
+  background-color: #1af269;
+  background-image: -moz-linear-gradient(top, #1af269, white); /* FF3.6 */
+  background-image: -o-linear-gradient(top, #1af269, white); /* Opera 11.10+ */
+  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #1af269),color-stop(1, white)); /* Saf4+, Chrome */
+  background-image: -webkit-linear-gradient(#1af269, white); /* Chrome 10+, Saf5.1+ */
+  background-image: linear-gradient(top, #1af269, white);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#1af269', EndColorStr='white'); /* IE6–IE9 */
 }
 
 .Negative .property {
-  background-color: #fc4930;
-  background-image: -moz-linear-gradient(top, #fc4930, white); /* FF3.6 */
-  background-image: -o-linear-gradient(top, #fc4930, white); /* Opera 11.10+ */
-  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #fc4930),color-stop(1, white)); /* Saf4+, Chrome */
-  background-image: -webkit-linear-gradient(#fc4930, white); /* Chrome 10+, Saf5.1+ */
-  background-image: linear-gradient(top, #fc4930, white);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#fc4930', EndColorStr='white'); /* IE6–IE9 */
+  background-color: #ff4800;
+  background-image: -moz-linear-gradient(top, #ff4800, white); /* FF3.6 */
+  background-image: -o-linear-gradient(top, #ff4800, white); /* Opera 11.10+ */
+  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #ff4800),color-stop(1, white)); /* Saf4+, Chrome */
+  background-image: -webkit-linear-gradient(#ff4800, white); /* Chrome 10+, Saf5.1+ */
+  background-image: linear-gradient(top, #ff4800, white);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#ff4800', EndColorStr='white'); /* IE6–IE9 */
 }
 
 /* todo: make this prettier */
