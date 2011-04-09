@@ -14,6 +14,7 @@
 module Controller (withServer) where
 
 import Yesod
+import Yesod.Comments.Storage
 import Yesod.Helpers.Static
 import Renters
 import Model
@@ -36,6 +37,7 @@ mkYesodDispatch "Renters" resourcesRenters
 withServer :: (Application -> IO a) -> IO a
 withServer f = Settings.withConnectionPool $ \p -> do
     runSqlPool (runMigration doMigration) p
+    runSqlPool (runMigration migrateComments) p
     f =<< toWaiApp (Renters s p)
     where
         s = static Settings.staticDir

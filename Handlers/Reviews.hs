@@ -6,6 +6,7 @@ module Handlers.Reviews
     ) where
 
 import Yesod
+import Yesod.Comments hiding (markdownToHtml)
 import Yesod.Markdown
 import Renters
 import Model
@@ -52,6 +53,10 @@ getReviewsR ref = do
                                         <p>
                                             Submitted by #{reviewerName reviewer} 
                                             #{humanReadableTimeDiff now $ reviewCreatedDate review}
+
+                                    <h3>Discussion
+                                    <div .discussion>
+                                        ^{addComments $ show $ reviewReference review}
                             |]
 
                 _ -> notFound

@@ -16,6 +16,8 @@
 module Renters where
 
 import Yesod
+import Yesod.Comments
+import Yesod.Comments.Storage
 import Yesod.Markdown
 import Yesod.Form.Core (GFormMonad)
 import Yesod.Helpers.Static
@@ -145,6 +147,12 @@ instance YesodBreadcrumbs Renters where
     breadcrumb (ReviewsR _) = return ("View review"   , Just RootR)
     breadcrumb (NewR _)     = return ("New review"    , Just RootR)
     breadcrumb LegalR       = return ("Legal info"    , Just RootR)
+
+instance YesodComments Renters where
+    getComment    = getCommentPersist
+    storeComment  = storeCommentPersist
+    deleteComment = deleteCommentPersist
+    loadComments  = loadCommentsPersist
 
 -- | Favicon
 getFaviconR :: Handler ()
