@@ -135,7 +135,7 @@ blockquote {
 .Positive blockquote { border-left: solid 4px #b0d87c; }
 .Negative blockquote { border-left: solid 4px #fc4930; }
 
-p#breadcrumbs, p#legal {
+#breadcrumbs, #right-nav {
   font-size: 85%;
   padding:   0px;
   margin:    0px;
@@ -143,8 +143,8 @@ p#breadcrumbs, p#legal {
   top:       5px;
 }
 
-p#breadcrumbs { left:  10px; }
-p#legal       { right: 10px; }
+#breadcrumbs { left:  10px; }
+#right-nav   { right: 10px; }
 
 ul.tabnav { margin: 0px; padding: 0px; }
 
@@ -303,6 +303,42 @@ h3 .property { float: right; }
   padding: 5px 25px;
 }
 
+/* login */
+#login {
+  margin: 0px auto;
+  max-width: 500px;
+  padding: 5px;
+  border:  dotted 1px #999;
+}
+
+#login table {
+  margin: 5px auto;
+}
+
+#login td {
+  margin: 0px;
+  padding: 0px;
+
+  vertical-align: middle;
+  text-align: center;
+}
+
+#login .services td {
+  height: 50;
+  width: 150px;
+}
+
+#login .open-id h3 {
+  text-align: center;
+}
+
+/* profile pages */
+p.edit-button, p.delete-button {
+  text-transform: uppercase;
+  text-align: right;
+}
+
+/* comments */
 .discussion { 
   padding: 5px;
   padding-left: 10px;

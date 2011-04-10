@@ -6,7 +6,7 @@ import Yesod
 import Yesod.Markdown
 
 import Renters
-import Model
+import Model hiding (shorten)
 
 import qualified Settings
 
@@ -88,7 +88,7 @@ postSearchR = do
 
 showAllReviews :: Handler RepHtml
 showAllReviews = do
-    reviews <- return . map snd =<< runDB (selectList [] [ReviewCreatedDateDesc] 0 0)
+    reviews <- runDB $ selectList [] [ReviewCreatedDateDesc] 0 0
     defaultLayout $ do
         Settings.setTitle "Search"
         [hamlet|
@@ -112,8 +112,8 @@ noneFound = [hamlet|
         ?
     |]
 
-shortReview :: Review -> Widget ()
-shortReview review = do
+shortReview :: (ReviewId, Review) -> Widget ()
+shortReview (rid, review) = do
     now       <- lift $ liftIO getCurrentTime
     mreviewer <- lift $ findByKey (reviewReviewer review)
     mproperty <- lift $ findByKey (reviewProperty review)
@@ -135,12 +135,12 @@ shortReview review = do
                 <div .by>
                     $maybe reviewer <- mreviewer
                         <p>
-                            Reviewed by #{reviewerName reviewer} #{humanReadableTimeDiff now $ reviewCreatedDate review}. 
-                            <a href="@{ReviewsR $ reviewReference review}">View
+                            Reviewed by #{showName reviewer} #{humanReadableTimeDiff now $ reviewCreatedDate review}. 
+                            <a href="@{ReviewsR $ rid}">View
                     $nothing
                         <p>
                             Reviewed #{humanReadableTimeDiff now $ reviewCreatedDate review}. 
-                            <a href="@{ReviewsR $ reviewReference review}">View
+                            <a href="@{ReviewsR $ rid}">View
         |]
 
 formatProperty :: Property -> String

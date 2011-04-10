@@ -15,6 +15,7 @@ module Handlers.Root (getRootR) where
 
 import Yesod
 import Renters
+import Model
 import qualified Settings
 
 -- | Home page

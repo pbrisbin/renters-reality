@@ -15,6 +15,7 @@ module Controller (withServer) where
 
 import Yesod
 import Yesod.Comments.Storage
+import Yesod.Helpers.Auth
 import Yesod.Helpers.Static
 import Renters
 import Model
@@ -23,6 +24,7 @@ import Handlers.Root
 import Handlers.Legal
 import Handlers.Search
 import Handlers.New
+import Handlers.Profile
 import Handlers.Reviews
 import Handlers.Json
 

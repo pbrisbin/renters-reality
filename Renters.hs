@@ -20,20 +20,28 @@ import Yesod.Comments
 import Yesod.Comments.Storage
 import Yesod.Markdown
 import Yesod.Form.Core (GFormMonad)
+import Yesod.Helpers.Auth
+import Yesod.Helpers.Auth.OpenId
+import Yesod.Helpers.Auth.Facebook
 import Yesod.Helpers.Static
 
 import Data.Time
 import System.Locale
 
 import Control.Applicative ((<$>))
-import Data.Char        (isSpace)
-import Control.Monad    (unless)
-import System.Directory (doesFileExist, createDirectoryIfMissing)
-import Text.Jasmine     (minifym)
+import Control.Monad       (unless, liftM)
+import Data.Char           (isSpace)
+import Data.List           (intercalate)
+import Data.Maybe          (fromMaybe, fromJust)
+import System.Directory    (doesFileExist, createDirectoryIfMissing)
+import Text.Jasmine        (minifym)
+import Web.Routes          (encodePathInfo)
 
 import Database.Persist.GenericSql
 import qualified Data.ByteString.Lazy as L
 import qualified Data.Map as M
+
+import Model
 
 import qualified Settings
 
@@ -46,9 +54,6 @@ data Renters = Renters
 type Handler     = GHandler   Renters Renters
 type Widget      = GWidget    Renters Renters
 type FormMonad a = GFormMonad Renters Renters a
-
--- | Reviews can be good or bad
-data ReviewType = Positive | Negative deriving (Show,Read,Eq)
 
 instance SinglePiece ReviewType where
     toSinglePiece Positive = "positive"
@@ -64,13 +69,18 @@ mkYesodData "Renters" [parseRoutes|
 
     /new/#ReviewType    NewR     GET POST
     /search/            SearchR  GET POST
-    /reviews/#Int       ReviewsR GET POST
+    /reviews/#ReviewId  ReviewsR GET POST
+
+    /profile         ProfileR        GET
+    /profile/edit    EditProfileR    GET POST
+    /profile/delete  DeleteProfileR  GET
 
     /json/landlords     JsonLandlordsR  GET
     /json/reviews       JsonReviewsR    GET
 
     /legal              LegalR   GET
     /static             StaticR Static getStatic
+    /auth               AuthR   Auth   getAuth
 
     /favicon.ico FaviconR GET
     /robots.txt  RobotsR  GET
@@ -79,11 +89,29 @@ mkYesodData "Renters" [parseRoutes|
 staticFiles Settings.staticDir
 
 instance Yesod Renters where 
-    approot _   = Settings.approot
+    approot   _ = Settings.approot
+    authRoute _ = Just $ AuthR LoginR
+
+    -- fix for OpenId
+    joinPath _ ar pieces qs = ar ++ '/' : encodePathInfo pieces qs
+        where
+            pieces'
+                | pieces == ["page", "openid", "complete"] = ["page", "openid", "complete", ""]
+                | otherwise = pieces
+
+    cleanPath _ ["page", "openid", "complete", ""] = Right ["page", "openid", "complete"]
+    cleanPath _ s = if corrected == s then Right s else Left corrected
+        where
+            corrected = filter (not . null) s
 
     defaultLayout widget = do
         (t,h) <- breadcrumbs
+        mmesg <- getMessage
         pc    <- widgetToPageContent widget
+
+        mauth   <- maybeAuth
+        authNav <- return . pageBody =<< widgetToPageContent (authNavHelper mauth)
+
         hamletToRepHtml [hamlet|
             \<!DOCTYPE html>
             <html lang="en">
@@ -100,14 +128,18 @@ instance Yesod Renters where
                     <script src="@{StaticR js_jquery_ui_autocomplete_selectFirst_js}">
                     ^{pageHead pc}
                 <body>
-                    <p #breadcrumbs>
-                        $forall node <- h
-                            <a href="@{fst node}">#{snd node} 
-                            \ > 
-                        #{t}
+                    <div #breadcrumbs>
+                        <p>
+                            $forall node <- h
+                                <a href="@{fst node}">#{snd node} 
+                                \ > 
+                            #{t}
 
-                    <p #legal>
-                        <a href="@{LegalR}">legal
+                    <div #right-nav>
+                        <p>
+                            ^{authNav}
+                            \ | 
+                            <a href="@{LegalR}">legal
 
                     ^{pageBody pc}
 
@@ -142,17 +174,80 @@ instance YesodPersist Renters where
     runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
 
 instance YesodBreadcrumbs Renters where
-    breadcrumb RootR        = return ("Home"          , Nothing   )
-    breadcrumb SearchR      = return ("Search reviews", Just RootR)
-    breadcrumb (ReviewsR _) = return ("View review"   , Just RootR)
-    breadcrumb (NewR _)     = return ("New review"    , Just RootR)
-    breadcrumb LegalR       = return ("Legal info"    , Just RootR)
+    breadcrumb RootR          = return ("Home"   , Nothing      )
+    breadcrumb SearchR        = return ("search" , Just RootR   )
+    breadcrumb (ReviewsR _)   = return ("view"   , Just RootR   )
+    breadcrumb (NewR _)       = return ("new"    , Just RootR   )
+    breadcrumb LegalR         = return ("legal"  , Just RootR   )
+    breadcrumb (AuthR _)      = return ("login"  , Just RootR   )
+    breadcrumb ProfileR       = return ("profile", Just RootR   )
+    breadcrumb EditProfileR   = return ("edit"   , Just ProfileR)
+    breadcrumb DeleteProfileR = return ("delete" , Just ProfileR)
 
 instance YesodComments Renters where
     getComment    = getCommentPersist
     storeComment  = storeCommentPersist
     deleteComment = deleteCommentPersist
     loadComments  = loadCommentsPersist
+
+instance YesodAuth Renters where
+    type AuthId Renters = UserId
+
+    loginDest _  = RootR
+    logoutDest _ = RootR
+
+    getAuthId creds = do
+        muid <- maybeAuth
+        x <- runDB $ getBy $ UniqueIdent $ credsIdent creds
+        case (x, muid) of
+            (Just (_, i), Nothing) -> return $ Just $ identUser i
+            (Nothing, Nothing) -> runDB $ do
+                uid <- insert $ User
+                    { userFullname      = Nothing
+                    , userUsername      = Nothing
+                    , userEmail         = Nothing
+                    , userVerifiedEmail = False
+                    , userVerkey        = Nothing
+                    }
+                _ <- insert $ Ident (credsIdent creds) uid
+                return $ Just uid
+            (Nothing, Just (uid, _)) -> do
+                setMessage "Identifier added to your account"
+                _ <- runDB $ insert $ Ident (credsIdent creds) uid
+                return $ Just uid
+            (Just _, Just _) -> do -- todo: what is this use case?
+                setMessage "That identifier is already attached to an account. Please detach it from the other account first."
+                redirect RedirectTemporary ProfileR
+
+    showAuthId _ = showIntegral
+    readAuthId _ = readIntegral
+
+    authPlugins = [ authOpenId ]
+
+    loginHandler = defaultLayout [hamlet|
+        <div #login>
+            <h3>Please login using one of the following:
+            <div .services>
+                <table>
+                    <tr>
+                        <td>
+                            <form method="get" action="@{AuthR forwardUrl}" .button .google>
+                                <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
+                                <input type="image" src="@{StaticR google_gif}" value="Login via Google">
+                        <td>
+                            <form method="get" action="@{AuthR forwardUrl}" .button .yahoo>
+                                <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
+                                <input type="image" src="@{StaticR yahoo_gif}" value="Login via Yahoo!">
+
+            <div .open-id>
+                <h3>&mdash; OR &mdash;
+                <table>
+                    <tr>
+                        <td>
+                            <form method="get" action="@{AuthR forwardUrl}">
+                                <input id="openid_identifier" type="text" name="openid_identifier" value="http://">
+                                <input id="openid_submit" type="submit" value="Login via OpenID">
+        |]
 
 -- | Favicon
 getFaviconR :: Handler ()
@@ -165,6 +260,60 @@ getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: String)
 -- | Return values by key from the query string
 getParam :: Request -> ParamName -> Maybe ParamValue
 getParam req param = M.lookup param . M.fromList $ reqGetParams req
+
+authNavHelper :: Maybe (UserId, User) -> GWidget s Renters ()
+authNavHelper Nothing         = [hamlet|<a href="@{AuthR LoginR}">login|]
+authNavHelper (Just (uid, u)) = [hamlet|
+    <a href="@{ProfileR}" title="Manage your profile">#{showName u}
+    \ | 
+    <a href="@{AuthR LogoutR}">logout
+    |]
+
+-- General db helpers:
+
+-- | Find or create an entity, returning its key in both cases
+findOrCreate :: PersistEntity a => a -> Handler (Key a)
+findOrCreate v = do
+    result <- runDB $ insertBy v
+    case result of
+        Left (k,v') -> return k
+        Right k     -> return k
+
+-- | Find an entity by its key
+findByKey :: PersistEntity a => Key a -> Handler (Maybe a)
+findByKey key = runDB $ get key
+
+-- | Takes a filter type constructor (SqlFooEq) and a Maybe value, if 
+--   the value is not Nothing or Just "", then it returns a listed 
+--   application of the constructor on the unwrapped value ([SqlFooEq 
+--   x]) to be added to a select statement, otherwise the list is 
+--   returned empty and that condition is discarded by the caller. It 
+--   sounds more complicated than it really is...
+--
+--   todo: generalize this beyond Maybe String...
+--
+maybeCriteria :: (String -> t) -> Maybe String -> [t]
+maybeCriteria f v = if notNull v then [ f (fromJust v) ] else []
+    where
+        notNull :: Maybe String -> Bool
+        notNull Nothing   = False
+        notNull (Just "") = False
+        notNull _         = True
+
+-- Site-specific db helpers
+
+reviewsByLandlord :: Landlord -> Handler [(ReviewId, Review)]
+reviewsByLandlord landlord = do
+    key <- findOrCreate landlord
+    runDB $ selectList [ReviewLandlordEq key] [ReviewCreatedDateDesc] 0 0
+
+reviewsByProperty :: [Property] -> Handler [(ReviewId, Review)]
+reviewsByProperty properties = liftM concat $ mapM go properties 
+    where
+        go :: Property -> Handler [(ReviewId, Review)]
+        go property = do
+            key <- findOrCreate property
+            runDB $ selectList [ReviewPropertyEq key] [ReviewCreatedDateDesc] 0 0
 
 -- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
 -- <https://github.com/snoyberg/haskellers/blob/master/LICENSE>

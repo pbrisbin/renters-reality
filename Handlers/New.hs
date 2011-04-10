@@ -4,6 +4,7 @@ module Handlers.New (getNewR, postNewR) where
 
 import Yesod
 import Yesod.Markdown
+import Yesod.Helpers.Auth
 
 import Renters
 import Model
@@ -20,8 +21,6 @@ import qualified Settings
 data ReviewForm = ReviewForm
     { rfIp        :: String
     , rfLandlord  :: String
-    , rfName      :: String
-    , rfEmail     :: String
     , rfAddrOne   :: String
     , rfAddrTwo   :: Maybe String
     , rfCity      :: String
@@ -38,6 +37,8 @@ data MarkdownExample = MarkdownExample
 
 getNewR :: ReviewType -> Handler RepHtml
 getNewR rtype = do
+    (uid, _) <- requireAuth
+
     req <- getRequest
     defaultLayout $ do
         Settings.setTitle "New review"
@@ -67,7 +68,7 @@ getNewR rtype = do
 
             <div .tabdiv>
                 <div .tabcontent>
-                    ^{runReviewForm (getParam req "landlord") rtype}
+                    ^{runReviewForm uid (getParam req "landlord") rtype}
 
             <div #markdown-help>
                 <span style="float: right;">
@@ -107,29 +108,28 @@ mdExamples = [ MarkdownExample "*italic text*"
 postNewR :: ReviewType -> Handler RepHtml
 postNewR = getNewR
 
-runReviewForm :: Maybe String -> ReviewType -> Widget ()
-runReviewForm ml rtype = do
+runReviewForm :: UserId -> Maybe String -> ReviewType -> Widget ()
+runReviewForm uid ml rtype = do
     ip <- lift $ return . show . remoteHost =<< waiRequest
-    ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm ml ip rtype
+    ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm uid ml ip rtype
     case res of
         FormMissing    -> return ()
         FormFailure _  -> return ()
         FormSuccess rf -> lift $ do
             tm  <- getRouteToMaster
-            ref <- insertFromForm rtype rf
-            redirect RedirectTemporary $ tm (ReviewsR ref)
+            rid <- insertFromForm uid rtype rf
+            redirect RedirectTemporary $ tm (ReviewsR rid)
 
     [hamlet|<form enctype="#{enctype}" method="post"> ^{form}|]
 
-reviewForm :: Maybe String -- ^ maybe landlord name
-           -> String      -- ^ IP address of submitter
-           -> ReviewType  -- ^ positive or negative
+reviewForm :: UserId       -- ^ Reviewer
+           -> Maybe String -- ^ maybe landlord name
+           -> String       -- ^ IP address of submitter
+           -> ReviewType   -- ^ positive or negative
            -> FormMonad (FormResult ReviewForm, Widget())
-reviewForm ml ip rtype = do
+reviewForm uid ml ip rtype = do
     (fIp       , fiIp       ) <- hiddenField      (ffs ""             "ip"       ) $ Just ip
     (fLandlord , fiLandlord ) <- stringField      (ffs "Landlord:"    "landlord" ) $ ml
-    (fName     , fiName     ) <- stringField      (ffs "Your name:"   "name"     ) $ Nothing
-    (fEmail    , fiEmail    ) <- emailField       (ffs "Your email:"  "email"    ) $ Nothing
     (fAddrOne  , fiAddrOne  ) <- stringField      (ffs "Address (1):" "addrone"  ) $ Nothing
     (fAddrTwo  , fiAddrTwo  ) <- maybeStringField (ffs "Address (2):" "addrtwo"  ) $ Nothing
     (fCity     , fiCity     ) <- stringField      (ffs "City:"        "city"     ) $ Nothing
@@ -139,19 +139,13 @@ reviewForm ml ip rtype = do
     (fReview   , fiReview   ) <- markdownField    (ffs "Review:"      "review"   ) $ Nothing
 
     return (ReviewForm 
-        <$> fIp        <*> fLandlord <*> fName
-        <*> fEmail     <*> fAddrOne  <*> fAddrTwo 
-        <*> fCity      <*> fState    <*> fZip 
-        <*> fTimeframe <*> fReview, [hamlet|
+        <$> fIp      <*> fLandlord  
+        <*> fAddrOne <*> fAddrTwo <*> fCity 
+        <*> fState   <*> fZip     <*> fTimeframe 
+        <*> fReview, [hamlet|
             <table .review-form>
                 ^{fieldRow fiIp}
                 ^{fieldRow fiLandlord}
-
-                <tr .spacer>
-                    <td colspan="3">&nbsp;
-
-                ^{fieldRow fiName}
-                ^{fieldRow fiEmail}
 
                 <tr .spacer>
                     <td colspan="3">&nbsp;
@@ -201,8 +195,8 @@ reviewForm ml ip rtype = do
                         &nbsp;
             |]
 
-insertFromForm :: ReviewType -> ReviewForm -> Handler Int
-insertFromForm rtype rf = do
+insertFromForm :: UserId -> ReviewType -> ReviewForm -> Handler ReviewId
+insertFromForm uid rtype rf = do
     now <- liftIO getCurrentTime
 
     landlordId <- findOrCreate $ Landlord $ rfLandlord rf
@@ -217,26 +211,16 @@ insertFromForm rtype rf = do
 
     _ <- findOrCreate $ Ownership propertyId landlordId
 
-    reviewerId <- findOrCreate $ Reviewer
-        { reviewerName      = rfName rf
-        , reviewerEmail     = rfEmail rf
-        , reviewerIpAddress = rfIp rf
-        }
-
-    ref <- newRef
-
     runDB $ insert $ Review
-            { reviewReference   = ref
-            , reviewType        = rtype
+            { reviewType        = rtype
             , reviewCreatedDate = now
+            , reviewIpAddress   = rfIp rf
             , reviewContent     = unMarkdown $ rfReview rf
             , reviewTimeframe   = rfTimeframe rf
-            , reviewReviewer    = reviewerId
+            , reviewReviewer    = uid
             , reviewLandlord    = landlordId
             , reviewProperty    = propertyId
             }
-
-    return ref
 
     where
         unMarkdown (Markdown m) = m

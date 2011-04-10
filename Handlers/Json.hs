@@ -9,9 +9,10 @@ import Yesod
 import Renters
 import Model
 
-import Data.Char (toLower)
-import Data.List (isInfixOf, intercalate)
-import Data.Time (getCurrentTime)
+import Data.Char  (toLower)
+import Data.List  (isInfixOf, intercalate)
+import Data.Time  (getCurrentTime)
+import Data.Maybe (fromMaybe)
 
 getJsonLandlordsR :: Handler RepJson
 getJsonLandlordsR = do
@@ -61,13 +62,10 @@ jsonReview review = do
 
     -- related reviewer
     mreviewer <- findByKey $ reviewReviewer review
-    let reviewer = case mreviewer of
-            Just reviewer' -> reviewerName reviewer'
-            Nothing        -> ""
+    let reviewer = fromMaybe "" $ fmap showName mreviewer
 
     return $ jsonMap
-        [ ("reference", jsonScalar . show                      $ reviewReference review  )
-        , ("type"     , jsonScalar . formatType                $ reviewType review       )
+        [ ("type"     , jsonScalar . formatType                $ reviewType review       )
         , ("created"  , jsonScalar . humanReadableTimeDiff now $ reviewCreatedDate review)
         , ("content"  , jsonScalar                             $ reviewContent review    )
         , ("landlord" , jsonScalar landlord                                              )

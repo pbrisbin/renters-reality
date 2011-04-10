@@ -17,53 +17,51 @@ import Data.Time  (getCurrentTime)
 
 import qualified Settings
 
-getReviewsR :: Int -> Handler RepHtml
-getReviewsR ref = do
-    mrev <- runDB $ getBy (UniqueReview ref)
-    case mrev of
-        Nothing          -> notFound
-        Just (k, review) -> do
-            mlandlord <- findByKey (reviewLandlord  review)
-            mproperty <- findByKey (reviewProperty  review)
-            mreviewer <- findByKey (reviewReviewer  review)
-            case (mlandlord,mproperty,mreviewer) of
-                (Just landlord, Just property, Just reviewer) -> do
-                    now       <- liftIO getCurrentTime
-                    plusminus <- getPlusMinus landlord
+getReviewsR :: ReviewId -> Handler RepHtml
+getReviewsR rid = do
+    review    <- runDB $ get404 rid
+    mlandlord <- findByKey (reviewLandlord  review)
+    mproperty <- findByKey (reviewProperty  review)
+    mreviewer <- findByKey (reviewReviewer  review)
 
-                    let content = markdownToHtml . Markdown $ reviewContent review
-                    defaultLayout $ do
-                        Settings.setTitle "View review"
-                        [hamlet|
-                            <h1>View review
-                            <div .tabdiv>
-                                <div .tabcontent>
-                                    <h3>
-                                        <a href="@{SearchR}?landlord=#{landlordName landlord}">#{landlordName landlord} (#{plusminus}) 
-                                        <span .property>#{formatProperty property}
+    case (mlandlord,mproperty,mreviewer) of
+        (Just landlord, Just property, Just reviewer) -> do
+            now       <- liftIO getCurrentTime
+            plusminus <- getPlusMinus landlord
 
-                                    <div .view-review>
-                                        <p>Review:
+            let content = markdownToHtml . Markdown $ reviewContent review
+            defaultLayout $ do
+                Settings.setTitle "View review"
+                [hamlet|
+                    <h1>View review
+                    <div .tabdiv>
+                        <div .tabcontent>
+                            <h3>
+                                <a href="@{SearchR}?landlord=#{landlordName landlord}">#{landlordName landlord} (#{plusminus}) 
+                                <span .property>#{formatProperty property}
 
-                                        <div .#{show $ reviewType review}>
-                                            <blockquote>
-                                                #{content}
+                            <div .view-review>
+                                <p>Review:
 
-                                    <div .by>
-                                        <p>
-                                            Submitted by #{reviewerName reviewer} 
-                                            #{humanReadableTimeDiff now $ reviewCreatedDate review}
+                                <div .#{show $ reviewType review}>
+                                    <blockquote>
+                                        #{content}
 
-                                    <h3>Discussion
-                                    <div .discussion>
-                                        ^{addComments $ show $ reviewReference review}
-                            |]
+                            <div .by>
+                                <p>
+                                    Submitted by #{showName reviewer} 
+                                    #{humanReadableTimeDiff now $ reviewCreatedDate review}
 
-                _ -> notFound
+                            <h3>Discussion
+                            <div .discussion>
+                                ^{addComments $ show $ rid}
+                    |]
+
+        _ -> notFound
 
 getPlusMinus :: Landlord -> Handler String
 getPlusMinus landlord = do
-    reviews   <- reviewsByLandlord landlord
+    reviews <- return . map snd =<< reviewsByLandlord landlord
     let (pos,neg)    = partition ((== Positive) . reviewType) reviews
     let (plus,minus) = (length pos, length neg)
     let spread       = (-) plus minus
@@ -74,7 +72,7 @@ getPlusMinus landlord = do
             | n <  0 = "-" ++ show (abs n)
             | n >  0 = "+" ++ show n
 
-postReviewsR :: Int -> Handler RepHtml
+postReviewsR :: ReviewId -> Handler RepHtml
 postReviewsR = getReviewsR
 
 formatProperty :: Property -> String
