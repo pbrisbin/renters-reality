@@ -334,8 +334,11 @@ h3 .property { float: right; }
 
 /* profile pages */
 p.edit-button, p.delete-button {
+  padding: 0px;
+  margin-top: 25px;
+  margin-left: -10px;
+  margin-bottom: 0px;
   text-transform: uppercase;
-  text-align: right;
 }
 
 /* comments */

@@ -73,7 +73,7 @@ mkYesodData "Renters" [parseRoutes|
 
     /profile         ProfileR        GET
     /profile/edit    EditProfileR    GET POST
-    /profile/delete  DeleteProfileR  GET
+    /profile/delete  DeleteProfileR  GET POST
 
     /json/landlords     JsonLandlordsR  GET
     /json/reviews       JsonReviewsR    GET

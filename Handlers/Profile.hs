@@ -5,16 +5,19 @@ module Handlers.Profile
     , getEditProfileR
     , postEditProfileR
     , getDeleteProfileR
+    , postDeleteProfileR
     ) where
 
 import Yesod
 import Yesod.Form
+import Yesod.Comments
 import Yesod.Helpers.Auth
 import Renters
 import Model
 
 import Control.Applicative ((<$>), (<*>))
-import Data.Maybe (fromMaybe)
+import Control.Monad       (forM)
+import Data.Maybe          (fromMaybe)
 
 import qualified Settings
 
@@ -58,6 +61,18 @@ getEditProfileR = defaultLayout $ do
         <h1>Edit profile
         <div .tabdiv>
             <div .tabcontent>
+                <p>
+                    Reviews and comments will be tagged with your user 
+                    name. If you leave it blank, your full name will be 
+                    used in stead.
+
+                <p>
+                    Your email is not publicly displayed anywhere. It 
+                    may be used in an upcoming "notifications" feature 
+                    of the site and even then, only if you opt-in.
+
+                <hr>
+
                 ^{showForm}
         |]
 
@@ -77,7 +92,7 @@ showForm = do
     (uid, user)          <- lift requireAuth
     ((_, form), enctype) <- lift . runFormMonadPost $ editForm uid user
 
-    [hamlet|<form enctype="#{enctype}" method="post"> ^{form}|]
+    [hamlet|<form enctype="#{enctype}" method="post">^{form}|]
 
 editForm :: UserId -> User -> FormMonad (FormResult EditForm, Widget())
 editForm uid u = do
@@ -115,6 +130,7 @@ editForm uid u = do
                         &nbsp;
             |]
 
+-- todo: unique usernames, no numer-conly usernames
 saveChanges :: UserId -> EditForm -> Handler ()
 saveChanges uid ef = do
     runDB $ update uid 
@@ -127,4 +143,23 @@ saveChanges uid ef = do
     redirect RedirectTemporary $ tm ProfileR
 
 getDeleteProfileR :: Handler RepHtml
-getDeleteProfileR = undefined
+getDeleteProfileR = defaultLayout [hamlet|
+    <h1>Are you sure?
+    <div .tabdiv>
+        <div .tabcontent>
+            <p>This feature will be implemented shortly.
+    |]
+
+postDeleteProfileR :: Handler RepHtml
+postDeleteProfileR = do
+    (uid, _) <- requireAuth 
+    y        <- getYesod
+
+    -- todo: delete comments?
+
+    -- delete reviews and the user herself
+    runDB $ deleteWhere [ReviewReviewerEq uid]
+    runDB $ deleteWhere [IdentUserEq uid]
+    runDB $ delete uid
+
+    redirect RedirectTemporary $ AuthR LogoutR
