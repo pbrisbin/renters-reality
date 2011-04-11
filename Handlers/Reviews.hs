@@ -6,7 +6,7 @@ module Handlers.Reviews
     ) where
 
 import Yesod
-import Yesod.Comments hiding (markdownToHtml)
+import Yesod.Comments
 import Yesod.Markdown
 import Renters
 import Model

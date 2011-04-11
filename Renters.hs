@@ -199,7 +199,7 @@ instance YesodComments Renters where
 instance YesodAuth Renters where
     type AuthId Renters = UserId
 
-    loginDest _  = RootR
+    loginDest _  = ProfileR
     logoutDest _ = RootR
 
     getAuthId creds = do
@@ -221,7 +221,7 @@ instance YesodAuth Renters where
                 setMessage "Identifier added to your account"
                 _ <- runDB $ insert $ Ident (credsIdent creds) uid
                 return $ Just uid
-            (Just _, Just _) -> do -- todo: what is this use case?
+            (Just _, Just _) -> do
                 setMessage "That identifier is already attached to an account. Please detach it from the other account first."
                 redirect RedirectTemporary ProfileR
 
