@@ -190,6 +190,12 @@ instance YesodComments Renters where
     deleteComment = deleteCommentPersist
     loadComments  = loadCommentsPersist
 
+    displayUser uid = do
+        muser <- runDB $ get uid
+        case muser of
+            Just user -> return $ showName user
+            Nothing   -> return ""
+
 instance YesodAuth Renters where
     type AuthId Renters = UserId
 

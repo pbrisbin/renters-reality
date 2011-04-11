@@ -54,7 +54,7 @@ getReviewsR rid = do
 
                             <h3>Discussion
                             <div .discussion>
-                                ^{addComments $ show $ rid}
+                                ^{addCommentsAuth $ show $ rid}
                     |]
 
         _ -> notFound
