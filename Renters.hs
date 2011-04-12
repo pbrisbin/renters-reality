@@ -141,6 +141,10 @@ instance Yesod Renters where
                             \ | 
                             <a href="@{LegalR}">legal
 
+                    $maybe mesg <- mmesg
+                        <div #message>
+                            <p>#{mesg}
+
                     ^{pageBody pc}
 
                     <footer>

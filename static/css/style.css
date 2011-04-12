@@ -79,15 +79,16 @@ em     { font-style:  italic; }
 strong { font-weight: bold;   }
 small  { font-size:   90%;    }
 
-p, 
-h1, h2, h3, 
-h4, h5, h6 { padding: 1ex 0px; }
+p,  h2, h3, 
+h4, h5, h6 { padding: 1ex 1ex; }
+
+h1 { padding: 1ex 0px; }
 
 /* indented elements */
 pre, table { margin-left:  1em; }
 ul, ol, dl {
-  margin-left:  1em;
-  padding-left: 1em;
+  margin-left:  3em;
+  padding-left: 3em;
 }
 
 h1, h2, h3, 
@@ -191,10 +192,9 @@ ul.tabnav { margin: 0px; padding: 0px; }
   border: 1px solid #cecbc1;
 }
 
-/* also used as an inner container on non-tabbed pages */
-.tabcontent { padding: 10px 20px; }
+.tabdiv p { padding: 10px 20px; }
 
-.accordian h3 {
+.accordion h3 {
   cursor:  pointer;
   border:  none;
   outline: none;
@@ -244,8 +244,13 @@ td.buttons input { margin: 2px; }
 
 h3 .property { float: right; }
 
+table.review-form {
+  margin: 25px;
+}
+
 .review {
-  margin-bottom: 10px;
+  margin: 10px;
+  margin-bottom: 20px;
 
   border: solid 1px #dedbd1;
 
@@ -263,7 +268,7 @@ h3 .property { float: right; }
 .review .property p { font-size: 110%; }
 
 .by p { 
-  font-size: 85%;
+  font-size:  85%;
   font-style: italic;
 }
 
@@ -332,19 +337,28 @@ h3 .property { float: right; }
   text-align: center;
 }
 
+#message {
+  font-style:     italic;
+  text-transform: lowercase;
+  text-align:     center;
+}
+
 /* profile pages */
+.profile table, .profile hr {
+  margin: 25px;
+}
+
 p.edit-button, p.delete-button {
-  padding: 0px;
   margin-top: 25px;
-  margin-left: -10px;
   margin-bottom: 0px;
   text-transform: uppercase;
 }
 
 /* comments */
 .discussion { 
-  padding: 5px;
-  padding-left: 10px;
+  padding: 10px;
+  margin: 10px;
+  margin-left: 20px;
   background-color: #dedbd1;
   border: dotted 1px #999;
 }

@@ -67,8 +67,7 @@ getNewR rtype = do
             <h1>New review
 
             <div .tabdiv>
-                <div .tabcontent>
-                    ^{runReviewForm uid (getParam req "landlord") rtype}
+                ^{runReviewForm uid (getParam req "landlord") rtype}
 
             <div #markdown-help>
                 <span style="float: right;">

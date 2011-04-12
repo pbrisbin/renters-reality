@@ -38,12 +38,11 @@ getSearchR = do
                 [hamlet|
                     <h1>Reviews for #{landlord}
                     <div .tabdiv>
-                        <div .tabcontent>
-                            $if null reviews
-                                ^{noneFound}
-                            $else
-                                $forall review <- reviews
-                                    ^{shortReview review}
+                        $if null reviews
+                            ^{noneFound}
+                        $else
+                            $forall review <- reviews
+                                ^{shortReview review}
                     |]
 
 -- | On a property search, the address criteria is POSTed. only zip is 
@@ -68,12 +67,11 @@ postSearchR = do
     defaultLayout [hamlet|
         <h1>Reviews by area
         <div .tabdiv>
-            <div .tabcontent>
-                $if null reviews
-                    ^{noneFound}
-                $else
-                    $forall review <- reviews
-                        ^{shortReview review}
+            $if null reviews
+                ^{noneFound}
+            $else
+                $forall review <- reviews
+                    ^{shortReview review}
             |]
 
     where
@@ -94,9 +92,8 @@ showAllReviews = do
         [hamlet|
             <h1>All reviews
             <div .tabdiv>
-                <div .tabcontent>
-                    $forall review <- reviews
-                        ^{shortReview review}
+                $forall review <- reviews
+                    ^{shortReview review}
             |]
 
 noneFound :: Widget ()

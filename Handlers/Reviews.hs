@@ -28,33 +28,30 @@ getReviewsR rid = do
         (Just landlord, Just property, Just reviewer) -> do
             now       <- liftIO getCurrentTime
             plusminus <- getPlusMinus landlord
-
-            let content = markdownToHtml . Markdown $ reviewContent review
             defaultLayout $ do
                 Settings.setTitle "View review"
                 [hamlet|
                     <h1>View review
                     <div .tabdiv>
-                        <div .tabcontent>
-                            <h3>
-                                <a href="@{SearchR}?landlord=#{landlordName landlord}">#{landlordName landlord} (#{plusminus}) 
-                                <span .property>#{formatProperty property}
+                        <h3>
+                            <a href="@{SearchR}?landlord=#{landlordName landlord}">#{landlordName landlord} is a #{plusminus}
+                            <span .property>#{formatProperty property}
 
-                            <div .view-review>
-                                <p>Review:
+                        <div .view-review>
+                            <p>Review:
 
-                                <div .#{show $ reviewType review}>
-                                    <blockquote>
-                                        #{content}
+                            <div .#{show $ reviewType review}>
+                                <blockquote>
+                                    #{markdownToHtml $ Markdown $ reviewContent review}
 
-                            <div .by>
-                                <p>
-                                    Submitted by #{showName reviewer} 
-                                    #{humanReadableTimeDiff now $ reviewCreatedDate review}
+                        <div .by>
+                            <p>
+                                Submitted by #{showName reviewer} 
+                                #{humanReadableTimeDiff now $ reviewCreatedDate review}
 
-                            <h3>Discussion
-                            <div .discussion>
-                                ^{addCommentsAuth $ show $ rid}
+                        <h3>Discussion
+                        <div .discussion>
+                            ^{addCommentsAuth $ show $ rid}
                     |]
 
         _ -> notFound

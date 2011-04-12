@@ -38,7 +38,7 @@ getProfileR = do
         [hamlet|
             <h1>Your profile
             <div .tabdiv>
-                <div .tabcontent>
+                <div .profile>
                     <table>
                         <tr>
                             <th>Full name:
@@ -60,7 +60,7 @@ getEditProfileR = defaultLayout $ do
     [hamlet|
         <h1>Edit profile
         <div .tabdiv>
-            <div .tabcontent>
+            <div .profile>
                 <p>
                     Reviews and comments will be tagged with your user 
                     name. If you leave it blank, your full name will be 
@@ -146,8 +146,7 @@ getDeleteProfileR :: Handler RepHtml
 getDeleteProfileR = defaultLayout [hamlet|
     <h1>Are you sure?
     <div .tabdiv>
-        <div .tabcontent>
-            <p>This feature will be implemented shortly.
+        <p>This feature will be implemented shortly...
     |]
 
 postDeleteProfileR :: Handler RepHtml
