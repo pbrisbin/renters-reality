@@ -34,7 +34,7 @@ getReviewsR rid = do
                     <h1>View review
                     <div .tabdiv>
                         <h3>
-                            <a href="@{SearchR}?landlord=#{landlordName landlord}">#{landlordName landlord} is a #{plusminus}
+                            <a href="@{SearchR}?landlord=#{landlordName landlord}">#{landlordName landlord} #{plusminus}
                             <span .property>#{formatProperty property}
 
                         <div .view-review>
@@ -66,8 +66,8 @@ getPlusMinus landlord = do
     where
         go n
             | n == 0 = ""
-            | n <  0 = "-" ++ show (abs n)
-            | n >  0 = "+" ++ show n
+            | n <  0 = "[ -" ++ show (abs n) ++ " ]"
+            | n >  0 = "[ +" ++ show n       ++ " ]"
             | otherwise = "" -- won't happen
 
 postReviewsR :: ReviewId -> Handler RepHtml
