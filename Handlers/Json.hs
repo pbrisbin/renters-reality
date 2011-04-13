@@ -29,6 +29,7 @@ getJsonLandlordsR = do
         isMatch :: String -> String -> Bool
         isMatch x y = (map toLower x) `isInfixOf` (map toLower y)
 
+getJsonReviewsR :: Handler RepJson
 getJsonReviewsR = do
     req <- getRequest
 

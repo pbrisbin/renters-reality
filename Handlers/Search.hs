@@ -11,8 +11,7 @@ import Model hiding (shorten)
 import qualified Settings
 
 import Control.Applicative ((<$>),(<*>))
-import Data.List           (intercalate, partition)
-import Data.Maybe          (fromJust, isJust, fromMaybe)
+import Data.List           (intercalate)
 import Data.Time           (getCurrentTime)
 
 data AddrSearch = AddrSearch

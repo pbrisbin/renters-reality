@@ -9,14 +9,11 @@ module Handlers.Profile
     ) where
 
 import Yesod
-import Yesod.Form
-import Yesod.Comments
 import Yesod.Helpers.Auth
 import Renters
 import Model
 
 import Control.Applicative ((<$>), (<*>))
-import Control.Monad       (forM)
 import Data.Maybe          (fromMaybe)
 
 import qualified Settings
@@ -29,7 +26,7 @@ data EditForm = EditForm
 
 getProfileR :: Handler RepHtml
 getProfileR = do
-    (uid, user) <- requireAuth
+    (_, user) <- requireAuth
     let fullname = fromMaybe "" $ userFullname user
     let username = fromMaybe "" $ userUsername user
     let email    = fromMaybe "" $ userEmail user
@@ -79,7 +76,7 @@ getEditProfileR = defaultLayout $ do
 postEditProfileR :: Handler RepHtml
 postEditProfileR = do
     (uid, user)       <- requireAuth
-    ((res, _   ), _ ) <- runFormMonadPost $ editForm uid user
+    ((res, _   ), _ ) <- runFormMonadPost $ editForm user
     case res of
         FormSuccess ef -> saveChanges uid ef
         _              -> return ()
@@ -89,13 +86,13 @@ postEditProfileR = do
 
 showForm :: Widget ()
 showForm = do
-    (uid, user)          <- lift requireAuth
-    ((_, form), enctype) <- lift . runFormMonadPost $ editForm uid user
+    (_, user)            <- lift requireAuth
+    ((_, form), enctype) <- lift . runFormMonadPost $ editForm user
 
     [hamlet|<form enctype="#{enctype}" method="post">^{form}|]
 
-editForm :: UserId -> User -> FormMonad (FormResult EditForm, Widget())
-editForm uid u = do
+editForm :: User -> FormMonad (FormResult EditForm, Widget())
+editForm u = do
     (fFullname, fiFullname) <- maybeStringField "Full name:"     $ Just $ userFullname u
     (fUsername, fiUsername) <- maybeStringField "User name:"     $ Just $ userUsername u
     (fEmail   , fiEmail   ) <- maybeEmailField  "Email address:" $ Just $ userEmail u
@@ -152,7 +149,6 @@ getDeleteProfileR = defaultLayout [hamlet|
 postDeleteProfileR :: Handler RepHtml
 postDeleteProfileR = do
     (uid, _) <- requireAuth 
-    y        <- getYesod
 
     -- todo: delete comments?
 

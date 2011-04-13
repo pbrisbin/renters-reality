@@ -17,6 +17,14 @@ import Database.Persist.GenericSql (mkMigrate)
 data ReviewType = Positive | Negative 
     deriving (Show,Read,Eq)
 
+instance SinglePiece ReviewType where
+    toSinglePiece Positive = "positive"
+    toSinglePiece Negative = "negative"
+
+    fromSinglePiece "positive" = Right Positive
+    fromSinglePiece "negative" = Right Negative
+    fromSinglePiece _          = Left "invalid review type"
+
 derivePersistField "ReviewType"
 
 share2 mkPersist (mkMigrate "doMigration") [persist|

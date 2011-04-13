@@ -19,7 +19,6 @@ module Settings
     ) where
 
 import Yesod hiding (approot, setTitle)
-import Control.Monad.IO.Peel (MonadPeelIO)
 import Database.Persist.Sqlite
 import Text.Blaze (toHtml)
 

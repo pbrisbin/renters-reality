@@ -10,7 +10,6 @@ import Renters
 import Model
 
 import Control.Applicative ((<$>),(<*>))
-import Control.Monad       (forM)
 import Data.Maybe          (fromMaybe)
 import Data.Monoid         (mempty)
 import Data.Time           (getCurrentTime)
@@ -110,7 +109,7 @@ postNewR = getNewR
 runReviewForm :: UserId -> Maybe String -> ReviewType -> Widget ()
 runReviewForm uid ml rtype = do
     ip <- lift $ return . show . remoteHost =<< waiRequest
-    ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm uid ml ip rtype
+    ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm ml ip
     case res of
         FormMissing    -> return ()
         FormFailure _  -> return ()
@@ -121,12 +120,10 @@ runReviewForm uid ml rtype = do
 
     [hamlet|<form enctype="#{enctype}" method="post"> ^{form}|]
 
-reviewForm :: UserId       -- ^ Reviewer
-           -> Maybe String -- ^ maybe landlord name
+reviewForm :: Maybe String -- ^ maybe landlord name
            -> String       -- ^ IP address of submitter
-           -> ReviewType   -- ^ positive or negative
            -> FormMonad (FormResult ReviewForm, Widget())
-reviewForm uid ml ip rtype = do
+reviewForm ml ip = do
     (fIp       , fiIp       ) <- hiddenField      (ffs ""             "ip"       ) $ Just ip
     (fLandlord , fiLandlord ) <- stringField      (ffs "Landlord:"    "landlord" ) $ ml
     (fAddrOne  , fiAddrOne  ) <- stringField      (ffs "Address (1):" "addrone"  ) $ Nothing
@@ -178,7 +175,7 @@ reviewForm uid ml ip rtype = do
 
     where
         ffs :: String -> String -> FormFieldSettings
-        ffs label id = FormFieldSettings label mempty (Just id) Nothing
+        ffs label theId = FormFieldSettings label mempty (Just theId) Nothing
 
         fieldRow fi = [hamlet|
             <tr ##{fiIdent fi}>

@@ -12,7 +12,6 @@ import Renters
 import Model
 
 import Data.List  (intercalate, partition)
-import Data.Maybe (fromMaybe)
 import Data.Time  (getCurrentTime)
 
 import qualified Settings
@@ -69,6 +68,7 @@ getPlusMinus landlord = do
             | n == 0 = ""
             | n <  0 = "-" ++ show (abs n)
             | n >  0 = "+" ++ show n
+            | otherwise = "" -- won't happen
 
 postReviewsR :: ReviewId -> Handler RepHtml
 postReviewsR = getReviewsR

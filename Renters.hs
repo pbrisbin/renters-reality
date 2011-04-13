@@ -28,11 +28,9 @@ import Yesod.Helpers.Static
 import Data.Time
 import System.Locale
 
-import Control.Applicative ((<$>))
 import Control.Monad       (unless, liftM)
 import Data.Char           (isSpace)
-import Data.List           (intercalate)
-import Data.Maybe          (fromMaybe, fromJust)
+import Data.Maybe          (fromJust)
 import System.Directory    (doesFileExist, createDirectoryIfMissing)
 import Text.Jasmine        (minifym)
 import Web.Routes          (encodePathInfo)
@@ -54,14 +52,6 @@ data Renters = Renters
 type Handler     = GHandler   Renters Renters
 type Widget      = GWidget    Renters Renters
 type FormMonad a = GFormMonad Renters Renters a
-
-instance SinglePiece ReviewType where
-    toSinglePiece Positive = "positive"
-    toSinglePiece Negative = "negative"
-
-    fromSinglePiece "positive" = Right Positive
-    fromSinglePiece "negative" = Right Negative
-    fromSinglePiece _          = Left "invalid review type"
 
 -- | Define all of the routes and handlers
 mkYesodData "Renters" [parseRoutes|
@@ -93,7 +83,7 @@ instance Yesod Renters where
     authRoute _ = Just $ AuthR LoginR
 
     -- fix for OpenId
-    joinPath _ ar pieces qs = ar ++ '/' : encodePathInfo pieces qs
+    joinPath _ ar pieces qs = ar ++ '/' : encodePathInfo pieces' qs
         where
             pieces'
                 | pieces == ["page", "openid", "complete"] = ["page", "openid", "complete", ""]
@@ -156,14 +146,14 @@ instance Yesod Renters where
     urlRenderOverride a (StaticR s) = Just $ uncurry (joinPath a Settings.staticRoot) $ renderRoute s
     urlRenderOverride _ _           = Nothing
 
-    addStaticContent ext' _ content = do
-        let fn = base64md5 content ++ '.' : ext'
+    addStaticContent ext' _ sContent = do
+        let fn = base64md5 sContent ++ '.' : ext'
         let content' =
                 if ext' == "js"
-                    then case minifym content of
-                        Left _ -> content
+                    then case minifym sContent of
+                        Left _ -> sContent
                         Right y -> y
-                    else content
+                    else sContent
         let statictmp = Settings.staticDir ++ "/tmp/"
         liftIO $ createDirectoryIfMissing True statictmp
         let fn' = statictmp ++ fn
@@ -187,6 +177,7 @@ instance YesodBreadcrumbs Renters where
     breadcrumb ProfileR       = return ("profile", Just RootR   )
     breadcrumb EditProfileR   = return ("edit"   , Just ProfileR)
     breadcrumb DeleteProfileR = return ("delete" , Just ProfileR)
+    breadcrumb _              = return ("404"    , Just RootR   )
 
 instance YesodComments Renters where
     getComment    = getCommentPersist
@@ -280,7 +271,7 @@ getParam req param = M.lookup param . M.fromList $ reqGetParams req
 
 authNavHelper :: Maybe (UserId, User) -> GWidget s Renters ()
 authNavHelper Nothing         = [hamlet|<a href="@{AuthR LoginR}">login|]
-authNavHelper (Just (uid, u)) = [hamlet|
+authNavHelper (Just (_, u)) = [hamlet|
     <a href="@{ProfileR}" title="Manage your profile">#{showName u}
     \ | 
     <a href="@{AuthR LogoutR}">logout
