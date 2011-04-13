@@ -290,15 +290,7 @@ authNavHelper (Just (uid, u)) = [hamlet|
 
 -- | Find or create an entity, returning its key in both cases
 findOrCreate :: PersistEntity a => a -> Handler (Key a)
-findOrCreate v = do
-    result <- runDB $ insertBy v
-    case result of
-        Left (k,v') -> return k
-        Right k     -> return k
-
--- | Find an entity by its key
-findByKey :: PersistEntity a => Key a -> Handler (Maybe a)
-findByKey key = runDB $ get key
+findOrCreate v = return . either fst id =<< runDB (insertBy v)
 
 -- | Takes a filter type constructor (SqlFooEq) and a Maybe value, if 
 --   the value is not Nothing or Just "", then it returns a listed 

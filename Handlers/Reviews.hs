@@ -20,9 +20,10 @@ import qualified Settings
 getReviewsR :: ReviewId -> Handler RepHtml
 getReviewsR rid = do
     review    <- runDB $ get404 rid
-    mlandlord <- findByKey (reviewLandlord  review)
-    mproperty <- findByKey (reviewProperty  review)
-    mreviewer <- findByKey (reviewReviewer  review)
+
+    mlandlord <- runDB $ get $ reviewLandlord review
+    mproperty <- runDB $ get $ reviewProperty review
+    mreviewer <- runDB $ get $ reviewReviewer review
 
     case (mlandlord,mproperty,mreviewer) of
         (Just landlord, Just property, Just reviewer) -> do

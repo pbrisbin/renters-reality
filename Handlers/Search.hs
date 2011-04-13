@@ -112,9 +112,10 @@ noneFound = [hamlet|
 shortReview :: (ReviewId, Review) -> Widget ()
 shortReview (rid, review) = do
     now       <- lift $ liftIO getCurrentTime
-    mreviewer <- lift $ findByKey (reviewReviewer review)
-    mproperty <- lift $ findByKey (reviewProperty review)
-    mlandlord <- lift $ findByKey (reviewLandlord review)
+
+    mreviewer <- lift $ runDB $ get $ reviewReviewer review
+    mproperty <- lift $ runDB $ get $ reviewProperty review
+    mlandlord <- lift $ runDB $ get $ reviewLandlord review
 
     let content = markdownToHtml . Markdown . shorten 400 $ reviewContent review
     

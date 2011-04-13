@@ -49,19 +49,19 @@ jsonReview review = do
     now <- liftIO getCurrentTime
 
     -- related landlord
-    mlandlord <- findByKey $ reviewLandlord review
+    mlandlord <- runDB $ get $ reviewLandlord review
     let landlord = case mlandlord of
             Just landlord' -> landlordName landlord'
             Nothing        -> ""
 
     -- related property
-    mproperty <- findByKey $ reviewProperty review
+    mproperty <- runDB $ get $ reviewProperty review
     let property = case mproperty of
             Just property' -> formatProperty property'
             Nothing        -> ""
 
     -- related reviewer
-    mreviewer <- findByKey $ reviewReviewer review
+    mreviewer <- runDB $ get $ reviewReviewer review
     let reviewer = fromMaybe "" $ fmap showName mreviewer
 
     return $ jsonMap
