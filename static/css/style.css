@@ -129,8 +129,7 @@ a:link, a:hover, a:visited { text-decoration: none; }
 }
 
 blockquote {
-  padding: 5px 10px;
-  margin:  5px 25px;
+  margin:  5px 40px;
 }
 
 .Positive blockquote { border-left: solid 4px #b0d87c; }
@@ -226,7 +225,8 @@ td.buttons input { margin: 2px; }
 .ui-autocomplete {
   width:      60px;
   background: white;
-  border:     solid 1px #dedbd1;
+  border:     solid 1px black;
+  border-top: none;
   padding: 0px;
   margin:  0px;
 }
@@ -304,8 +304,10 @@ table.review-form {
 /* todo: make this prettier */
 .note {
   font-size: 90%;
-  font-style: italic;
-  padding: 5px 25px;
+  background-color: #dedbd1;
+  margin: 10px 25px;
+  max-width: 450px;
+  border: dotted 1px #999;
 }
 
 /* login */
