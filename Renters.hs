@@ -232,7 +232,11 @@ instance YesodAuth Renters where
     showAuthId _ = showIntegral
     readAuthId _ = readIntegral
 
-    authPlugins = [ authOpenId ]
+    authPlugins = [ authOpenId 
+                  , authFacebook "206687389350404"
+                                 "9d30284c6cb99ff2c7cbc4e5f8ae53e0"
+                                 []
+                  ]
 
     loginHandler = defaultLayout [hamlet|
         <div #login>
@@ -248,6 +252,9 @@ instance YesodAuth Renters where
                             <form method="get" action="@{AuthR forwardUrl}" .button .yahoo>
                                 <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
                                 <input type="image" src="@{StaticR yahoo_gif}" value="Login via Yahoo!">
+                        <td>
+                            <a href="@{AuthR facebookUrl}" .button .facebook>
+                                <img src="@{StaticR facebook_gif}" value="Login via Facebook">
 
             <div .open-id>
                 <h3>&mdash; OR &mdash;
