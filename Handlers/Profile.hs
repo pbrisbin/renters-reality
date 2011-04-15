@@ -103,10 +103,9 @@ editForm u = do
                 ^{fieldRow fiUsername}
                 ^{fieldRow fiEmail}
                 <tr>
-                    <td>&nbsp;
                     <td .buttons colspan="2">
-                        <input type="submit">
-                        <input type="reset">
+                        <input type="submit" value="Save">
+                    <td>&nbsp;
 
             <p .delete-button>
                 <a href="@{DeleteProfileR}">delete

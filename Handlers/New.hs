@@ -167,10 +167,9 @@ reviewForm ml ip = do
                 ^{fieldRow fiReview}
 
                 <tr>
-                    <td>&nbsp;
                     <td .buttons colspan="2">
-                        <input type="submit">
-                        <input type="reset">
+                        <input type="submit" value="Save">
+                    <td>&nbsp;
             |])
 
     where

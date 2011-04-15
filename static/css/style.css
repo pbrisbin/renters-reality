@@ -216,8 +216,6 @@ tr#review textarea {
   height: 500px;
 }
 
-td.buttons input { margin: 2px; }
-
 .ui-tabs-hide {
   display: none;
 }
@@ -348,6 +346,11 @@ table.review-form {
 /* profile pages */
 .profile table, .profile hr {
   margin: 25px;
+}
+
+td.buttons {
+  padding-right: 0px;
+  text-align:    right;
 }
 
 p.edit-button, p.delete-button {
