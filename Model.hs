@@ -71,7 +71,7 @@ share2 mkPersist (mkMigrate "doMigration") [persist|
 showName :: User -> String
 showName (User _         (Just un) _ _ _) = shorten 50 40 un
 showName (User (Just fn) _         _ _ _) = shorten 50 40 fn
-showName _                                = "Nameless profile"
+showName _                                = "anonymous"
 
 shorten :: Int -> Int -> String -> String
 shorten m n s = if length s > m then take n s ++ "..." else s
