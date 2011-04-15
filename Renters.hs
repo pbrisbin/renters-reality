@@ -304,16 +304,25 @@ maybeCriteria f v = if notNull v then [ f (fromJust v) ] else []
 
 reviewsByLandlord :: Landlord -> Handler [(ReviewId, Review)]
 reviewsByLandlord landlord = do
-    key <- findOrCreate landlord
-    runDB $ selectList [ReviewLandlordEq key] [ReviewCreatedDateDesc] 0 0
+    mkey <- runDB $ getBy (UniqueLandlord $ landlordName landlord)
+    case mkey of
+        Just (key, _) -> runDB $ selectList [ReviewLandlordEq key] [ReviewCreatedDateDesc] 0 0
+        Nothing       -> return []
 
 reviewsByProperty :: [Property] -> Handler [(ReviewId, Review)]
 reviewsByProperty properties = liftM concat $ mapM go properties 
     where
         go :: Property -> Handler [(ReviewId, Review)]
         go property = do
-            key <- findOrCreate property
-            runDB $ selectList [ReviewPropertyEq key] [ReviewCreatedDateDesc] 0 0
+            mkey <- runDB $ getBy ( UniqueProperty (propertyAddrOne property) 
+                                                   (propertyAddrTwo property) 
+                                                   (propertyCity    property)
+                                                   (propertyState   property) 
+                                                   (propertyZip     property) )
+
+            case mkey of
+                Just (key, _) -> runDB $ selectList [ReviewPropertyEq key] [ReviewCreatedDateDesc] 0 0
+                Nothing       -> return []
 
 -- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
 -- <https://github.com/snoyberg/haskellers/blob/master/LICENSE>
