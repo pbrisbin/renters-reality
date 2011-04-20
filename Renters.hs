@@ -57,16 +57,13 @@ type FormMonad a = GFormMonad Renters Renters a
 mkYesodData "Renters" [parseRoutes|
     /                   RootR    GET
 
+    /search             SearchR  GET
     /new/#ReviewType    NewR     GET POST
-    /search/            SearchR  GET POST
     /reviews/#ReviewId  ReviewsR GET POST
 
     /profile         ProfileR        GET
     /profile/edit    EditProfileR    GET POST
     /profile/delete  DeleteProfileR  GET POST
-
-    /json/landlords     JsonLandlordsR  GET
-    /json/reviews       JsonReviewsR    GET
 
     /legal              LegalR   GET
     /static             StaticR Static getStatic

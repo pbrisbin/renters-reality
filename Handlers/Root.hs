@@ -16,14 +16,10 @@ getRootR = defaultLayout $ do
         $(function() {
             $('.tabbed').tabs();
 
-            $('.accordion').accordion({
-                collapsible: true,
-                autoHeight:  false,
-                active:      false
-            });
+            $('.accordion').accordion({ autoHeight: false });
 
-            $('.complete').autocomplete({
-                source: "@{JsonLandlordsR}",
+            $('.search-complete').autocomplete({
+                source: "@{SearchR}"
                 selectFirst: true
             });
         });
@@ -43,46 +39,24 @@ getRootR = defaultLayout $ do
 
             <div #renter .tabdiv>
                 <div .accordion>
-                    <h3>Submit a positive review
+                    <h3>Search reviews
+                    <div>
+                        <form method="get" action="@{SearchR}">
+                            <p>
+                                <input .search-complete size=60 name="query" id="query"> 
+                                <input type="submit" value="Search">
+
+                    <h3>Submit a 
+                        <span .positive>positive
+                        \ review
                     <div>
                         ^{landlordInput (NewR Positive) "Next"}
 
-                    <h3>Submit a negative review
+                    <h3>Submit a 
+                        <span .negative>negative
+                        \ review
                     <div>
                         ^{landlordInput (NewR Negative) "Next"}
-
-                    <h3>Search reviews by landlord
-                    <div>
-                        ^{landlordInput SearchR "Search"}
-
-                        <div .note>
-                            <p>
-                                <strong>Note: 
-                                Partial searches are not supported.  The 
-                                autocomplete will populate with matches 
-                                as you type. If you don't see a match 
-                                for what you've entered, that landlord 
-                                is not in the system.
-
-
-                    <h3>Search reviews by property
-                    <div>
-                        <form method="post" action=@{SearchR}>
-                            <table>
-                                ^{tableRow "addrone" "Address line 1:" "248 Kelton St"}
-                                ^{tableRow "addrtwo" "Address line 2:" "Apt 1"        }
-                                ^{tableRow "city"    "City:"           ""             }
-                                ^{tableRow "state"   "State:"          ""             }
-                                <tr>
-                                    <th>
-                                        <label for="zip">Zip:
-                                    <td>
-                                        <input size=30 name="zip" required>
-
-                                <tr #buttons>
-                                    <td>&nbsp;
-                                    <td>
-                                        <input type=submit value="Search">
 
             <div #landlord .tabdiv>
                 <p>
@@ -123,21 +97,11 @@ getRootR = defaultLayout $ do
         |]
 
         where
-
             landlordInput :: RentersRoute -> String -> Widget ()
             landlordInput route label = [hamlet|
                 <form .landlord method="get" action="@{route}">
                     <p>
                         <label for="landlord">Landlord: 
-                        <input .complete size=40 placeholder="Name of landlord or management company" name="landlord"> 
+                        <input .landlord-complete size=40 placeholder="Name of landlord or management company" name="landlord"> 
                         <input type="submit" value="#{label}">
-                |]
-
-            tableRow :: String -> String -> String -> Widget ()
-            tableRow name label placeholder = [hamlet|
-                <tr>
-                    <th>
-                        <label for=#{name}> #{label}
-                    <td>
-                        <input size=30 name=#{name} placeholder=#{placeholder}>
                 |]

@@ -1,6 +1,6 @@
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Handlers.Search (getSearchR, postSearchR) where
+module Handlers.Search (getSearchR) where
 
 import Yesod
 import Yesod.Markdown
@@ -14,31 +14,38 @@ import Control.Applicative ((<$>),(<*>))
 import Data.List           (intercalate)
 import Data.Time           (getCurrentTime)
 
+
 data AddrSearch = AddrSearch
     { addrOne   :: Maybe String
     , addrTwo   :: Maybe String
     , addrCity  :: Maybe String
     , addrState :: Maybe String
-    , addrZip   :: String
+    , addrZip   :: Maybe String
     }
 
--- | On a landlord search, the landlord name is a GET param. omitting 
---   this value should display all results
+data SearchResults = ResLandlord [Landlord] 
+                   | ResProperty [Property]
+
+data Search = Search
+    { searchTerm    :: String
+    , searchResults :: SearchResults
+    }
+
 getSearchR :: Handler RepHtml
 getSearchR = do
     req <- getRequest
-    case getParam req "landlord" of
-        Nothing       -> showAllReviews
-        Just ""       -> showAllReviews
-        Just landlord -> do
-            reviews <- reviewsByLandlord $ Landlord landlord
+    case getParam req "term" of
+        Nothing   -> allReviews
+        Just ""   -> allReviews
+        Just term -> do
+            reviews <- undefined
             defaultLayout $ do
-                Settings.setTitle "Search" 
+                Settings.setTitle "Search results" 
                 [hamlet|
-                    <h1>Reviews for #{landlord}
+                    <h1>Search results
                     <div .tabdiv>
                         $if null reviews
-                            ^{noneFound}
+                            ^{noReviews}
                         $else
                             $forall review <- reviews
                                 ^{shortReview review}
@@ -50,44 +57,43 @@ getSearchR = do
 --
 --   todo: Search on f.e. Steet name only? need the sql /like/ keyword
 --
-postSearchR :: Handler RepHtml
-postSearchR = do
-    addr <- addrFromForm
+--postSearchR :: Handler RepHtml
+--postSearchR = do
+--    addr <- addrFromForm
+--
+--    let criteria = [ PropertyZipEq (addrZip addr) ] -- zip is mandatory
+--            ++ maybeCriteria PropertyAddrOneEq (addrOne addr)
+--            ++ maybeCriteria PropertyAddrTwoEq (addrTwo addr)
+--            ++ maybeCriteria PropertyCityEq    (addrCity addr)
+--            ++ maybeCriteria PropertyStateEq   (addrState addr)
+--
+--    properties <- return . map snd =<< runDB (selectList criteria [] 0 0)
+--    reviews    <- reviewsByProperty properties
+--
+--    defaultLayout [hamlet|
+--        <h1>Reviews by area
+--        <div .tabdiv>
+--            $if null reviews
+--                ^{noneFound}
+--            $else
+--                $forall review <- reviews
+--                    ^{shortReview review}
+--            |]
+--
+--    where
+--        addrFromForm :: Handler AddrSearch
+--        addrFromForm = runFormPost' $ AddrSearch
+--            <$> maybeStringInput "addrone"
+--            <*> maybeStringInput "addrtwo"
+--            <*> maybeStringInput "city"
+--            <*> maybeStringInput "state"
+--            <*> stringInput "zip"
 
-    let criteria = [ PropertyZipEq (addrZip addr) ] -- zip is mandatory
-            ++ maybeCriteria PropertyAddrOneEq (addrOne addr)
-            ++ maybeCriteria PropertyAddrTwoEq (addrTwo addr)
-            ++ maybeCriteria PropertyCityEq    (addrCity addr)
-            ++ maybeCriteria PropertyStateEq   (addrState addr)
-
-    properties <- return . map snd =<< runDB (selectList criteria [] 0 0)
-    reviews    <- reviewsByProperty properties
-
-    defaultLayout [hamlet|
-        <h1>Reviews by area
-        <div .tabdiv>
-            $if null reviews
-                ^{noneFound}
-            $else
-                $forall review <- reviews
-                    ^{shortReview review}
-            |]
-
-    where
-        addrFromForm :: Handler AddrSearch
-        addrFromForm = runFormPost' $ AddrSearch
-            <$> maybeStringInput "addrone"
-            <*> maybeStringInput "addrtwo"
-            <*> maybeStringInput "city"
-            <*> maybeStringInput "state"
-            <*> stringInput "zip"
-
-
-showAllReviews :: Handler RepHtml
-showAllReviews = do
+allReviews :: Handler RepHtml
+allReviews = do
     reviews <- runDB $ selectList [] [ReviewCreatedDateDesc] 0 0
     defaultLayout $ do
-        Settings.setTitle "Search"
+        Settings.setTitle "All reviews"
         [hamlet|
             <h1>All reviews
             <div .tabdiv>
@@ -95,11 +101,10 @@ showAllReviews = do
                     ^{shortReview review}
             |]
 
-noneFound :: Widget ()
-noneFound = [hamlet|
+noReviews :: Widget ()
+noReviews = [hamlet|
     <p>
-        I'm sorry, there are no reviews that meet your 
-        search criteria.
+        I'm sorry, there are no reviews that meet your search criteria.
 
     <p>
         Would you like to 
@@ -111,7 +116,6 @@ noneFound = [hamlet|
 shortReview :: (ReviewId, Review) -> Widget ()
 shortReview (rid, review) = do
     now       <- lift $ liftIO getCurrentTime
-
     mreviewer <- lift $ runDB $ get $ reviewReviewer review
     mproperty <- lift $ runDB $ get $ reviewProperty review
     mlandlord <- lift $ runDB $ get $ reviewLandlord review
@@ -122,22 +126,13 @@ shortReview (rid, review) = do
         <div .review>
             <div .#{show $ reviewType review}>
                 <div .property>
-                    $maybe property <- mproperty
-                        <p>#{maybe "No landlord info" landlordName mlandlord} - #{formatProperty property}
-                    $nothing
-                        <p>#{maybe "No landlord info" landlordName mlandlord} - No property info
-
-                <div .content>#{content}
-
+                    <p>#{maybe "No landlord info" landlordName mlandlord} - #{maybe "No property info" formatProperty mproperty}
+                <div .content>
+                    #{content}
                 <div .by>
-                    $maybe reviewer <- mreviewer
-                        <p>
-                            Reviewed by #{showName reviewer} #{humanReadableTimeDiff now $ reviewCreatedDate review}. 
-                            <a href="@{ReviewsR $ rid}">View
-                    $nothing
-                        <p>
-                            Reviewed #{humanReadableTimeDiff now $ reviewCreatedDate review}. 
-                            <a href="@{ReviewsR $ rid}">View
+                    <p>
+                        Reviewed by #{maybe "anonymous" showName mreviewer} #{humanReadableTimeDiff now $ reviewCreatedDate review}. 
+                        <a href="@{ReviewsR $ rid}">View
         |]
 
 formatProperty :: Property -> String

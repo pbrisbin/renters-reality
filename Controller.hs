@@ -26,7 +26,6 @@ import Handlers.Search
 import Handlers.New
 import Handlers.Profile
 import Handlers.Reviews
-import Handlers.Json
 
 import Database.Persist.GenericSql
 

@@ -56,7 +56,7 @@ getNewR rtype = do
 
                 /* auto complete the landlords */
                 $('input#landlord').autocomplete({
-                    source: "@{JsonLandlordsR}",
+                    source: "@{SearchR}",
                     selectFirst: true
                 });
             });
