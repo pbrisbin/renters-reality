@@ -276,30 +276,9 @@ authNavHelper (Just (_, u)) = [hamlet|
     <a href="@{AuthR LogoutR}">logout
     |]
 
--- General db helpers:
-
 -- | Find or create an entity, returning its key in both cases
 findOrCreate :: PersistEntity a => a -> Handler (Key a)
 findOrCreate v = return . either fst id =<< runDB (insertBy v)
-
--- | Takes a filter type constructor (SqlFooEq) and a Maybe value, if 
---   the value is not Nothing or Just "", then it returns a listed 
---   application of the constructor on the unwrapped value ([SqlFooEq 
---   x]) to be added to a select statement, otherwise the list is 
---   returned empty and that condition is discarded by the caller. It 
---   sounds more complicated than it really is...
---
---   todo: generalize this beyond Maybe String...
---
-maybeCriteria :: (String -> t) -> Maybe String -> [t]
-maybeCriteria f v = if notNull v then [ f (fromJust v) ] else []
-    where
-        notNull :: Maybe String -> Bool
-        notNull Nothing   = False
-        notNull (Just "") = False
-        notNull _         = True
-
--- Site-specific db helpers
 
 reviewsByLandlord :: Landlord -> Handler [(ReviewId, Review)]
 reviewsByLandlord landlord = do
@@ -307,21 +286,6 @@ reviewsByLandlord landlord = do
     case mkey of
         Just (key, _) -> runDB $ selectList [ReviewLandlordEq key] [ReviewCreatedDateDesc] 0 0
         Nothing       -> return []
-
-reviewsByProperty :: [Property] -> Handler [(ReviewId, Review)]
-reviewsByProperty properties = liftM concat $ mapM go properties 
-    where
-        go :: Property -> Handler [(ReviewId, Review)]
-        go property = do
-            mkey <- runDB $ getBy ( UniqueProperty (propertyAddrOne property) 
-                                                   (propertyAddrTwo property) 
-                                                   (propertyCity    property)
-                                                   (propertyState   property) 
-                                                   (propertyZip     property) )
-
-            case mkey of
-                Just (key, _) -> runDB $ selectList [ReviewPropertyEq key] [ReviewCreatedDateDesc] 0 0
-                Nothing       -> return []
 
 -- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
 -- <https://github.com/snoyberg/haskellers/blob/master/LICENSE>
