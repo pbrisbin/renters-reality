@@ -34,7 +34,7 @@ getReviewsR rid = do
                     <h1>View review
                     <div .tabdiv>
                         <h3>
-                            <a href="@{SearchR}?landlord=#{landlordName landlord}">#{landlordName landlord} #{plusminus}
+                            <a href="@{SearchR}?term=#{landlordName landlord}">#{landlordName landlord} #{plusminus}
                             <span .property>#{formatProperty property}
 
                         <div .view-review>

@@ -57,7 +57,10 @@ type FormMonad a = GFormMonad Renters Renters a
 mkYesodData "Renters" [parseRoutes|
     /                   RootR    GET
 
-    /search             SearchR  GET
+    /search                SearchR        GET
+    /search/comp/landlords CompLandlordsR GET
+    /search/comp/searches  CompSearchesR  GET
+
     /new/#ReviewType    NewR     GET POST
     /reviews/#ReviewId  ReviewsR GET POST
 
@@ -112,7 +115,6 @@ instance Yesod Renters where
                     <link rel="stylesheet" href="@{StaticR css_style_css}">
                     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js">
                     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js">
-                    <script src="@{StaticR js_jquery_ui_autocomplete_selectFirst_js}">
                     ^{pageHead pc}
                 <body>
                     <div #breadcrumbs>

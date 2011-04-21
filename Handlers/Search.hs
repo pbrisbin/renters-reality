@@ -1,6 +1,10 @@
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Handlers.Search (getSearchR) where
+module Handlers.Search 
+    ( getSearchR
+    , getCompLandlordsR
+    , getCompSearchesR
+    ) where
 
 import Yesod
 import Yesod.Markdown
@@ -13,6 +17,32 @@ import Data.Time           (getCurrentTime)
 import Data.List           (nubBy)
 
 import qualified Settings
+
+-- json replies for completions
+getCompLandlordsR :: Handler RepJson
+getCompLandlordsR = do
+    req <- getRequest
+    results <- case getParam req "term" of
+        Nothing   -> return []
+        Just ""   -> return []
+        Just term -> do
+            landlords <- (search term :: Handler [(Key Landlord, Landlord)])
+            return $ map (landlordName . snd) landlords
+
+    jsonToRepJson $ jsonList $ map jsonScalar results
+
+getCompSearchesR :: Handler RepJson
+getCompSearchesR = do
+    req <- getRequest
+    results <- case getParam req "term" of
+        Nothing   -> return []
+        Just ""   -> return []
+        Just term -> do
+            landlords  <- (search term :: Handler [(Key Landlord, Landlord)])
+            properties <- (search term :: Handler [(Key Property, Property)])
+            return $ (map (landlordName . snd) landlords) ++ (map (formatProperty . snd) properties)
+
+    jsonToRepJson $ jsonList $ map jsonScalar results
 
 getSearchR :: Handler RepHtml
 getSearchR = do

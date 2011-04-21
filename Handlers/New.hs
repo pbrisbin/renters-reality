@@ -56,8 +56,8 @@ getNewR rtype = do
 
                 /* auto complete the landlords */
                 $('input#landlord').autocomplete({
-                    source: "@{SearchR}",
-                    selectFirst: true
+                    source:     "@{CompLandlordsR}",
+                    minLength : 3
                 });
             });
             |]
@@ -96,11 +96,8 @@ mdExamples = [ MarkdownExample "*italic text*"
              , MarkdownExample "[some link](http://example.com \"link title\")"
                     [hamlet|<a href="http://example.com" title="link title">some link|]
 
-             , MarkdownExample "![some image](http://pbrisbin.com/static/images/feed.png)"
+             , MarkdownExample "![even images](http://pbrisbin.com/static/images/feed.png)"
                     [hamlet|<img alt="even images" src="http://pbrisbin.com/static/images/feed.png">|]
-
-             , MarkdownExample "raw <abbr title=\"hypertext markup language\">HTML</abbr>"
-                    [hamlet|<abbr title="hypertext markup language">HTML|]
              ]
 
 postNewR :: ReviewType -> Handler RepHtml

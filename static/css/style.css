@@ -240,6 +240,25 @@ tr#review textarea {
   cursor:           pointer;
 }
 
+h3 span.Positive { border-bottom: dotted 1px #b0d87c; }
+h3 span.Negative { border-bottom: dotted 1px #fc4930; }
+
+form.search, form.new {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+form.search p, form.new p {
+  text-align: center;
+}
+
+form.search input[type="submit"],
+form.new input[type="submit"] { 
+  margin:  2px;
+  padding: 2px;
+  width:   60px;
+}
+
 h3 .property { float: right; }
 
 table.review-form {
@@ -297,15 +316,6 @@ table.review-form {
   background-image: -webkit-linear-gradient(#fc4930, white); /* Chrome 10+, Saf5.1+ */
   background-image: linear-gradient(top, #fc4930, white);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#fc4930', EndColorStr='white'); /* IE6–IE9 */
-}
-
-/* todo: make this prettier */
-.note {
-  font-size: 90%;
-  background-color: #dedbd1;
-  margin: 10px 25px;
-  max-width: 450px;
-  border: dotted 1px #999;
 }
 
 /* login */
