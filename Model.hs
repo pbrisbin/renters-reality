@@ -10,7 +10,7 @@
 module Model where
 
 import Yesod
-import Data.Char                   (toLower)
+import Data.Char                   (toLower, isSpace)
 import Data.List                   (isInfixOf, intercalate)
 import Data.Time                   (UTCTime(..))
 import Database.Persist.TH         (derivePersistField, share2)
@@ -109,6 +109,7 @@ looseMatch a b = fix a `isInfixOf` fix b
 
 formatProperty :: Property -> String
 formatProperty p = intercalate ", "
+                 . map trim
                  . filter (not . null)
                  $ [ propertyAddrOne p
                    , propertyAddrTwo p
@@ -116,6 +117,9 @@ formatProperty p = intercalate ", "
                    , propertyState   p
                    , propertyZip     p
                    ]
+    where
+        trim = f . f
+        f    = reverse . dropWhile isSpace
 
 showName :: User -> String
 showName (User _         (Just un) _ _ _) = shorten 50 40 un
