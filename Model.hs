@@ -2,6 +2,7 @@
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TemplateHaskell            #-}
+{-# LANGUAGE FlexibleContexts           #-}
 --
 -- Most of the user/profile stuff was taken from Haskellers.com:
 -- https://github.com/snoyberg/haskellers/
@@ -9,6 +10,8 @@
 module Model where
 
 import Yesod
+import Data.Char                   (toLower)
+import Data.List                   (isInfixOf, intercalate)
 import Data.Time                   (UTCTime(..))
 import Database.Persist.TH         (derivePersistField, share2)
 import Database.Persist.GenericSql (mkMigrate)
@@ -27,17 +30,28 @@ instance SinglePiece ReviewType where
 
 derivePersistField "ReviewType"
 
+-- | Matchable against a string, supports searching
+class PersistEntity a => Matchable a where
+    match :: String -> (Key a, a) -> Bool
+
+-- | Implement a searchable database value by providing your own result 
+--   set based on the search term
+class PersistEntity a => Searchable a where
+    search :: (YesodPersist m, PersistBackend (YesodDB m (GGHandler s m IO))) 
+           => String -- ^ search term
+           -> GHandler s m [(Key a, a)]
+
 share2 mkPersist (mkMigrate "doMigration") [persist|
     Landlord
         name String Eq Asc
         UniqueLandlord name
 
     Property
-        addrOne String Eq
-        addrTwo String Eq
-        city    String Eq
-        state   String Eq
-        zip     String Eq
+        addrOne String Eq Asc
+        addrTwo String Eq Asc
+        city    String Eq Asc
+        state   String Eq Asc
+        zip     String Eq Asc
         UniqueProperty addrOne addrTwo city state zip
 
     Ownership
@@ -67,6 +81,41 @@ share2 mkPersist (mkMigrate "doMigration") [persist|
         user  UserId Eq
         UniqueIdent ident
     |]
+
+instance Matchable Landlord where match s (_,v) = looseMatch s (landlordName   v)
+instance Matchable Property where match s (_,v) = looseMatch s (formatProperty v)
+
+instance Searchable Landlord where
+    search s = return . filter (match s) =<< runDB (selectList [] [ LandlordNameAsc ] 0 0)
+
+instance Searchable Property where
+    search s = return . filter (match s) =<< runDB (selectList [] [ PropertyZipAsc
+                                                                  , PropertyStateAsc
+                                                                  , PropertyCityAsc
+                                                                  , PropertyAddrTwoAsc
+                                                                  , PropertyAddrOneAsc
+                                                                  ] 0 0)
+
+looseMatch :: String -> String -> Bool
+looseMatch a b = fix a `isInfixOf` fix b
+    where
+        fix = strip . map toLower
+
+        -- remove some punctuation before comparing
+        strip []       = []
+        strip (',':xs) = strip xs
+        strip ('.':xs) = strip xs
+        strip (x:xs)   = x : strip xs
+
+formatProperty :: Property -> String
+formatProperty p = intercalate ", "
+                 . filter (not . null)
+                 $ [ propertyAddrOne p
+                   , propertyAddrTwo p
+                   , propertyCity    p
+                   , propertyState   p
+                   , propertyZip     p
+                   ]
 
 showName :: User -> String
 showName (User _         (Just un) _ _ _) = shorten 50 40 un
