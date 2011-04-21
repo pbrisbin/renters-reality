@@ -28,8 +28,7 @@ approot :: String
 #ifdef PROD
 approot = "http://rentersreality.com"
 #else
---approot = "http://192.168.0.5:3000"
-approot = "http://localhost:3000"
+approot = ""
 #endif
 
 staticDir :: String

@@ -72,12 +72,3 @@ getPlusMinus landlord = do
 
 postReviewsR :: ReviewId -> Handler RepHtml
 postReviewsR = getReviewsR
-
-formatProperty :: Property -> String
-formatProperty p = intercalate ", "
-                 $ filter (not . null)
-                    [ propertyAddrOne p
-                    , propertyAddrTwo p
-                    , propertyCity    p
-                    , propertyState   p
-                    ]

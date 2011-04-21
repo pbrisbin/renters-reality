@@ -8,28 +8,11 @@ import Yesod.Markdown
 import Renters
 import Model hiding (shorten)
 
-import qualified Settings
-
-import Control.Applicative ((<$>),(<*>))
-import Data.List           (intercalate)
+import Control.Monad       (forM)
 import Data.Time           (getCurrentTime)
+import Data.List           (nubBy)
 
-
-data AddrSearch = AddrSearch
-    { addrOne   :: Maybe String
-    , addrTwo   :: Maybe String
-    , addrCity  :: Maybe String
-    , addrState :: Maybe String
-    , addrZip   :: Maybe String
-    }
-
-data SearchResults = ResLandlord [Landlord] 
-                   | ResProperty [Property]
-
-data Search = Search
-    { searchTerm    :: String
-    , searchResults :: SearchResults
-    }
+import qualified Settings
 
 getSearchR :: Handler RepHtml
 getSearchR = do
@@ -38,7 +21,15 @@ getSearchR = do
         Nothing   -> allReviews
         Just ""   -> allReviews
         Just term -> do
-            reviews <- undefined
+            -- search both ways
+            landlords  <- (search term :: Handler [(Key Landlord, Landlord)])
+            properties <- (search term :: Handler [(Key Property, Property)])
+
+            reviews <- do
+                revsL <- forM landlords  $ \(k,_) -> runDB (selectList [ReviewLandlordEq k] [] 0 0)
+                revsP <- forM properties $ \(k,_) -> runDB (selectList [ReviewPropertyEq k] [] 0 0)
+                return . mkUnique . concat $ revsL ++ revsP
+            
             defaultLayout $ do
                 Settings.setTitle "Search results" 
                 [hamlet|
@@ -51,43 +42,8 @@ getSearchR = do
                                 ^{shortReview review}
                     |]
 
--- | On a property search, the address criteria is POSTed. only zip is 
---   mandatory, specifying any other fields just narrows the search, 
---   resulting in a different db select
---
---   todo: Search on f.e. Steet name only? need the sql /like/ keyword
---
---postSearchR :: Handler RepHtml
---postSearchR = do
---    addr <- addrFromForm
---
---    let criteria = [ PropertyZipEq (addrZip addr) ] -- zip is mandatory
---            ++ maybeCriteria PropertyAddrOneEq (addrOne addr)
---            ++ maybeCriteria PropertyAddrTwoEq (addrTwo addr)
---            ++ maybeCriteria PropertyCityEq    (addrCity addr)
---            ++ maybeCriteria PropertyStateEq   (addrState addr)
---
---    properties <- return . map snd =<< runDB (selectList criteria [] 0 0)
---    reviews    <- reviewsByProperty properties
---
---    defaultLayout [hamlet|
---        <h1>Reviews by area
---        <div .tabdiv>
---            $if null reviews
---                ^{noneFound}
---            $else
---                $forall review <- reviews
---                    ^{shortReview review}
---            |]
---
---    where
---        addrFromForm :: Handler AddrSearch
---        addrFromForm = runFormPost' $ AddrSearch
---            <$> maybeStringInput "addrone"
---            <*> maybeStringInput "addrtwo"
---            <*> maybeStringInput "city"
---            <*> maybeStringInput "state"
---            <*> stringInput "zip"
+mkUnique :: [(ReviewId, Review)] -> [(ReviewId, Review)]
+mkUnique = nubBy (\a b -> fst a == fst b)
 
 allReviews :: Handler RepHtml
 allReviews = do
@@ -134,13 +90,6 @@ shortReview (rid, review) = do
                         Reviewed by #{maybe "anonymous" showName mreviewer} #{humanReadableTimeDiff now $ reviewCreatedDate review}. 
                         <a href="@{ReviewsR $ rid}">View
         |]
-
-formatProperty :: Property -> String
-formatProperty p = intercalate ", "
-    [ propertyAddrOne p
-    , propertyCity    p
-    , propertyState   p
-    ]
 
 shorten :: Int -> String -> String
 shorten n s = if length s > n then take n s ++ "..." else s

@@ -18,10 +18,10 @@ getRootR = defaultLayout $ do
 
             $('.accordion').accordion({ autoHeight: false });
 
-            $('.search-complete').autocomplete({
-                source: "@{SearchR}"
-                selectFirst: true
-            });
+            //$('.search-complete').autocomplete({
+            //    source: "@{SearchR}"
+            //    selectFirst: true
+            //});
         });
         |]
 
@@ -43,7 +43,7 @@ getRootR = defaultLayout $ do
                     <div>
                         <form method="get" action="@{SearchR}">
                             <p>
-                                <input .search-complete size=60 name="query" id="query"> 
+                                <input .search-complete size=60 name="term" id="term"> 
                                 <input type="submit" value="Search">
 
                     <h3>Submit a 
