@@ -6,85 +6,83 @@ module Handlers.Search
     , getCompSearchesR
     ) where
 
-import Yesod
-import Yesod.Markdown
-
 import Renters
-import Model hiding (shorten)
+import Model
 
-import Control.Monad       (forM)
-import Data.Time           (getCurrentTime)
-import Data.List           (nubBy)
+import Yesod
+import Yesod.Comments.Markdown
 
+import qualified Data.Map as M
+import qualified Data.Text as T
 import qualified Settings
 
--- json replies for completions
-getCompLandlordsR :: Handler RepJson
-getCompLandlordsR = do
-    req <- getRequest
-    results <- case getParam req "term" of
-        Nothing   -> return []
-        Just ""   -> return []
-        Just term -> do
-            landlords <- (search term :: Handler [(Key Landlord, Landlord)])
-            return $ map (landlordName . snd) landlords
+-- TODO:
+autoComplete :: (Document -> [String]) -> Handler [String]
+autoComplete f = undefined
 
-    jsonToRepJson $ jsonList $ map jsonScalar results
+-- TODO:
+search :: (Document -> Bool) -> Handler (M.Map ReviewId Document)
+search p = undefined
+
+getCompLandlordsR :: Handler RepJson
+getCompLandlordsR = doComp compLandlords
 
 getCompSearchesR :: Handler RepJson
-getCompSearchesR = do
-    req <- getRequest
-    results <- case getParam req "term" of
+getCompSearchesR = doComp compSearches
+
+doComp :: (T.Text -> Document -> [String]) -> Handler RepJson
+doComp f = do
+    mterm   <- lookupGetParam "term"
+    results <- case mterm of
         Nothing   -> return []
         Just ""   -> return []
-        Just term -> do
-            landlords  <- (search term :: Handler [(Key Landlord, Landlord)])
-            properties <- (search term :: Handler [(Key Property, Property)])
-            return $ (map (landlordName . snd) landlords) ++ (map (formatProperty . snd) properties)
+        Just term -> autoComplete (f term)
 
-    jsonToRepJson $ jsonList $ map jsonScalar results
+    jsonToRepJson . jsonList . map jsonScalar $ results
+
+-- TODO:
+compLandlords :: T.Text -> Document -> [String]
+compLandlords s = undefined
+
+-- TODO:
+compSearches :: T.Text -> Document -> [String]
+compSearches s = undefined
 
 getSearchR :: Handler RepHtml
 getSearchR = do
-    req <- getRequest
-    case getParam req "term" of
+    mterm <- lookupGetParam "term"
+    case mterm of
         Nothing   -> allReviews
         Just ""   -> allReviews
         Just term -> do
-            -- search both ways
-            landlords  <- (search term :: Handler [(Key Landlord, Landlord)])
-            properties <- (search term :: Handler [(Key Property, Property)])
-
-            reviews <- do
-                revsL <- forM landlords  $ \(k,_) -> runDB (selectList [ReviewLandlordEq k] [] 0 0)
-                revsP <- forM properties $ \(k,_) -> runDB (selectList [ReviewPropertyEq k] [] 0 0)
-                return . mkUnique . concat $ revsL ++ revsP
-            
+            docs <- search (helper term)
             defaultLayout $ do
                 Settings.setTitle "Search results" 
                 [hamlet|
                     <h1>Search results
                     <div .tabdiv>
-                        $if null reviews
+                        $if M.null docs
                             ^{noReviews}
                         $else
-                            $forall review <- reviews
-                                ^{shortReview review}
+                            $forall doc <- M.toList docs
+                                ^{shortReview doc}
                     |]
 
-mkUnique :: [(ReviewId, Review)] -> [(ReviewId, Review)]
-mkUnique = nubBy (\a b -> fst a == fst b)
+    where
+        -- TODO:
+        helper :: T.Text -> Document -> Bool
+        helper = undefined
 
 allReviews :: Handler RepHtml
 allReviews = do
-    reviews <- runDB $ selectList [] [ReviewCreatedDateDesc] 0 0
+    docs <- siteDocs =<< getYesod
     defaultLayout $ do
         Settings.setTitle "All reviews"
         [hamlet|
             <h1>All reviews
             <div .tabdiv>
-                $forall review <- reviews
-                    ^{shortReview review}
+                $forall doc <- M.toList docs
+                    ^{shortReview doc}
             |]
 
 noReviews :: Widget ()
@@ -99,27 +97,20 @@ noReviews = [hamlet|
         ?
     |]
 
-shortReview :: (ReviewId, Review) -> Widget ()
-shortReview (rid, review) = do
-    now       <- lift $ liftIO getCurrentTime
-    mreviewer <- lift $ runDB $ get $ reviewReviewer review
-    mproperty <- lift $ runDB $ get $ reviewProperty review
-    mlandlord <- lift $ runDB $ get $ reviewLandlord review
-
-    let content = markdownToHtml . Markdown . shorten 400 $ reviewContent review
+shortReview :: (ReviewId, Document) -> Widget ()
+shortReview (rid, (Document landlord property review user)) = do
+    let content = markdownToHtml . Markdown . shorten 403 400 $ reviewContent review
+    reviewTime <- lift . humanReadableTimeDiff $ reviewCreatedDate review
     
     [hamlet|
         <div .review>
             <div .#{show $ reviewType review}>
                 <div .property>
-                    <p>#{maybe "No landlord info" landlordName mlandlord} - #{maybe "No property info" formatProperty mproperty}
+                    <p>#{landlordName landlord} - #{formatProperty property}
                 <div .content>
                     #{content}
                 <div .by>
                     <p>
-                        Reviewed by #{maybe "anonymous" showName mreviewer} #{humanReadableTimeDiff now $ reviewCreatedDate review}. 
+                        Reviewed by #{showName user} #{reviewTime}
                         <a href="@{ReviewsR $ rid}">View
         |]
-
-shorten :: Int -> String -> String
-shorten n s = if length s > n then take n s ++ "..." else s

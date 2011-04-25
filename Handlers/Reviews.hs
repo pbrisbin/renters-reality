@@ -5,37 +5,35 @@ module Handlers.Reviews
     , postReviewsR -- comments
     ) where
 
-import Yesod
-import Yesod.Comments
-import Yesod.Markdown
 import Renters
 import Model
 
-import Data.List  (intercalate, partition)
-import Data.Time  (getCurrentTime)
+import Yesod
+import Yesod.Comments
+import Yesod.Comments.Markdown
 
+import Data.List (partition)
+
+import qualified Data.Map as M
 import qualified Settings
 
 getReviewsR :: ReviewId -> Handler RepHtml
 getReviewsR rid = do
-    review    <- runDB $ get404 rid
-
-    mlandlord <- runDB $ get $ reviewLandlord review
-    mproperty <- runDB $ get $ reviewProperty review
-    mreviewer <- runDB $ get $ reviewReviewer review
-
-    case (mlandlord,mproperty,mreviewer) of
-        (Just landlord, Just property, Just reviewer) -> do
-            now       <- liftIO getCurrentTime
-            plusminus <- getPlusMinus landlord
+    docs <- siteDocs =<< getYesod
+    case M.lookup rid docs of
+        Just (Document landlord property review user) -> do
+            reviewTime <- humanReadableTimeDiff $ reviewCreatedDate review
+            let plusMinus = getPlusMinus (map snd $ M.toList docs) landlord
             defaultLayout $ do
                 Settings.setTitle "View review"
                 [hamlet|
                     <h1>View review
                     <div .tabdiv>
                         <h3>
-                            <a href="@{SearchR}?term=#{landlordName landlord}">#{landlordName landlord} #{plusminus}
-                            <span .property>#{formatProperty property}
+                            <span .landlord>
+                                <a href="@{SearchR}?landlord=#{landlordName landlord}">#{landlordName landlord} #{plusMinus}
+                            <span .property>
+                                <a href="@{SearchR}?property=#{formatProperty property}">#{formatProperty property}
 
                         <div .view-review>
                             <p>Review:
@@ -44,10 +42,9 @@ getReviewsR rid = do
                                 <blockquote>
                                     #{markdownToHtml $ Markdown $ reviewContent review}
 
-                        <div .by>
+                        <div .review-by>
                             <p>
-                                Submitted by #{showName reviewer} 
-                                #{humanReadableTimeDiff now $ reviewCreatedDate review}
+                                Submitted by #{showName user} #{reviewTime}
 
                         <h3>Discussion
                         <div .discussion>
@@ -56,13 +53,12 @@ getReviewsR rid = do
 
         _ -> notFound
 
-getPlusMinus :: Landlord -> Handler String
-getPlusMinus landlord = do
-    reviews <- return . map snd =<< reviewsByLandlord landlord
+getPlusMinus :: [Document] -> Landlord -> String
+getPlusMinus docs l = do
+    let reviews = map review $ filter ((== l) . landlord) docs
     let (pos,neg)    = partition ((== Positive) . reviewType) reviews
     let (plus,minus) = (length pos, length neg)
-    let spread       = (-) plus minus
-    return $ go spread
+    go $ plus - minus
     where
         go n
             | n == 0 = ""

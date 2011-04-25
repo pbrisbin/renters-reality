@@ -16,12 +16,13 @@ import Model
 import Control.Applicative ((<$>), (<*>))
 import Data.Maybe          (fromMaybe)
 
+import qualified Data.Text as T
 import qualified Settings
 
 data EditForm = EditForm
-    { eFullname :: Maybe String
-    , eUsername :: Maybe String
-    , eEmail    :: Maybe String
+    { eFullname :: Maybe T.Text
+    , eUsername :: Maybe T.Text
+    , eEmail    :: Maybe T.Text
     }
 
 getProfileR :: Handler RepHtml
@@ -93,9 +94,9 @@ showForm = do
 
 editForm :: User -> FormMonad (FormResult EditForm, Widget())
 editForm u = do
-    (fFullname, fiFullname) <- maybeStringField "Full name:"     $ Just $ userFullname u
-    (fUsername, fiUsername) <- maybeStringField "User name:"     $ Just $ userUsername u
-    (fEmail   , fiEmail   ) <- maybeEmailField  "Email address:" $ Just $ userEmail u
+    (fFullname, fiFullname) <- maybeStringField "Full name:"     $ Just (fmap T.pack $ userFullname u)
+    (fUsername, fiUsername) <- maybeStringField "User name:"     $ Just (fmap T.pack $ userUsername u)
+    (fEmail   , fiEmail   ) <- maybeEmailField  "Email address:" $ Just (fmap T.pack $ userEmail u   )
 
     return (EditForm <$> fFullname <*> fUsername <*> fEmail, [hamlet|
             <table .edit-form>
@@ -130,9 +131,9 @@ editForm u = do
 saveChanges :: UserId -> EditForm -> Handler ()
 saveChanges uid ef = do
     runDB $ update uid 
-        [ UserFullname $ eFullname ef
-        , UserUsername $ eUsername ef
-        , UserEmail    $ eEmail    ef
+        [ UserFullname $ fmap T.unpack $ eFullname ef
+        , UserUsername $ fmap T.unpack $ eUsername ef
+        , UserEmail    $ fmap T.unpack $ eEmail    ef
         ]
 
     tm <- getRouteToMaster
@@ -142,7 +143,14 @@ getDeleteProfileR :: Handler RepHtml
 getDeleteProfileR = defaultLayout [hamlet|
     <h1>Are you sure?
     <div .tabdiv>
-        <p>This feature will be implemented shortly...
+        <p>There's no going back. Everything of yours will be deleted.
+
+        <div .confirm>
+            <form method="post">
+                <input type="Submit" value="Yes, I'm sure.">
+            <p .nothanks>
+                <a href="@{EditProfileR}">No, take me back.
+
     |]
 
 postDeleteProfileR :: Handler RepHtml

@@ -18,7 +18,6 @@ module Renters where
 import Yesod
 import Yesod.Comments
 import Yesod.Comments.Storage
-import Yesod.Markdown
 import Yesod.Form.Core (GFormMonad)
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.OpenId
@@ -28,16 +27,16 @@ import Yesod.Helpers.Static
 import Data.Time
 import System.Locale
 
-import Control.Monad       (unless, liftM)
+import Control.Monad       (unless, liftM, forM)
 import Data.Char           (isSpace)
 import Data.Maybe          (fromJust)
 import System.Directory    (doesFileExist, createDirectoryIfMissing)
 import Text.Jasmine        (minifym)
-import Web.Routes          (encodePathInfo)
 
 import Database.Persist.GenericSql
 import qualified Data.ByteString.Lazy as L
 import qualified Data.Map as M
+import qualified Data.Text as T
 
 import Model
 
@@ -46,6 +45,7 @@ import qualified Settings
 -- | The main site type
 data Renters = Renters
     { getStatic :: Static 
+    , siteDocs  :: Handler (M.Map ReviewId Document)
     , connPool  :: ConnectionPool 
     }
 
@@ -81,18 +81,6 @@ staticFiles Settings.staticDir
 instance Yesod Renters where 
     approot   _ = Settings.approot
     authRoute _ = Just $ AuthR LoginR
-
-    -- fix for OpenId
-    joinPath _ ar pieces qs = ar ++ '/' : encodePathInfo pieces' qs
-        where
-            pieces'
-                | pieces == ["page", "openid", "complete"] = ["page", "openid", "complete", ""]
-                | otherwise = pieces
-
-    cleanPath _ ["page", "openid", "complete", ""] = Right ["page", "openid", "complete"]
-    cleanPath _ s = if corrected == s then Right s else Left corrected
-        where
-            corrected = filter (not . null) s
 
     defaultLayout widget = do
         (t,h) <- breadcrumbs
@@ -142,11 +130,11 @@ instance Yesod Renters where
                             <a href="https://github.com/pbrisbin/renters-reality">source code.
             |]
 
-    urlRenderOverride a (StaticR s) = Just $ uncurry (joinPath a Settings.staticRoot) $ renderRoute s
+    urlRenderOverride a (StaticR s) = Just $ uncurry (joinPath a (T.pack Settings.staticRoot)) $ renderRoute s
     urlRenderOverride _ _           = Nothing
 
     addStaticContent ext' _ sContent = do
-        let fn = base64md5 sContent ++ '.' : ext'
+        let fn = base64md5 sContent ++ '.' : (T.unpack ext')
         let content' =
                 if ext' == "js"
                     then case minifym sContent of
@@ -158,7 +146,7 @@ instance Yesod Renters where
         let fn' = statictmp ++ fn
         exists <- liftIO $ doesFileExist fn'
         unless exists $ liftIO $ L.writeFile fn' content'
-        return $ Just $ Right (StaticR $ StaticRoute ["tmp", fn] [], [])
+        return $ Just $ Right (StaticR $ StaticRoute ["tmp", (T.pack fn)] [], [])
 
     clientSessionDuration _ = 60 * 24 * 7 -- one week
 
@@ -219,9 +207,6 @@ instance YesodAuth Renters where
                 setMessage "That identifier is already attached to an account. Please detach it from the other account first."
                 redirect RedirectTemporary ProfileR
 
-    showAuthId _ = showIntegral
-    readAuthId _ = readIntegral
-
     authPlugins = [ authOpenId 
                   , authFacebook "206687389350404"
                                  "9d30284c6cb99ff2c7cbc4e5f8ae53e0"
@@ -264,10 +249,6 @@ getFaviconR = sendFile "image/x-icon" "favicon.ico"
 getRobotsR :: Handler RepPlain
 getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: String)
 
--- | Return values by key from the query string
-getParam :: Request -> ParamName -> Maybe ParamValue
-getParam req param = M.lookup param . M.fromList $ reqGetParams req
-
 authNavHelper :: Maybe (UserId, User) -> GWidget s Renters ()
 authNavHelper Nothing         = [hamlet|<a href="@{AuthR LoginR}">login|]
 authNavHelper (Just (_, u)) = [hamlet|
@@ -275,6 +256,27 @@ authNavHelper (Just (_, u)) = [hamlet|
     \ | 
     <a href="@{AuthR LogoutR}">logout
     |]
+
+loadDocuments :: Handler (M.Map ReviewId Document)
+loadDocuments = do
+    users      <- return . M.fromList =<< runDB (selectList [] [UserUsernameAsc] 0 0)
+    landlords  <- return . M.fromList =<< runDB (selectList [] [LandlordNameAsc] 0 0)
+    properties <- return . M.fromList =<< runDB (selectList [] [PropertyZipAsc ] 0 0)
+
+    reviews <- runDB $ selectList [] [ReviewCreatedDateDesc] 0 0
+
+    theList <- forM reviews $ \(k,v) -> do
+        let user     = M.lookup (reviewReviewer v) users
+        let landlord = M.lookup (reviewLandlord v) landlords
+        let property = M.lookup (reviewProperty v) properties
+
+        return $ case (user, landlord, property) of
+            (Nothing, _      , _      ) -> []
+            (_      , Nothing, _      ) -> []
+            (_      , _      , Nothing) -> []
+            (Just u , Just l , Just p ) -> [(k, Document l p v u)]
+
+    return . M.fromList $ concat theList
 
 -- | Find or create an entity, returning its key in both cases
 findOrCreate :: PersistEntity a => a -> Handler (Key a)
@@ -289,53 +291,45 @@ reviewsByLandlord landlord = do
 
 -- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
 -- <https://github.com/snoyberg/haskellers/blob/master/LICENSE>
-humanReadableTimeDiff :: UTCTime     -- ^ current time
-                      -> UTCTime     -- ^ old time
-                      -> String
-humanReadableTimeDiff curTime oldTime =
-    helper diff
-  where
-    diff    = diffUTCTime curTime oldTime
+humanReadableTimeDiff :: UTCTime -> GHandler s m String
+humanReadableTimeDiff t = return . helper . flip diffUTCTime t =<< liftIO getCurrentTime
 
-    minutes :: NominalDiffTime -> Double
-    minutes n = realToFrac $ n / 60
+    where
+        minutes :: NominalDiffTime -> Double
+        minutes n = realToFrac $ n / 60
 
-    hours :: NominalDiffTime -> Double
-    hours   n = minutes n / 60
+        hours :: NominalDiffTime -> Double
+        hours   n = minutes n / 60
 
-    days :: NominalDiffTime -> Double
-    days    n = hours n / 24
+        days :: NominalDiffTime -> Double
+        days    n = hours n / 24
 
-    weeks :: NominalDiffTime -> Double
-    weeks   n = days n / 7
+        weeks :: NominalDiffTime -> Double
+        weeks   n = days n / 7
 
-    years :: NominalDiffTime -> Double
-    years   n = days n / 365
+        years :: NominalDiffTime -> Double
+        years   n = days n / 365
 
-    i2s :: RealFrac a => a -> String
-    i2s n = show m where m = truncate n :: Int
+        i2s :: RealFrac a => a -> String
+        i2s n = show m where m = truncate n :: Int
 
-    old = utcToLocalTime utc oldTime
+        trim = f . f where f = reverse . dropWhile isSpace
 
-    trim = f . f where f = reverse . dropWhile isSpace
+        old           = utcToLocalTime utc t
+        dow           = trim $! formatTime defaultTimeLocale "%l:%M %p on %A" old
+        thisYear      = trim $! formatTime defaultTimeLocale "%b %e" old
+        previousYears = trim $! formatTime defaultTimeLocale "%b %e, %Y" old
 
-    dow           = trim $! formatTime defaultTimeLocale "%l:%M %p on %A" old
-    thisYear      = trim $! formatTime defaultTimeLocale "%b %e" old
-    previousYears = trim $! formatTime defaultTimeLocale "%b %e, %Y" old
-
-    helper  d | d < 1          = "just now"
-              | d < 60         = i2s d ++ " seconds ago"
-              | minutes d < 2  = "one minute ago"
-              | minutes d < 60 =  i2s (minutes d) ++ " minutes ago"
-              | hours d < 2    = "one hour ago"
-              | hours d < 24   = "about " ++ i2s (hours d) ++ " hours ago"
-              | days d < 5     = "at " ++ dow
-              | days d < 10    = i2s (days d)  ++ " days ago"
-              | weeks d < 2    = i2s (weeks d) ++ " week ago"
-              | weeks d < 5    = i2s (weeks d)  ++ " weeks ago"
-              | years d < 1    = "on " ++ thisYear
-              | otherwise      = "on " ++ previousYears
-
--- | Render from markdown, yesod-style
-markdownToHtml :: Markdown -> Html
-markdownToHtml = writePandoc yesodDefaultWriterOptions . parseMarkdown yesodDefaultParserState
+        helper d 
+            | d         < 1  = "just now"
+            | d         < 60 = i2s d ++ " seconds ago"
+            | minutes d < 2  = "one minute ago"
+            | minutes d < 60 =  i2s (minutes d) ++ " minutes ago"
+            | hours d   < 2  = "one hour ago"
+            | hours d   < 24 = "about " ++ i2s (hours d) ++ " hours ago"
+            | days d    < 5  = "at " ++ dow
+            | days d    < 10 = i2s (days d)  ++ " days ago"
+            | weeks d   < 2  = i2s (weeks d) ++ " week ago"
+            | weeks d   < 5  = i2s (weeks d) ++ " weeks ago"
+            | years d   < 1  = "on " ++ thisYear
+            | otherwise      = "on " ++ previousYears

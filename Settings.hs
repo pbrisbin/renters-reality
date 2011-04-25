@@ -1,4 +1,5 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP               #-}
+{-# LANGUAGE OverloadedStrings #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Settings
@@ -18,13 +19,11 @@ module Settings
     , withConnectionPool
     ) where
 
-import Yesod hiding (approot, setTitle)
 import Database.Persist.Sqlite
-import Text.Blaze (toHtml)
+import qualified Yesod
+import qualified Data.Text as T
 
-import qualified Yesod as Y
-
-approot :: String
+approot :: T.Text
 #ifdef PROD
 approot = "http://rentersreality.com"
 #else
@@ -35,13 +34,13 @@ staticDir :: String
 staticDir = "static"
 
 staticRoot :: String
-staticRoot = approot ++ "/static"
+staticRoot = T.unpack approot ++ "/static"
 
-setTitle :: (Yesod m) => String -> GWidget s m ()
-setTitle s = Y.setTitle . toHtml $ "Renters' reality | " ++ s
+setTitle :: (Yesod.Yesod m) => String -> Yesod.GWidget s m ()
+setTitle s = Yesod.setTitle . Yesod.toHtml $ "Renters' reality | " ++ s
 
-dataBase :: String
+dataBase :: T.Text
 dataBase = "db.s3db"
 
-withConnectionPool :: MonadPeelIO m => (ConnectionPool -> m a) -> m a
+withConnectionPool :: Yesod.MonadControlIO m => (ConnectionPool -> m a) -> m a
 withConnectionPool = withSqlitePool dataBase 10

@@ -3,6 +3,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE OverloadedStrings          #-}
 --
 -- Most of the user/profile stuff was taken from Haskellers.com:
 -- https://github.com/snoyberg/haskellers/
@@ -10,11 +11,11 @@
 module Model where
 
 import Yesod
-import Data.Char                   (toLower, isSpace)
-import Data.List                   (isInfixOf, intercalate)
-import Data.Time                   (UTCTime(..))
-import Database.Persist.TH         (derivePersistField, share2)
-import Database.Persist.GenericSql (mkMigrate)
+import Data.Char (toLower, isSpace)
+import Data.List (isInfixOf, intercalate)
+import Data.Time (UTCTime(..))
+
+import qualified Data.Text as T
 
 -- | Reviews can be good or bad
 data ReviewType = Positive | Negative 
@@ -24,22 +25,11 @@ instance SinglePiece ReviewType where
     toSinglePiece Positive = "positive"
     toSinglePiece Negative = "negative"
 
-    fromSinglePiece "positive" = Right Positive
-    fromSinglePiece "negative" = Right Negative
-    fromSinglePiece _          = Left "invalid review type"
+    fromSinglePiece "positive" = Just Positive
+    fromSinglePiece "negative" = Just Negative
+    fromSinglePiece _          = Nothing
 
 derivePersistField "ReviewType"
-
--- | Matchable against a string, supports searching
-class PersistEntity a => Matchable a where
-    match :: String -> (Key a, a) -> Bool
-
--- | Implement a searchable database value by providing your own result 
---   set based on the search term
-class PersistEntity a => Searchable a where
-    search :: (YesodPersist m, PersistBackend (YesodDB m (GGHandler s m IO))) 
-           => String -- ^ search term
-           -> GHandler s m [(Key a, a)]
 
 share2 mkPersist (mkMigrate "doMigration") [persist|
     Landlord
@@ -71,41 +61,39 @@ share2 mkPersist (mkMigrate "doMigration") [persist|
 
     User
         fullname      String Maybe Update
-        username      String Maybe Update
+        username      String Maybe Update Asc
         email         String Maybe Update
         verifiedEmail Bool default=false Eq Update
         verkey        String Maybe Update
 
     Ident
-        ident String Asc
+        ident T.Text Asc
         user  UserId Eq
         UniqueIdent ident
     |]
 
-instance Matchable Landlord where match s (_,v) = looseMatch s (landlordName   v)
-instance Matchable Property where match s (_,v) = looseMatch s (formatProperty v)
+data Document = Document
+    { landlord :: Landlord
+    , property :: Property
+    , review   :: Review
+    , user     :: User
+    }
 
-instance Searchable Landlord where
-    search s = return . filter (match s) =<< runDB (selectList [] [ LandlordNameAsc ] 0 0)
+kwMatch :: String -> String -> Bool
+kwMatch a b = words a `anyIn` words b
+    where
+        []     `anyIn` _  = False
+        (x:xs) `anyIn` ys = x `elem` ys || xs `anyIn` ys
 
-instance Searchable Property where
-    search s = return . filter (match s) =<< runDB (selectList [] [ PropertyZipAsc
-                                                                  , PropertyStateAsc
-                                                                  , PropertyCityAsc
-                                                                  , PropertyAddrTwoAsc
-                                                                  , PropertyAddrOneAsc
-                                                                  ] 0 0)
-
-looseMatch :: String -> String -> Bool
-looseMatch a b = fix a `isInfixOf` fix b
+strMatch :: String -> String -> Bool
+strMatch a b = fix a `isInfixOf` fix b
     where
         fix = strip . map toLower
 
-        -- remove some punctuation before comparing
         strip []       = []
-        strip (',':xs) = strip xs
-        strip ('.':xs) = strip xs
-        strip (x:xs)   = x : strip xs
+        strip (',':xs) = ' ' : strip xs
+        strip ('.':xs) = ' ' : strip xs
+        strip (x:xs)   = x   : strip xs
 
 formatProperty :: Property -> String
 formatProperty p = intercalate ", "

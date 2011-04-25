@@ -3,7 +3,7 @@
 module Handlers.New (getNewR, postNewR) where
 
 import Yesod
-import Yesod.Markdown
+import Yesod.Comments.Markdown
 import Yesod.Helpers.Auth
 
 import Renters
@@ -15,17 +15,18 @@ import Data.Monoid         (mempty)
 import Data.Time           (getCurrentTime)
 import Network.Wai         (remoteHost)
 
+import qualified Data.Text as T
 import qualified Settings
 
 data ReviewForm = ReviewForm
-    { rfIp        :: String
-    , rfLandlord  :: String
-    , rfAddrOne   :: String
-    , rfAddrTwo   :: Maybe String
-    , rfCity      :: String
-    , rfState     :: String
-    , rfZip       :: String
-    , rfTimeframe :: String
+    { rfIp        :: T.Text
+    , rfLandlord  :: T.Text
+    , rfAddrOne   :: T.Text
+    , rfAddrTwo   :: Maybe T.Text
+    , rfCity      :: T.Text
+    , rfState     :: T.Text
+    , rfZip       :: T.Text
+    , rfTimeframe :: T.Text
     , rfReview    :: Markdown
     }
 
@@ -38,7 +39,7 @@ getNewR :: ReviewType -> Handler RepHtml
 getNewR rtype = do
     (uid, _) <- requireAuth
 
-    req <- getRequest
+    ml <- lookupGetParam (T.pack "landlord")
     defaultLayout $ do
         Settings.setTitle "New review"
 
@@ -66,7 +67,7 @@ getNewR rtype = do
             <h1>New review
 
             <div .tabdiv>
-                ^{runReviewForm uid (getParam req "landlord") rtype}
+                ^{runReviewForm uid ml rtype}
 
             <div #markdown-help>
                 <span style="float: right;">
@@ -103,7 +104,7 @@ mdExamples = [ MarkdownExample "*italic text*"
 postNewR :: ReviewType -> Handler RepHtml
 postNewR = getNewR
 
-runReviewForm :: UserId -> Maybe String -> ReviewType -> Widget ()
+runReviewForm :: UserId -> Maybe T.Text -> ReviewType -> Widget ()
 runReviewForm uid ml rtype = do
     ip <- lift $ return . show . remoteHost =<< waiRequest
     ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm ml ip
@@ -117,11 +118,11 @@ runReviewForm uid ml rtype = do
 
     [hamlet|<form enctype="#{enctype}" method="post"> ^{form}|]
 
-reviewForm :: Maybe String -- ^ maybe landlord name
+reviewForm :: Maybe T.Text -- ^ maybe landlord name
            -> String       -- ^ IP address of submitter
            -> FormMonad (FormResult ReviewForm, Widget())
 reviewForm ml ip = do
-    (fIp       , fiIp       ) <- hiddenField      (ffs ""             "ip"       ) $ Just ip
+    (fIp       , fiIp       ) <- hiddenField      (ffs ""             "ip"       ) $ Just (T.pack ip)
     (fLandlord , fiLandlord ) <- stringField      (ffs "Landlord:"    "landlord" ) $ ml
     (fAddrOne  , fiAddrOne  ) <- stringField      (ffs "Address (1):" "addrone"  ) $ Nothing
     (fAddrTwo  , fiAddrTwo  ) <- maybeStringField (ffs "Address (2):" "addrtwo"  ) $ Nothing
@@ -170,7 +171,7 @@ reviewForm ml ip = do
             |])
 
     where
-        ffs :: String -> String -> FormFieldSettings
+        ffs :: T.Text -> T.Text -> FormFieldSettings
         ffs label theId = FormFieldSettings label mempty (Just theId) Nothing
 
         fieldRow fi = [hamlet|
@@ -191,14 +192,14 @@ insertFromForm :: UserId -> ReviewType -> ReviewForm -> Handler ReviewId
 insertFromForm uid rtype rf = do
     now <- liftIO getCurrentTime
 
-    landlordId <- findOrCreate $ Landlord $ rfLandlord rf
+    landlordId <- findOrCreate $ Landlord $ T.unpack $ rfLandlord rf
 
     propertyId <- findOrCreate $ Property
-        { propertyAddrOne = rfAddrOne rf
-        , propertyAddrTwo = fromMaybe "" $ rfAddrTwo rf
-        , propertyCity    = rfCity rf
-        , propertyState   = rfState rf
-        , propertyZip     = rfZip rf
+        { propertyAddrOne = T.unpack $ rfAddrOne rf
+        , propertyAddrTwo = T.unpack $ fromMaybe "" $ rfAddrTwo rf
+        , propertyCity    = T.unpack $ rfCity rf
+        , propertyState   = T.unpack $ rfState rf
+        , propertyZip     = T.unpack $ rfZip rf
         }
 
     _ <- findOrCreate $ Ownership propertyId landlordId
@@ -206,9 +207,9 @@ insertFromForm uid rtype rf = do
     runDB $ insert $ Review
             { reviewType        = rtype
             , reviewCreatedDate = now
-            , reviewIpAddress   = rfIp rf
+            , reviewIpAddress   = T.unpack $ rfIp rf
             , reviewContent     = unMarkdown $ rfReview rf
-            , reviewTimeframe   = rfTimeframe rf
+            , reviewTimeframe   = T.unpack $ rfTimeframe rf
             , reviewReviewer    = uid
             , reviewLandlord    = landlordId
             , reviewProperty    = propertyId

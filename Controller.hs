@@ -1,4 +1,5 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE TemplateHaskell       #-}
 -------------------------------------------------------------------------------
 -- |
@@ -13,22 +14,16 @@
 -------------------------------------------------------------------------------
 module Controller (withServer) where
 
+import Renters
+import Model
+import Handlers
+
 import Yesod
 import Yesod.Comments.Storage
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Static
-import Renters
-import Model
-
-import Handlers.Root
-import Handlers.Legal
-import Handlers.Search
-import Handlers.New
-import Handlers.Profile
-import Handlers.Reviews
 
 import Database.Persist.GenericSql
-
 import qualified Settings
 
 -- | Instantiate the Yesod route types
@@ -39,6 +34,6 @@ withServer :: (Application -> IO a) -> IO a
 withServer f = Settings.withConnectionPool $ \p -> do
     runSqlPool (runMigration doMigration) p
     runSqlPool (runMigration migrateComments) p
-    f =<< toWaiApp (Renters s p)
+    f =<< toWaiApp (Renters s loadDocuments p)
     where
         s = static Settings.staticDir
