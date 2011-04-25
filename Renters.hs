@@ -27,11 +27,11 @@ import Yesod.Helpers.Static
 import Data.Time
 import System.Locale
 
-import Control.Monad       (unless, liftM, forM)
-import Data.Char           (isSpace)
-import Data.Maybe          (fromJust)
-import System.Directory    (doesFileExist, createDirectoryIfMissing)
-import Text.Jasmine        (minifym)
+import Control.Monad    (unless, liftM, forM)
+import Data.Char        (isSpace)
+import Data.Maybe       (fromJust)
+import System.Directory (doesFileExist, createDirectoryIfMissing)
+import Text.Jasmine     (minifym)
 
 import Database.Persist.GenericSql
 import qualified Data.ByteString.Lazy as L
@@ -214,31 +214,33 @@ instance YesodAuth Renters where
                   ]
 
     loginHandler = defaultLayout [hamlet|
-        <div #login>
-            <h3>Please login using one of the following:
-            <div .services>
-                <table>
-                    <tr>
-                        <td>
-                            <form method="get" action="@{AuthR forwardUrl}" .button .google>
-                                <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
-                                <input type="image" src="@{StaticR google_gif}" value="Login via Google">
-                        <td>
-                            <form method="get" action="@{AuthR forwardUrl}" .button .yahoo>
-                                <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
-                                <input type="image" src="@{StaticR yahoo_gif}" value="Login via Yahoo!">
-                        <td>
-                            <a href="@{AuthR facebookUrl}" .button .facebook>
-                                <img src="@{StaticR facebook_gif}" value="Login via Facebook">
+        <h1>Log in
+        <div .tabdiv>
+            <div #login>
+                <h3>Please login using one of the following:
+                <div .services>
+                    <table>
+                        <tr>
+                            <td>
+                                <form method="get" action="@{AuthR forwardUrl}" .button .google>
+                                    <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
+                                    <input type="image" src="@{StaticR google_gif}" value="Login via Google">
+                            <td>
+                                <form method="get" action="@{AuthR forwardUrl}" .button .yahoo>
+                                    <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
+                                    <input type="image" src="@{StaticR yahoo_gif}" value="Login via Yahoo!">
+                            <td>
+                                <a href="@{AuthR facebookUrl}" .button .facebook>
+                                    <img src="@{StaticR facebook_gif}" value="Login via Facebook">
 
-            <div .open-id>
-                <h3>&mdash; OR &mdash;
-                <table>
-                    <tr>
-                        <td>
-                            <form method="get" action="@{AuthR forwardUrl}">
-                                <input id="openid_identifier" type="text" name="openid_identifier" value="http://">
-                                <input id="openid_submit" type="submit" value="Login via OpenID">
+                <div .open-id>
+                    <h3>&mdash; OR &mdash;
+                    <table>
+                        <tr>
+                            <td>
+                                <form method="get" action="@{AuthR forwardUrl}">
+                                    <input id="openid_identifier" type="text" name="openid_identifier" value="http://">
+                                    <input id="openid_submit" type="submit" value="Login via OpenID">
         |]
 
 -- | Favicon
