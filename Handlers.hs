@@ -1,4 +1,4 @@
--- | Makes customizations easier
+-- Makes testing easier
 module Handlers
     ( module Handlers.Root
     , module Handlers.Legal

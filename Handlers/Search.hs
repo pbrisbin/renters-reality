@@ -8,45 +8,15 @@ module Handlers.Search
 
 import Renters
 import Model
-
 import Yesod
 import Yesod.Comments.Markdown
-
-import qualified Data.Map as M
-import qualified Data.Text as T
 import qualified Settings
 
--- TODO:
-autoComplete :: (Document -> [String]) -> Handler [String]
-autoComplete f = undefined
-
--- TODO:
-search :: (Document -> Bool) -> Handler (M.Map ReviewId Document)
-search p = undefined
-
 getCompLandlordsR :: Handler RepJson
-getCompLandlordsR = doComp compLandlords
+getCompLandlordsR = jsonToRepJson . jsonList $ map jsonScalar []
 
 getCompSearchesR :: Handler RepJson
-getCompSearchesR = doComp compSearches
-
-doComp :: (T.Text -> Document -> [String]) -> Handler RepJson
-doComp f = do
-    mterm   <- lookupGetParam "term"
-    results <- case mterm of
-        Nothing   -> return []
-        Just ""   -> return []
-        Just term -> autoComplete (f term)
-
-    jsonToRepJson . jsonList . map jsonScalar $ results
-
--- TODO:
-compLandlords :: T.Text -> Document -> [String]
-compLandlords s = undefined
-
--- TODO:
-compSearches :: T.Text -> Document -> [String]
-compSearches s = undefined
+getCompSearchesR = jsonToRepJson . jsonList $ map jsonScalar []
 
 getSearchR :: Handler RepHtml
 getSearchR = do
@@ -55,23 +25,18 @@ getSearchR = do
         Nothing   -> allReviews
         Just ""   -> allReviews
         Just term -> do
-            docs <- search (helper term)
+            docs <- siteDocs =<< getYesod
             defaultLayout $ do
                 Settings.setTitle "Search results" 
                 [hamlet|
                     <h1>Search results
                     <div .tabdiv>
-                        $if M.null docs
+                        $if null docs
                             ^{noReviews}
                         $else
-                            $forall doc <- M.toList docs
+                            $forall doc <- docs
                                 ^{shortReview doc}
                     |]
-
-    where
-        -- TODO:
-        helper :: T.Text -> Document -> Bool
-        helper = undefined
 
 allReviews :: Handler RepHtml
 allReviews = do
@@ -81,7 +46,7 @@ allReviews = do
         [hamlet|
             <h1>All reviews
             <div .tabdiv>
-                $forall doc <- M.toList docs
+                $forall doc <- docs
                     ^{shortReview doc}
             |]
 
@@ -97,9 +62,9 @@ noReviews = [hamlet|
         ?
     |]
 
-shortReview :: (ReviewId, Document) -> Widget ()
-shortReview (rid, (Document landlord property review user)) = do
-    let content = markdownToHtml . Markdown . shorten 403 400 $ reviewContent review
+shortReview :: Document -> Widget ()
+shortReview (Document rid review landlord property user) = do
+    let content = markdownToHtml . liftMD (shorten' 400) $ reviewContent review
     reviewTime <- lift . humanReadableTimeDiff $ reviewCreatedDate review
     
     [hamlet|
@@ -111,6 +76,11 @@ shortReview (rid, (Document landlord property review user)) = do
                     #{content}
                 <div .by>
                     <p>
-                        Reviewed by #{showName user} #{reviewTime}
-                        <a href="@{ReviewsR $ rid}">View
+                        Reviewed by #{showName user} #{reviewTime} 
+                        <span .view-link>
+                            <a href="@{ReviewsR $ rid}">View
         |]
+
+    where
+        liftMD :: (String -> String) -> Markdown -> Markdown
+        liftMD f (Markdown s) = Markdown $ f s

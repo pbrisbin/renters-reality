@@ -11,6 +11,7 @@
 module Model where
 
 import Yesod
+import Yesod.Comments.Markdown
 import Data.Char (toLower, isSpace)
 import Data.List (isInfixOf, intercalate)
 import Data.Time (UTCTime(..))
@@ -33,15 +34,15 @@ derivePersistField "ReviewType"
 
 share2 mkPersist (mkMigrate "doMigration") [persist|
     Landlord
-        name String Eq Asc
+        name T.Text Eq Asc
         UniqueLandlord name
 
     Property
-        addrOne String Eq Asc
-        addrTwo String Eq Asc
-        city    String Eq Asc
-        state   String Eq Asc
-        zip     String Eq Asc
+        addrOne T.Text Eq Asc
+        addrTwo T.Text Eq Asc
+        city    T.Text Eq Asc
+        state   T.Text Eq Asc
+        zip     T.Text Eq Asc
         UniqueProperty addrOne addrTwo city state zip
 
     Ownership
@@ -51,20 +52,20 @@ share2 mkPersist (mkMigrate "doMigration") [persist|
 
     Review
         createdDate UTCTime Desc
-        ipAddress   String
+        ipAddress   T.Text
         type        ReviewType Eq
-        content     String
-        timeframe   String
+        content     Markdown
+        timeframe   T.Text
         reviewer    UserId     Eq
         landlord    LandlordId Eq
         property    PropertyId Eq
 
     User
-        fullname      String Maybe Update
-        username      String Maybe Update Asc
-        email         String Maybe Update
+        fullname      T.Text Maybe Update
+        username      T.Text Maybe Update Asc
+        email         T.Text Maybe Update
         verifiedEmail Bool default=false Eq Update
-        verkey        String Maybe Update
+        verkey        T.Text Maybe Update
 
     Ident
         ident T.Text Asc
@@ -73,46 +74,49 @@ share2 mkPersist (mkMigrate "doMigration") [persist|
     |]
 
 data Document = Document
-    { landlord :: Landlord
-    , property :: Property
+    { reviewId :: ReviewId
     , review   :: Review
+    , landlord :: Landlord
+    , property :: Property
     , user     :: User
-    }
+    } deriving Show
 
-kwMatch :: String -> String -> Bool
-kwMatch a b = words a `anyIn` words b
-    where
-        []     `anyIn` _  = False
-        (x:xs) `anyIn` ys = x `elem` ys || xs `anyIn` ys
+-- search helpers
 
-strMatch :: String -> String -> Bool
-strMatch a b = fix a `isInfixOf` fix b
-    where
-        fix = strip . map toLower
+keyWordMatch :: T.Text -> T.Text -> Bool
+keyWordMatch a b = T.words a `anyIn` T.words b
 
-        strip []       = []
-        strip (',':xs) = ' ' : strip xs
-        strip ('.':xs) = ' ' : strip xs
-        strip (x:xs)   = x   : strip xs
+looseMatch :: T.Text -> T.Text -> Bool
+looseMatch a b = fix a `T.isInfixOf` fix b
 
-formatProperty :: Property -> String
-formatProperty p = intercalate ", "
-                 . map trim
-                 . filter (not . null)
+anyIn :: Eq a => [a] -> [a] -> Bool
+anyIn []     _  = False
+anyIn _      [] = False
+anyIn (x:xs) ys = x `elem` ys || xs `anyIn` ys
+
+fix :: T.Text -> T.Text
+fix = T.toLower . T.filter (`notElem` [',', '.', '#'])
+
+-- formatting helpers
+
+formatProperty :: Property -> T.Text
+formatProperty p = T.intercalate (T.pack ", ")
+                 . map T.strip . filter (not . T.null)
                  $ [ propertyAddrOne p
                    , propertyAddrTwo p
                    , propertyCity    p
                    , propertyState   p
                    , propertyZip     p
                    ]
-    where
-        trim = f . f
-        f    = reverse . dropWhile isSpace
 
-showName :: User -> String
-showName (User _         (Just un) _ _ _) = shorten 50 40 un
-showName (User (Just fn) _         _ _ _) = shorten 50 40 fn
-showName _                                = "anonymous"
+showName :: User -> T.Text
+showName (User _         (Just un) _ _ _) = shorten 40 un
+showName (User (Just fn) _         _ _ _) = shorten 40 fn
+showName _                                = T.pack "anonymous"
 
-shorten :: Int -> Int -> String -> String
-shorten m n s = if length s > m then take n s ++ "..." else s
+shorten :: Int -> T.Text -> T.Text
+shorten n s = if T.length s > n then T.append "..." $ T.take (n - 3) s else s
+
+-- | Same for strings
+shorten' :: Int -> String -> String
+shorten' n s = if length s > n then take (n - 3) s ++ "..." else s

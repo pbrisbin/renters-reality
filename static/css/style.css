@@ -240,6 +240,10 @@ tr#review textarea {
   cursor:           pointer;
 }
 
+.by .view-link {
+  float: right;
+}
+
 h3 span.Positive { border-bottom: dotted 1px #b0d87c; }
 h3 span.Negative { border-bottom: dotted 1px #fc4930; }
 

@@ -23,6 +23,14 @@ import Database.Persist.Sqlite
 import qualified Yesod
 import qualified Data.Text as T
 
+#define DEBUG
+
+#ifdef DEBUG
+import System.IO
+debug :: Yesod.Yesod m => String -> Yesod.GHandler s m ()
+debug = Yesod.liftIO . hPutStrLn stderr
+#endif
+
 approot :: T.Text
 #ifdef PROD
 approot = "http://rentersreality.com"

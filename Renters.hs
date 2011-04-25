@@ -45,7 +45,7 @@ import qualified Settings
 -- | The main site type
 data Renters = Renters
     { getStatic :: Static 
-    , siteDocs  :: Handler (M.Map ReviewId Document)
+    , siteDocs  :: Handler [Document]
     , connPool  :: ConnectionPool 
     }
 
@@ -175,7 +175,7 @@ instance YesodComments Renters where
     displayUser uid = do
         muser <- runDB $ get uid
         case muser of
-            Just user -> return $ showName user
+            Just user -> return $ T.unpack $ showName user
             Nothing   -> return ""
 
 instance YesodAuth Renters where
@@ -257,7 +257,7 @@ authNavHelper (Just (_, u)) = [hamlet|
     <a href="@{AuthR LogoutR}">logout
     |]
 
-loadDocuments :: Handler (M.Map ReviewId Document)
+loadDocuments :: Handler [Document]
 loadDocuments = do
     users      <- return . M.fromList =<< runDB (selectList [] [UserUsernameAsc] 0 0)
     landlords  <- return . M.fromList =<< runDB (selectList [] [LandlordNameAsc] 0 0)
@@ -265,18 +265,16 @@ loadDocuments = do
 
     reviews <- runDB $ selectList [] [ReviewCreatedDateDesc] 0 0
 
-    theList <- forM reviews $ \(k,v) -> do
+    docs <- forM reviews $ \(k,v) -> do
         let user     = M.lookup (reviewReviewer v) users
         let landlord = M.lookup (reviewLandlord v) landlords
         let property = M.lookup (reviewProperty v) properties
 
-        return $ case (user, landlord, property) of
-            (Nothing, _      , _      ) -> []
-            (_      , Nothing, _      ) -> []
-            (_      , _      , Nothing) -> []
-            (Just u , Just l , Just p ) -> [(k, Document l p v u)]
+        case (user, landlord, property) of
+            (Just u , Just l , Just p ) -> return [Document k v l p u]
+            _                           -> return []
 
-    return . M.fromList $ concat theList
+    return $ concat docs
 
 -- | Find or create an entity, returning its key in both cases
 findOrCreate :: PersistEntity a => a -> Handler (Key a)

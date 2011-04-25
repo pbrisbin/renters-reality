@@ -107,7 +107,7 @@ postNewR = getNewR
 runReviewForm :: UserId -> Maybe T.Text -> ReviewType -> Widget ()
 runReviewForm uid ml rtype = do
     ip <- lift $ return . show . remoteHost =<< waiRequest
-    ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm ml ip
+    ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm ml (T.pack ip)
     case res of
         FormMissing    -> return ()
         FormFailure _  -> return ()
@@ -119,10 +119,10 @@ runReviewForm uid ml rtype = do
     [hamlet|<form enctype="#{enctype}" method="post"> ^{form}|]
 
 reviewForm :: Maybe T.Text -- ^ maybe landlord name
-           -> String       -- ^ IP address of submitter
+           -> T.Text       -- ^ IP address of submitter
            -> FormMonad (FormResult ReviewForm, Widget())
 reviewForm ml ip = do
-    (fIp       , fiIp       ) <- hiddenField      (ffs ""             "ip"       ) $ Just (T.pack ip)
+    (fIp       , fiIp       ) <- hiddenField      (ffs ""             "ip"       ) $ Just ip
     (fLandlord , fiLandlord ) <- stringField      (ffs "Landlord:"    "landlord" ) $ ml
     (fAddrOne  , fiAddrOne  ) <- stringField      (ffs "Address (1):" "addrone"  ) $ Nothing
     (fAddrTwo  , fiAddrTwo  ) <- maybeStringField (ffs "Address (2):" "addrtwo"  ) $ Nothing
@@ -192,14 +192,14 @@ insertFromForm :: UserId -> ReviewType -> ReviewForm -> Handler ReviewId
 insertFromForm uid rtype rf = do
     now <- liftIO getCurrentTime
 
-    landlordId <- findOrCreate $ Landlord $ T.unpack $ rfLandlord rf
+    landlordId <- findOrCreate $ Landlord $ rfLandlord rf
 
     propertyId <- findOrCreate $ Property
-        { propertyAddrOne = T.unpack $ rfAddrOne rf
-        , propertyAddrTwo = T.unpack $ fromMaybe "" $ rfAddrTwo rf
-        , propertyCity    = T.unpack $ rfCity rf
-        , propertyState   = T.unpack $ rfState rf
-        , propertyZip     = T.unpack $ rfZip rf
+        { propertyAddrOne = rfAddrOne rf
+        , propertyAddrTwo = fromMaybe "" $ rfAddrTwo rf
+        , propertyCity    = rfCity rf
+        , propertyState   = rfState rf
+        , propertyZip     = rfZip rf
         }
 
     _ <- findOrCreate $ Ownership propertyId landlordId
@@ -207,13 +207,10 @@ insertFromForm uid rtype rf = do
     runDB $ insert $ Review
             { reviewType        = rtype
             , reviewCreatedDate = now
-            , reviewIpAddress   = T.unpack $ rfIp rf
-            , reviewContent     = unMarkdown $ rfReview rf
-            , reviewTimeframe   = T.unpack $ rfTimeframe rf
+            , reviewIpAddress   =  rfIp rf
+            , reviewContent     = rfReview rf
+            , reviewTimeframe   = rfTimeframe rf
             , reviewReviewer    = uid
             , reviewLandlord    = landlordId
             , reviewProperty    = propertyId
             }
-
-    where
-        unMarkdown (Markdown m) = m
