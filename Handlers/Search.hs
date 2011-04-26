@@ -10,15 +10,44 @@ import Renters
 import Model
 import Yesod
 import Yesod.Comments.Markdown
+import Control.Monad (forM)
+import qualified Data.Text as T
 import qualified Settings
 
--- TODO:
 getCompLandlordsR :: Handler RepJson
-getCompLandlordsR = jsonToRepJson . jsonList $ map jsonScalar []
+getCompLandlordsR = do
+    mterm <- lookupGetParam "term"
+    ss    <- case mterm of
+        Just term -> do
+            res <- runDB $ selectList [] [LandlordNameAsc] 0 0
+            forM res $ \(k, (Landlord name)) -> do
+                return $ if term `looseMatch` name then [name] else []
 
--- TODO:
+        _ -> return []
+
+    jsonToRepJson . jsonList . map (jsonScalar . T.unpack) $ concat ss
+
 getCompSearchesR :: Handler RepJson
-getCompSearchesR = jsonToRepJson . jsonList $ map jsonScalar []
+getCompSearchesR = do
+    mterm <- lookupGetParam "term"
+    ss    <- case mterm of
+        Just term -> do
+            resL <- runDB $ selectList [] [LandlordNameAsc] 0 0
+            resP <- runDB $ selectList [] [PropertyZipAsc]  0 0
+
+            -- autocomplete landlord names
+            landSS <- forM resL $ \(k, (Landlord name)) -> do
+                return $ if term `looseMatch` name then [name] else []
+
+            -- autocomplete property strings
+            propSS <- forM resP $ \(k, p) -> do
+                return $ if term `looseMatch` formatProperty p then [formatProperty p] else []
+
+            return $ landSS ++ propSS
+
+        _ -> return []
+
+    jsonToRepJson . jsonList $ map (jsonScalar . T.unpack) $ concat ss
 
 getSearchR :: Handler RepHtml
 getSearchR = do
@@ -28,17 +57,23 @@ getSearchR = do
         Just ""   -> allReviews
         Just term -> do
             docs <- siteDocs =<< getYesod
+            let filtered = filter (helper term) docs
             defaultLayout $ do
                 Settings.setTitle "Search results" 
                 [hamlet|
                     <h1>Search results
                     <div .tabdiv>
-                        $if null docs
+                        $if null filtered
                             ^{noReviews}
                         $else
-                            $forall doc <- docs
+                            $forall doc <- filtered
                                 ^{shortReview doc}
                     |]
+
+    where
+        helper :: T.Text -> Document -> Bool
+        helper term (Document _ _ l p _) = term `looseMatch` landlordName l ||
+                                           term `looseMatch` formatProperty p
 
 allReviews :: Handler RepHtml
 allReviews = do

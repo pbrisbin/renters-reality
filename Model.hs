@@ -85,10 +85,15 @@ data Document = Document
 -- search helpers
 
 keyWordMatch :: T.Text -> T.Text -> Bool
-keyWordMatch a b = T.words a `anyIn` T.words b
+keyWordMatch a b = (T.words $ fix a) `anyIn` (T.words $ fix b)
 
 looseMatch :: T.Text -> T.Text -> Bool
 looseMatch a b = fix a `T.isInfixOf` fix b
+
+allIn :: Eq a => [a] -> [a] -> Bool
+allIn []     _  = False
+allIn _      [] = False
+allIn (x:xs) ys = x `elem` ys && xs `anyIn` ys
 
 anyIn :: Eq a => [a] -> [a] -> Bool
 anyIn []     _  = False
@@ -96,7 +101,7 @@ anyIn _      [] = False
 anyIn (x:xs) ys = x `elem` ys || xs `anyIn` ys
 
 fix :: T.Text -> T.Text
-fix = T.toLower . T.filter (`notElem` [',', '.', '#'])
+fix = T.toCaseFold . T.filter (`notElem` [',', '.'])
 
 -- formatting helpers
 
