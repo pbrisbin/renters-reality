@@ -27,9 +27,8 @@ import Yesod.Helpers.Static
 import Data.Time
 import System.Locale
 
-import Control.Monad    (unless, liftM, forM)
+import Control.Monad    (unless, forM)
 import Data.Char        (isSpace)
-import Data.Maybe       (fromJust)
 import System.Directory (doesFileExist, createDirectoryIfMissing)
 import Text.Jasmine     (minifym)
 
@@ -172,8 +171,8 @@ instance YesodComments Renters where
     displayUser uid = do
         muser <- runDB $ get uid
         case muser of
-            Just user -> return $ T.unpack $ showName user
-            Nothing   -> return ""
+            Just u  -> return $ T.unpack $ showName u
+            Nothing -> return ""
 
 instance YesodAuth Renters where
     type AuthId Renters = UserId
@@ -257,13 +256,13 @@ loadDocuments = do
     reviews <- runDB $ selectList [] [ReviewCreatedDateDesc] 0 0
 
     docs <- forM reviews $ \(k,v) -> do
-        let user     = M.lookup (reviewReviewer v) users
-        let landlord = M.lookup (reviewLandlord v) landlords
-        let property = M.lookup (reviewProperty v) properties
+        let u = M.lookup (reviewReviewer v) users
+        let l = M.lookup (reviewLandlord v) landlords
+        let p = M.lookup (reviewProperty v) properties
 
-        case (user, landlord, property) of
-            (Just u , Just l , Just p ) -> return [Document k v l p u]
-            _                           -> return []
+        case (u, l, p) of
+            (Just u' ,Just l', Just p' ) -> return [Document k v l' p' u']
+            _                            -> return []
 
     return $ concat docs
 

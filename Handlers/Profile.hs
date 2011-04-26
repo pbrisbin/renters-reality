@@ -27,10 +27,10 @@ data EditForm = EditForm
 
 getProfileR :: Handler RepHtml
 getProfileR = do
-    (_, user) <- requireAuth
-    let fullname = fromMaybe "" $ userFullname user
-    let username = fromMaybe "" $ userUsername user
-    let email    = fromMaybe "" $ userEmail user
+    (_, u) <- requireAuth
+    let fullname = fromMaybe "" $ userFullname u
+    let username = fromMaybe "" $ userUsername u
+    let email    = fromMaybe "" $ userEmail u
     defaultLayout $ do
         Settings.setTitle "View profile"
         [hamlet|
@@ -76,8 +76,8 @@ getEditProfileR = defaultLayout $ do
 
 postEditProfileR :: Handler RepHtml
 postEditProfileR = do
-    (uid, user)       <- requireAuth
-    ((res, _   ), _ ) <- runFormMonadPost $ editForm user
+    (uid, u)          <- requireAuth
+    ((res, _   ), _ ) <- runFormMonadPost $ editForm u
     case res of
         FormSuccess ef -> saveChanges uid ef
         _              -> return ()
@@ -87,8 +87,8 @@ postEditProfileR = do
 
 showForm :: Widget ()
 showForm = do
-    (_, user)            <- lift requireAuth
-    ((_, form), enctype) <- lift . runFormMonadPost $ editForm user
+    (_, u)               <- lift requireAuth
+    ((_, form), enctype) <- lift . runFormMonadPost $ editForm u
 
     [hamlet|<form enctype="#{enctype}" method="post">^{form}|]
 

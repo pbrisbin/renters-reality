@@ -1,3 +1,4 @@
+{-# OPTIONS -fno-warn-orphans      #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE TemplateHaskell       #-}

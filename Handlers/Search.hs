@@ -20,7 +20,7 @@ getCompLandlordsR = do
     ss    <- case mterm of
         Just term -> do
             res <- runDB $ selectList [] [LandlordNameAsc] 0 0
-            forM res $ \(k, (Landlord name)) -> do
+            forM res $ \(_, (Landlord name)) -> do
                 return $ if term `looseMatch` name then [name] else []
 
         _ -> return []
@@ -36,11 +36,11 @@ getCompSearchesR = do
             resP <- runDB $ selectList [] [PropertyZipAsc]  0 0
 
             -- autocomplete landlord names
-            landSS <- forM resL $ \(k, (Landlord name)) -> do
+            landSS <- forM resL $ \(_, (Landlord name)) -> do
                 return $ if term `looseMatch` name then [name] else []
 
             -- autocomplete property strings
-            propSS <- forM resP $ \(k, p) -> do
+            propSS <- forM resP $ \(_, p) -> do
                 return $ if term `looseMatch` formatProperty p then [formatProperty p] else []
 
             return $ landSS ++ propSS
@@ -100,20 +100,20 @@ noReviews = [hamlet|
     |]
 
 shortReview :: Document -> Widget ()
-shortReview (Document rid review landlord property user) = do
-    let content = markdownToHtml . shorten 400 $ reviewContent review
-    reviewTime <- lift . humanReadableTimeDiff $ reviewCreatedDate review
+shortReview (Document rid r l p u) = do
+    let content = markdownToHtml . shorten 400 $ reviewContent r
+    reviewTime <- lift . humanReadableTimeDiff $ reviewCreatedDate r
     
     [hamlet|
         <div .review>
-            <div .#{show $ reviewType review}>
+            <div .#{show $ reviewType r}>
                 <div .property>
-                    <p>#{landlordName landlord} - #{formatProperty property}
+                    <p>#{landlordName l} - #{formatProperty p}
                 <div .content>
                     #{content}
                 <div .by>
                     <p>
-                        Reviewed by #{showName user} #{reviewTime} 
+                        Reviewed by #{showName u} #{reviewTime} 
                         <span .view-link>
                             <a href="@{ReviewsR $ rid}">View
         |]

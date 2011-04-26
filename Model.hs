@@ -13,8 +13,6 @@ module Model where
 
 import Yesod
 import Yesod.Comments.Markdown
-import Data.Char (toLower, isSpace)
-import Data.List (isInfixOf, intercalate)
 import Data.Time (UTCTime(..))
 
 import qualified Data.Text as T

@@ -11,16 +11,15 @@ import Yesod
 import Yesod.Comments
 import Yesod.Comments.Markdown
 import Data.List (partition)
-import qualified Data.Text as T
 import qualified Settings
 
 getReviewsR :: Key Review -> Handler RepHtml
 getReviewsR rid = do
     docs <- siteDocs =<< getYesod
     case lookup' rid docs of
-        Just (Document _ review landlord property user) -> do
-            reviewTime <- humanReadableTimeDiff $ reviewCreatedDate review
-            let plusMinus = getPlusMinus docs landlord
+        Just (Document _ r l p u) -> do
+            reviewTime <- humanReadableTimeDiff $ reviewCreatedDate r
+            let plusMinus = getPlusMinus docs l
             defaultLayout $ do
                 Settings.setTitle "View review"
                 [hamlet|
@@ -28,20 +27,20 @@ getReviewsR rid = do
                     <div .tabdiv>
                         <h3>
                             <span .landlord>
-                                <a href="@{SearchR}?term=#{landlordName landlord}">#{landlordName landlord} #{plusMinus}
+                                <a href="@{SearchR}?term=#{landlordName l}">#{landlordName l} #{plusMinus}
                             <span .property>
-                                <a href="@{SearchR}?term=#{formatProperty property}">#{formatProperty property}
+                                <a href="@{SearchR}?term=#{formatProperty p}">#{formatProperty p}
 
                         <div .view-review>
                             <p>Review:
 
-                            <div .#{show $ reviewType review}>
+                            <div .#{show $ reviewType r}>
                                 <blockquote>
-                                    #{markdownToHtml $ reviewContent review}
+                                    #{markdownToHtml $ reviewContent r}
 
                         <div .review-by>
                             <p>
-                                Submitted by #{showName user} #{reviewTime}
+                                Submitted by #{showName u} #{reviewTime}
 
                         <h3>Discussion
                         <div .discussion>

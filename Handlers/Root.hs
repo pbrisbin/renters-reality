@@ -51,7 +51,7 @@ getRootR = do
                         <a href="#about">about
 
                 <div #renter .tabdiv>
-                        $maybe uid <- muid
+                        $maybe _ <- muid
                             <div .accordion>
                                 ^{searchForm}
                                 ^{newForm Positive}

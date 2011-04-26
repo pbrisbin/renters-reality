@@ -1,4 +1,4 @@
--- Makes testing easier
+{-# LANGUAGE OverloadedStrings #-}
 module Handlers
     ( getFaviconR
     , getRobotsR
@@ -10,6 +10,8 @@ module Handlers
     , module Handlers.Reviews
     ) where
     
+import Yesod
+import Renters
 import Handlers.Root
 import Handlers.Legal
 import Handlers.Search
