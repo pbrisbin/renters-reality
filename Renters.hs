@@ -83,12 +83,11 @@ instance Yesod Renters where
     authRoute _ = Just $ AuthR LoginR
 
     defaultLayout widget = do
-        (t,h) <- breadcrumbs
-        mmesg <- getMessage
-        pc    <- widgetToPageContent widget
-
+        (t,h)   <- breadcrumbs
+        mmesg   <- getMessage
+        pc      <- widgetToPageContent widget
         mauth   <- maybeAuth
-        authNav <- return . pageBody =<< widgetToPageContent (authNavHelper mauth)
+        authNav <- widgetToPageContent (authNavHelper mauth)
 
         hamletToRepHtml [hamlet|
             \<!DOCTYPE html>
@@ -114,7 +113,7 @@ instance Yesod Renters where
 
                     <div #right-nav>
                         <p>
-                            ^{authNav}
+                            ^{pageBody authNav}
                             \ | 
                             <a href="@{LegalR}">legal
 
@@ -147,8 +146,6 @@ instance Yesod Renters where
         exists <- liftIO $ doesFileExist fn'
         unless exists $ liftIO $ L.writeFile fn' content'
         return $ Just $ Right (StaticR $ StaticRoute ["tmp", (T.pack fn)] [], [])
-
-    clientSessionDuration _ = 60 * 24 * 7 -- one week
 
 instance YesodPersist Renters where
     type YesodDB Renters = SqlPersist
@@ -243,14 +240,6 @@ instance YesodAuth Renters where
                                     <input id="openid_submit" type="submit" value="Login via OpenID">
         |]
 
--- | Favicon
-getFaviconR :: Handler ()
-getFaviconR = sendFile "image/x-icon" "favicon.ico"
-
--- | Robots
-getRobotsR :: Handler RepPlain
-getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: String)
-
 authNavHelper :: Maybe (UserId, User) -> GWidget s Renters ()
 authNavHelper Nothing         = [hamlet|<a href="@{AuthR LoginR}">login|]
 authNavHelper (Just (_, u)) = [hamlet|
@@ -281,13 +270,6 @@ loadDocuments = do
 -- | Find or create an entity, returning its key in both cases
 findOrCreate :: PersistEntity a => a -> Handler (Key a)
 findOrCreate v = return . either fst id =<< runDB (insertBy v)
-
-reviewsByLandlord :: Landlord -> Handler [(ReviewId, Review)]
-reviewsByLandlord landlord = do
-    mkey <- runDB $ getBy (UniqueLandlord $ landlordName landlord)
-    case mkey of
-        Just (key, _) -> runDB $ selectList [ReviewLandlordEq key] [ReviewCreatedDateDesc] 0 0
-        Nothing       -> return []
 
 -- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
 -- <https://github.com/snoyberg/haskellers/blob/master/LICENSE>
