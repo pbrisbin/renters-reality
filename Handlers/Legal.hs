@@ -36,5 +36,5 @@ getLegalR = defaultLayout $ do
             <p>
                 That said, we reserve the right to remove any and 
                 all content, at any time, for no reason and at our 
-                sole descretion.
+                sole discretion.
         |]
