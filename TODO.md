@@ -1,20 +1,8 @@
 # TODO
 
-In no particular order...
-
 * make it pretty!
 
-* wildcard search
-
-  *almost impossible without framework enhancements*
-
 * display recent reviews on homepage
-
-  *like a twitter feed?*
-
-* change verbiage around Search
-
-  *Make it clear autocomplete will show available choices and anything else will yield "no results"*
 
 * edit/delete "my" reviews
 
@@ -25,5 +13,5 @@ In no particular order...
 
 * notifications 
 
-    1. my landlord is reviewed
-    2. comments on my reviews
+    1. when my landlord is reviewed
+    2. when someone comments on my review(s)
