@@ -323,19 +323,12 @@ table.review-form {
 }
 
 /* login */
-#login {
-  margin: 0px auto;
-  max-width: 500px;
-  padding: 5px;
-  border:  dotted 1px #999;
-}
-
 #login table {
   margin: 5px auto;
 }
 
 #login td {
-  margin: 0px;
+  margin:  0px;
   padding: 0px;
 
   vertical-align: middle;
@@ -344,7 +337,7 @@ table.review-form {
 
 #login .services td {
   height: 50;
-  width: 150px;
+  width:  20%;
 }
 
 #login .open-id h3 {
