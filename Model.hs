@@ -1,12 +1,13 @@
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE TypeFamilies               #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE TypeSynonymInstances       #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 --
 -- Most of the user/profile stuff was taken from Haskellers.com:
--- https://github.com/snoyberg/haskellers/
+-- <https://github.com/snoyberg/haskellers/>
 --
 module Model where
 
@@ -100,8 +101,9 @@ fix = T.toLower . T.filter (`notElem` [',', '.', '#'])
 -- formatting helpers
 
 formatProperty :: Property -> T.Text
-formatProperty p = T.intercalate (T.pack ", ")
-                 . map T.strip . filter (not . T.null)
+formatProperty p = T.intercalate ", "
+                 . filter (not . T.null)
+                 . map T.strip
                  $ [ propertyAddrOne p
                    , propertyAddrTwo p
                    , propertyCity    p
@@ -112,11 +114,16 @@ formatProperty p = T.intercalate (T.pack ", ")
 showName :: User -> T.Text
 showName (User _         (Just un) _ _ _) = shorten 40 un
 showName (User (Just fn) _         _ _ _) = shorten 40 fn
-showName _                                = T.pack "anonymous"
+showName _                                = "anonymous"
 
-shorten :: Int -> T.Text -> T.Text
-shorten n s = if T.length s > n then T.append "..." $ T.take (n - 3) s else s
+-- | Shorten a variety of string-like types adding ellipsis
+class Shorten a where shorten :: Int -> a -> a
 
--- | Same for strings
-shorten' :: Int -> String -> String
-shorten' n s = if length s > n then take (n - 3) s ++ "..." else s
+instance Shorten String where
+    shorten n s = if length s > n then take (n - 3) s ++ "..." else s
+
+instance Shorten T.Text where
+    shorten n t = if T.length t > n then T.take (n - 3) t `T.append` "..." else t
+
+instance Shorten Markdown where
+    shorten n (Markdown s) = Markdown $ shorten n s

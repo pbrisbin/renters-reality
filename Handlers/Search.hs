@@ -12,9 +12,11 @@ import Yesod
 import Yesod.Comments.Markdown
 import qualified Settings
 
+-- TODO:
 getCompLandlordsR :: Handler RepJson
 getCompLandlordsR = jsonToRepJson . jsonList $ map jsonScalar []
 
+-- TODO:
 getCompSearchesR :: Handler RepJson
 getCompSearchesR = jsonToRepJson . jsonList $ map jsonScalar []
 
@@ -64,7 +66,7 @@ noReviews = [hamlet|
 
 shortReview :: Document -> Widget ()
 shortReview (Document rid review landlord property user) = do
-    let content = markdownToHtml . liftMD (shorten' 400) $ reviewContent review
+    let content = markdownToHtml . shorten 400 $ reviewContent review
     reviewTime <- lift . humanReadableTimeDiff $ reviewCreatedDate review
     
     [hamlet|
@@ -80,7 +82,3 @@ shortReview (Document rid review landlord property user) = do
                         <span .view-link>
                             <a href="@{ReviewsR $ rid}">View
         |]
-
-    where
-        liftMD :: (String -> String) -> Markdown -> Markdown
-        liftMD f (Markdown s) = Markdown $ f s
