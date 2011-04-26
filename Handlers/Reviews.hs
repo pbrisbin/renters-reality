@@ -8,9 +8,11 @@ module Handlers.Reviews
 import Renters
 import Model
 import Yesod
+import Database.Persist.Base
 import Yesod.Comments
 import Yesod.Comments.Markdown
 import Data.List (partition)
+import qualified Data.Text as T
 import qualified Settings
 
 getReviewsR :: Key Review -> Handler RepHtml
@@ -49,9 +51,21 @@ getReviewsR rid = do
 
         Nothing -> notFound
 
+-- | Somehow related to the persistent upgrade, keys are stored as 
+--   PersistInt64 Int64 but when used as a singlePiece they come in as 
+--   PersistText Text. This custom eq will ensure the the reviews are 
+--   still found
+rEq :: ReviewId -> ReviewId -> Bool
+rEq a b = a == b || go (unReviewId a) (unReviewId b)
+
+    where
+        go (PersistText  t) (PersistInt64 i) = t == (T.pack $ show i)
+        go (PersistInt64 i) (PersistText  t) = t == (T.pack $ show i)
+        go _                _                = False
+
 lookup' :: ReviewId -> [Document] -> Maybe Document
 lookup' rid docs =
-    case filter ((== rid) . reviewId) docs of
+    case filter ((rEq rid) . reviewId) docs of
         []    -> Nothing
         (x:_) -> Just x
 
