@@ -158,9 +158,13 @@ instance YesodAuth Renters where
 
     getAuthId creds = do
         muid <- maybeAuth
-        x <- runDB $ getBy $ UniqueIdent $ credsIdent creds
+        x    <- runDB $ getBy $ UniqueIdent $ credsIdent creds
         case (x, muid) of
-            (Just (_, i), Nothing) -> return $ Just $ identUser i
+            (Just (_, i), Nothing      ) -> return $ Just $ identUser i
+            (Nothing    , Just (uid, _)) -> do
+                _ <- runDB $ insert $ Ident (credsIdent creds) uid
+                return $ Just uid
+
             (Nothing, Nothing) -> runDB $ do
                 uid <- insert $ User
                     { userFullname      = Nothing
@@ -171,18 +175,13 @@ instance YesodAuth Renters where
                     }
                 _ <- insert $ Ident (credsIdent creds) uid
                 return $ Just uid
-            (Nothing, Just (uid, _)) -> do
-                setMessage "Identifier added to your account"
-                _ <- runDB $ insert $ Ident (credsIdent creds) uid
-                return $ Just uid
-            (Just _, Just _) -> do
-                setMessage "That identifier is already attached to an account. Please detach it from the other account first."
+
+            (Just _, Just _) -> do -- this shouldn't happen
+                setMessage "That identifier is already attached to an account."
                 redirect RedirectTemporary ProfileR
 
     authPlugins = [ authOpenId 
-                  , authFacebook "206687389350404"
-                                 "9d30284c6cb99ff2c7cbc4e5f8ae53e0"
-                                 []
+                  , authFacebook "206687389350404" "9d30284c6cb99ff2c7cbc4e5f8ae53e0" []
                   ]
 
     loginHandler = defaultLayout [hamlet|
@@ -236,9 +235,9 @@ loadDocuments = do
         let l = M.lookup (reviewLandlord v) landlords
         let p = M.lookup (reviewProperty v) properties
 
-        case (u, l, p) of
-            (Just u' ,Just l', Just p' ) -> return [Document k v l' p' u']
-            _                            -> return []
+        return $ case (u, l, p) of
+            (Just u', Just l', Just p' ) -> [ Document k v l' p' u' ]
+            _                            -> []
 
     return $ concat docs
 
