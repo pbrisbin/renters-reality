@@ -15,6 +15,7 @@
 -------------------------------------------------------------------------------
 module Renters where
 
+import Model
 import Yesod
 import Yesod.Comments
 import Yesod.Comments.Storage
@@ -23,22 +24,15 @@ import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.OpenId
 import Yesod.Helpers.Auth.Facebook
 import Yesod.Helpers.Static
+import Control.Monad (forM)
+import Data.Char     (isSpace)
+import Database.Persist.GenericSql
 
 import Data.Time
 import System.Locale
 
-import Control.Monad    (unless, forM)
-import Data.Char        (isSpace)
-import System.Directory (doesFileExist, createDirectoryIfMissing)
-import Text.Jasmine     (minifym)
-
-import Database.Persist.GenericSql
-import qualified Data.ByteString.Lazy as L
 import qualified Data.Map as M
 import qualified Data.Text as T
-
-import Model
-
 import qualified Settings
 
 -- | The main site type
@@ -127,24 +121,6 @@ instance Yesod Renters where
                             <small>copyright patrick brisbin 2011. 
                             <a href="https://github.com/pbrisbin/renters-reality">source code.
             |]
-
-    urlRenderOverride a (StaticR s) = Just $ uncurry (joinPath a (T.pack Settings.staticRoot)) $ renderRoute s
-    urlRenderOverride _ _           = Nothing
-
-    addStaticContent ext' _ sContent = do
-        let fn = base64md5 sContent ++ '.' : (T.unpack ext')
-        let content' =
-                if ext' == "js"
-                    then case minifym sContent of
-                        Left _ -> sContent
-                        Right y -> y
-                    else sContent
-        let statictmp = Settings.staticDir ++ "/tmp/"
-        liftIO $ createDirectoryIfMissing True statictmp
-        let fn' = statictmp ++ fn
-        exists <- liftIO $ doesFileExist fn'
-        unless exists $ liftIO $ L.writeFile fn' content'
-        return $ Just $ Right (StaticR $ StaticRoute ["tmp", (T.pack fn)] [], [])
 
 instance YesodPersist Renters where
     type YesodDB Renters = SqlPersist
