@@ -92,6 +92,7 @@ instance Yesod Renters where
                     <meta name="description" content="Submit and search reviews for landlords in your area.">
                     <meta name="author" content="Patrick Brisbin">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <meta name="keywords" content="review, reviews, renter, renters, landlord, landlords, apartment, apartments, property, properties">
                     <link rel="stylesheet" href="@{StaticR css_style_css}">
                     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js">
                     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js">
