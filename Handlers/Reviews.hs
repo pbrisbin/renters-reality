@@ -29,9 +29,11 @@ getReviewsR rid = do
                     <div .tabdiv>
                         <h3>
                             <span .landlord>
-                                <a href="@{SearchR}?term=#{landlordName l}">#{landlordName l} #{plusMinus}
+                                <a title="show other reviews for this landlord" href="@{SearchR}?term=#{landlordName l}">
+                                    #{landlordName l} #{plusMinus}
                             <span .property>
-                                <a href="@{SearchR}?term=#{formatProperty p}">#{formatProperty p}
+                                <a title="show other reviews for this property" href="@{SearchR}?term=#{formatProperty p}">
+                                    #{formatProperty p}
 
                         <div .view-review>
                             <p>Review:
@@ -53,7 +55,7 @@ getReviewsR rid = do
 
 -- | Somehow related to the persistent upgrade, keys are stored as 
 --   PersistInt64 Int64 but when used as a singlePiece they come in as 
---   PersistText Text. This custom eq will ensure the the reviews are 
+--   PersistText Text. This custom eq will ensure that the reviews are 
 --   still found
 rEq :: ReviewId -> ReviewId -> Bool
 rEq a b = a == b || go (unReviewId a) (unReviewId b)

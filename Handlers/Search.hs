@@ -94,8 +94,8 @@ noReviews = [hamlet|
 
     <p>
         Would you like to 
-        <a href="@{NewR Positive}">write 
-        <a href="@{NewR Negative}">one
+        <a title="submit a positive review" href="@{NewR Positive}">write 
+        <a title="submit a negative review" href="@{NewR Negative}">one
         ?
     |]
 
