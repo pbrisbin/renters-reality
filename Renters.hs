@@ -216,7 +216,7 @@ instance YesodAuth Renters where
         |]
 
 authNavHelper :: Maybe (UserId, User) -> GWidget s Renters ()
-authNavHelper Nothing         = [hamlet|<a href="@{AuthR LoginR}">login|]
+authNavHelper Nothing       = [hamlet|<a href="@{AuthR LoginR}">login|]
 authNavHelper (Just (_, u)) = [hamlet|
     <a href="@{ProfileR}" title="Manage your profile">#{showName u}
     \ | 
