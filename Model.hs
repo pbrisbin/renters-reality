@@ -78,28 +78,21 @@ data Document = Document
     , landlord :: Landlord
     , property :: Property
     , user     :: User
-    } deriving Show
-
--- search helpers
+    }
 
 keyWordMatch :: T.Text -> T.Text -> Bool
-keyWordMatch a b = (T.words $ fix a) `anyIn` (T.words $ fix b)
+keyWordMatch a b = map fix (T.words a) `allElem` map fix (T.words b)
 
 looseMatch :: T.Text -> T.Text -> Bool
 looseMatch a b = fix a `T.isInfixOf` fix b
 
-allIn :: Eq a => [a] -> [a] -> Bool
-allIn []     _  = False
-allIn _      [] = False
-allIn (x:xs) ys = x `elem` ys && xs `anyIn` ys
-
-anyIn :: Eq a => [a] -> [a] -> Bool
-anyIn []     _  = False
-anyIn _      [] = False
-anyIn (x:xs) ys = x `elem` ys || xs `anyIn` ys
+allElem :: Eq a => [a] -> [a] -> Bool
+allElem []     _  = True -- todo: is this right?
+allElem _      [] = False
+allElem (x:xs) ys = x `elem` ys && xs `allElem` ys
 
 fix :: T.Text -> T.Text
-fix = T.toCaseFold . T.filter (`notElem` [',', '.'])
+fix = T.strip . T.toCaseFold . T.filter (`notElem` [',', '.'])
 
 -- formatting helpers
 
