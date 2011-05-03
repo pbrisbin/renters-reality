@@ -19,7 +19,7 @@ data SearchResult a = SearchResult
 
 class Search a where
     -- | Artifically adjust the ranking of certain values by providing a 
-    --   factor by which to multiple the natural rank. This could be 
+    --   factor by which to multiply the natural rank. This could be 
     --   used to f.e. rank more recent items higher without having the 
     --   code that into the @'match'@ function itself.
     factor :: a -> Double
