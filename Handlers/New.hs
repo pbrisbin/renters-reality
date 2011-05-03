@@ -3,7 +3,7 @@
 module Handlers.New (getNewR, postNewR) where
 
 import Yesod
-import Yesod.Comments.Markdown
+import Yesod.Goodies.Markdown
 import Yesod.Helpers.Auth
 
 import Renters

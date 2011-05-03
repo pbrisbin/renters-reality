@@ -12,8 +12,9 @@
 module Model where
 
 import Yesod
-import Yesod.Comments.Markdown
-import Helpers.Search
+import Yesod.Goodies.Markdown
+import Yesod.Goodies.Search
+import Yesod.Goodies.Shorten
 import Data.List (intersect)
 import Data.Time (UTCTime(..))
 
@@ -114,15 +115,3 @@ showName :: User -> T.Text
 showName (User _         (Just un) _ _ _) = shorten 40 un
 showName (User (Just fn) _         _ _ _) = shorten 40 fn
 showName _                                = "anonymous"
-
--- | Shorten a variety of string-like types adding ellipsis
-class Shorten a where shorten :: Int -> a -> a
-
-instance Shorten String where
-    shorten n s = if length s > n then take (n - 3) s ++ "..." else s
-
-instance Shorten T.Text where
-    shorten n t = if T.length t > n then T.take (n - 3) t `T.append` "..." else t
-
-instance Shorten Markdown where
-    shorten n (Markdown s) = Markdown $ shorten n s

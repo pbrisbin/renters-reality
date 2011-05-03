@@ -8,9 +8,8 @@ module Handlers.Search
 
 import Renters
 import Model
-import Helpers.Search
 import Yesod
-import Yesod.Comments.Markdown
+import Yesod.Goodies
 import Control.Monad (forM)
 import qualified Data.Text as T
 import qualified Settings
@@ -108,7 +107,7 @@ noReviews = [hamlet|
 shortReview :: Document -> Widget ()
 shortReview (Document rid r l p u) = do
     let content = markdownToHtml . shorten 400 $ reviewContent r
-    reviewTime <- lift . humanReadableTimeDiff $ reviewCreatedDate r
+    reviewTime <- lift . humanReadableTime $ reviewCreatedDate r
     
     [hamlet|
         <div .review>

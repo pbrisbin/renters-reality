@@ -10,7 +10,8 @@ import Model
 import Yesod
 import Database.Persist.Base
 import Yesod.Comments
-import Yesod.Comments.Markdown
+import Yesod.Goodies.Markdown
+import Yesod.Goodies.Time
 import Data.List (partition)
 import qualified Data.Text as T
 import qualified Settings
@@ -20,7 +21,7 @@ getReviewsR rid = do
     docs <- siteDocs =<< getYesod
     case lookup' rid docs of
         Just (Document _ r l p u) -> do
-            reviewTime <- humanReadableTimeDiff $ reviewCreatedDate r
+            reviewTime <- humanReadableTime $ reviewCreatedDate r
             let plusMinus = getPlusMinus docs l
             defaultLayout $ do
                 Settings.setTitle "View review"
@@ -48,7 +49,7 @@ getReviewsR rid = do
 
                         <h3>Discussion
                         <div .discussion>
-                            ^{addCommentsAuth $ show $ rid}
+                            ^{addCommentsAuth $ T.pack $ show $ rid}
                     |]
 
         Nothing -> notFound
