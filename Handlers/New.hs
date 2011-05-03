@@ -214,3 +214,8 @@ insertFromForm uid rtype rf = do
             , reviewLandlord    = landlordId
             , reviewProperty    = propertyId
             }
+
+    where
+        -- | Find or create an entity, returning its key in both cases
+        findOrCreate :: PersistEntity a => a -> Handler (Key a)
+        findOrCreate v = return . either fst id =<< runDB (insertBy v)

@@ -24,7 +24,9 @@ import Yesod.Comments.Storage
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Static
 
+import Control.Monad (forM)
 import Database.Persist.GenericSql
+import qualified Data.Map as M
 import qualified Settings
 
 -- | Instantiate the Yesod route types
@@ -38,3 +40,22 @@ withServer f = Settings.withConnectionPool $ \p -> do
     f =<< toWaiApp (Renters s loadDocuments p)
     where
         s = static Settings.staticDir
+
+        loadDocuments :: Handler [Document]
+        loadDocuments = do
+            users      <- return . M.fromList =<< runDB (selectList [] [UserUsernameAsc] 0 0)
+            landlords  <- return . M.fromList =<< runDB (selectList [] [LandlordNameAsc] 0 0)
+            properties <- return . M.fromList =<< runDB (selectList [] [PropertyZipAsc ] 0 0)
+
+            reviews <- runDB $ selectList [] [ReviewCreatedDateDesc] 0 0
+
+            docs <- forM reviews $ \(k,v) -> do
+                let u = M.lookup (reviewReviewer v) users
+                let l = M.lookup (reviewLandlord v) landlords
+                let p = M.lookup (reviewProperty v) properties
+
+                return $ case (u, l, p) of
+                    (Just u', Just l', Just p' ) -> [ Document k v l' p' u' ]
+                    _                            -> []
+
+            return $ concat docs
