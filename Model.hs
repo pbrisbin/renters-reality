@@ -13,6 +13,8 @@ module Model where
 
 import Yesod
 import Yesod.Comments.Markdown
+import Helpers.Search
+import Data.List (intersect)
 import Data.Time (UTCTime(..))
 
 import qualified Data.Text as T
@@ -80,21 +82,22 @@ data Document = Document
     , user     :: User
     }
 
-keyWordMatch :: T.Text -> T.Text -> Bool
-keyWordMatch a b = map fix (T.words a) `allElem` map fix (T.words b)
+instance Search Document where
+    match t d@(Document _ _ l p _) =
+        let t' = landlordName l `T.append` formatProperty p
+        in  go $ fix t `intersect` fix t'
 
-looseMatch :: T.Text -> T.Text -> Bool
-looseMatch a b = fix a `T.isInfixOf` fix b
+        where
+            go :: [T.Text] -> Maybe (SearchResult Document)
+            go [] = Nothing
+            go ms = Just $ SearchResult (fromIntegral $ length ms) d
 
-allElem :: Eq a => [a] -> [a] -> Bool
-allElem []     _  = True -- todo: is this right?
-allElem _      [] = False
-allElem (x:xs) ys = x `elem` ys && xs `allElem` ys
-
-fix :: T.Text -> T.Text
-fix = T.strip . T.toCaseFold . T.filter (`notElem` [',', '.'])
-
--- formatting helpers
+            fix :: T.Text -> [T.Text]
+            fix = filter (not . T.null)
+                . map T.strip
+                . T.words
+                . T.toCaseFold
+                . T.filter (`notElem` ",.-")
 
 formatProperty :: Property -> T.Text
 formatProperty p = T.intercalate ", "

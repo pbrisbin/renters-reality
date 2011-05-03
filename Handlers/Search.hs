@@ -8,6 +8,7 @@ module Handlers.Search
 
 import Renters
 import Model
+import Helpers.Search
 import Yesod
 import Yesod.Comments.Markdown
 import Control.Monad (forM)
@@ -49,6 +50,16 @@ getCompSearchesR = do
 
     jsonToRepJson . jsonList $ map (jsonScalar . T.unpack) $ concat ss
 
+-- | A loose infix match
+looseMatch :: T.Text -> T.Text -> Bool
+looseMatch a b = fix a `T.isInfixOf` fix b
+
+    where
+        fix :: T.Text -> T.Text
+        fix = T.strip
+            . T.toCaseFold
+            . T.filter (`notElem` [',', '.'])
+
 getSearchR :: Handler RepHtml
 getSearchR = do
     mterm <- lookupGetParam "term"
@@ -56,24 +67,19 @@ getSearchR = do
         Nothing   -> allReviews
         Just ""   -> allReviews
         Just term -> do
-            docs <- siteDocs =<< getYesod
-            let filtered = filter (helper term) docs
+            docs' <- siteDocs =<< getYesod
+            let docs = search_ term docs'
             defaultLayout $ do
                 Settings.setTitle "Search results" 
                 [hamlet|
                     <h1>Search results
                     <div .tabdiv>
-                        $if null filtered
+                        $if null docs
                             ^{noReviews}
                         $else
-                            $forall doc <- filtered
+                            $forall doc <- docs
                                 ^{shortReview doc}
                     |]
-
-    where
-        helper :: T.Text -> Document -> Bool
-        helper term (Document _ _ l p _) = term `looseMatch` landlordName l ||
-                                           term `looseMatch` formatProperty p
 
 allReviews :: Handler RepHtml
 allReviews = do
