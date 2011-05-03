@@ -25,8 +25,8 @@ class Search a where
     factor :: a -> Double
     factor _ = 1
 
-    -- | Given a search term and some @a@, provide 'Just' a ranked 
-    --   result or 'Nothing'.
+    -- | Given a search term and some @a@, provide @Just@ a ranked 
+    --   result or @Nothing@.
     match :: T.Text -> a -> Maybe (SearchResult a)
 
 -- | Excute a search on a list of @a@s, apply the @factor@ and rank the 
@@ -36,11 +36,7 @@ search t = rankResults . map applyFactor . catMaybes . map (match t)
 
 -- | Identical to search but discards the ranking.
 search_ :: Search a => T.Text -> [a] -> [a]
-search_ t = map discard . search t
-
-    where
-        discard :: SearchResult a -> a
-        discard (SearchResult _ v) = v
+search_ t = map searchResult . search t
 
 applyFactor :: Search a => SearchResult a -> SearchResult a
 applyFactor (SearchResult d v) = SearchResult (d * factor v) v
