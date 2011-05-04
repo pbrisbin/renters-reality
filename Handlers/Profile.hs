@@ -10,6 +10,7 @@ module Handlers.Profile
 
 import Yesod
 import Yesod.Helpers.Auth
+import Yesod.Goodies.Gravatar
 import Renters
 import Model
 
@@ -28,15 +29,22 @@ data EditForm = EditForm
 getProfileR :: Handler RepHtml
 getProfileR = do
     (_, u) <- requireAuth
+
     let fullname = fromMaybe "" $ userFullname u
     let username = fromMaybe "" $ userUsername u
     let email    = fromMaybe "" $ userEmail u
+    let pic      = gravatarImg email gravatarOpts
+
     defaultLayout $ do
         Settings.setTitle "View profile"
         [hamlet|
             <h1>Your profile
             <div .tabdiv>
                 <div .profile>
+                    <div .gravatar>
+                        <a title="change your profile picute at gravatar" href="http://gravatar.com/emails/">
+                            <img src="#{pic}">
+
                     <table>
                         <tr>
                             <th>Full name:
@@ -51,6 +59,13 @@ getProfileR = do
                     <p .edit-button>
                         <a href="@{EditProfileR}">edit
             |]
+
+        where
+            gravatarOpts :: GravatarOptions
+            gravatarOpts = defaultOptions
+                { gSize    = Just $ Size 48
+                , gDefault = Just MM
+                }
 
 getEditProfileR :: Handler RepHtml 
 getEditProfileR = defaultLayout $ do
