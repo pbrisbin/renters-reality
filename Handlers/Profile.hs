@@ -42,7 +42,7 @@ getProfileR = do
             <div .tabdiv>
                 <div .profile>
                     <div .gravatar>
-                        <a title="change your profile picute at gravatar" href="http://gravatar.com/emails/">
+                        <a title="change your profile picture at gravatar" href="http://gravatar.com/emails/">
                             <img src="#{pic}">
 
                     <table>
