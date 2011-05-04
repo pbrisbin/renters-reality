@@ -49,10 +49,17 @@ getReviewsR rid = do
 
                         <h3>Discussion
                         <div .discussion>
-                            ^{addCommentsAuth $ T.pack $ show $ rid}
+                            ^{addCommentsAuth $ rText rid}
                     |]
 
         Nothing -> notFound
+
+rText :: ReviewId -> T.Text
+rText = go . unReviewId
+
+    where
+        go (PersistText  t) = t
+        go (PersistInt64 i) = T.pack $ show i
 
 -- | Somehow related to the persistent upgrade, keys are stored as 
 --   PersistInt64 Int64 but when used as a singlePiece they come in as 
