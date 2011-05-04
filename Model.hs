@@ -16,6 +16,7 @@ import Yesod.Goodies.Markdown
 import Yesod.Goodies.Search
 import Yesod.Goodies.Shorten
 import Data.List (intersect)
+import Data.Ord  (comparing)
 import Data.Time (UTCTime(..))
 
 import qualified Data.Text as T
@@ -84,6 +85,10 @@ data Document = Document
     }
 
 instance Search Document where
+    -- | if documents rank the same, show the more recent docs first
+    preference = comparing (reviewCreatedDate . review . searchResult)
+
+    -- | Match by keyword on the landlord or property
     match t d@(Document _ _ l p _) =
         let t' = landlordName l `T.append` formatProperty p
         in  go $ fix t `intersect` fix t'
