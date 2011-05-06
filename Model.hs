@@ -85,7 +85,11 @@ data Document = Document
     }
 
 instance TextSearch Document where
-    toText (Document _ _ l p _) = landlordName l `T.append` formatProperty p
+    toText (Document _ _ l p _) = landlordName l `append` formatProperty p
+
+        where
+            append :: T.Text -> T.Text -> T.Text
+            a `append` b = a `T.append` " " `T.append` b
 
 instance Search Document where
     preference = comparing (reviewCreatedDate . review . searchResult)
