@@ -15,39 +15,38 @@ import qualified Data.Text as T
 import qualified Settings
 
 getCompLandlordsR :: Handler RepJson
-getCompLandlordsR = do
-    mterm <- lookupGetParam "term"
-    ss    <- case mterm of
-        Just term -> do
-            res <- runDB $ selectList [] [LandlordNameAsc] 0 0
-            forM res $ \(_, (Landlord name)) -> do
-                return $ if term `looseMatch` name then [name] else []
+getCompLandlordsR = generalCompletion $ \t -> do
+    res <- runDB $ selectList [] [LandlordNameAsc] 0 0
 
-        _ -> return []
-
-    jsonToRepJson . jsonList . map (jsonScalar . T.unpack) $ concat ss
+    return . concat =<< (forM res $ \(_, (Landlord name)) ->
+        return $ if t `looseMatch` name then [name] else [])
 
 getCompSearchesR :: Handler RepJson
-getCompSearchesR = do
+getCompSearchesR = generalCompletion $ \t -> do
+    resL <- runDB $ selectList [] [LandlordNameAsc] 0 0
+    resP <- runDB $ selectList [] [PropertyZipAsc]  0 0
+
+    -- autocomplete landlord names
+    landSS <- forM resL $ \(_, (Landlord name)) ->
+        return $ if t `looseMatch` name then [name] else []
+
+    -- autocomplete property strings
+    propSS <- forM resP $ \(_, p) ->
+        return $ if t `looseMatch` formatProperty p then [formatProperty p] else []
+
+    return $ concat $ landSS ++ propSS
+
+-- | Get the term from the request and pass it to the completion 
+--   function, serve the retured values as a list
+generalCompletion :: (T.Text -> Handler [T.Text]) -> Handler RepJson
+generalCompletion f = do
     mterm <- lookupGetParam "term"
     ss    <- case mterm of
-        Just term -> do
-            resL <- runDB $ selectList [] [LandlordNameAsc] 0 0
-            resP <- runDB $ selectList [] [PropertyZipAsc]  0 0
+        Nothing   -> return []
+        Just ""   -> return []
+        Just term -> f term
 
-            -- autocomplete landlord names
-            landSS <- forM resL $ \(_, (Landlord name)) -> do
-                return $ if term `looseMatch` name then [name] else []
-
-            -- autocomplete property strings
-            propSS <- forM resP $ \(_, p) -> do
-                return $ if term `looseMatch` formatProperty p then [formatProperty p] else []
-
-            return $ landSS ++ propSS
-
-        _ -> return []
-
-    jsonToRepJson . jsonList $ map (jsonScalar . T.unpack) $ concat ss
+    jsonToRepJson . jsonList $ map (jsonScalar . T.unpack) ss
 
 -- | A loose infix match
 looseMatch :: T.Text -> T.Text -> Bool
@@ -66,8 +65,7 @@ getSearchR = do
         Nothing   -> allReviews
         Just ""   -> allReviews
         Just term -> do
-            docs' <- siteDocs =<< getYesod
-            let docs = search_ term docs'
+            docs <- fmap (search_ term) $ siteDocs =<< getYesod
             defaultLayout $ do
                 Settings.setTitle "Search results" 
                 [hamlet|
