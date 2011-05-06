@@ -84,26 +84,12 @@ data Document = Document
     , user     :: User
     }
 
+instance TextSearch Document where
+    toText (Document _ _ l p _) = landlordName l `T.append` formatProperty p
+
 instance Search Document where
-    -- | if documents rank the same, show the more recent docs first
     preference = comparing (reviewCreatedDate . review . searchResult)
-
-    -- | Match by keyword on the landlord or property
-    match t d@(Document _ _ l p _) =
-        let t' = landlordName l `T.append` formatProperty p
-        in  go $ fix t `intersect` fix t'
-
-        where
-            go :: [T.Text] -> Maybe (SearchResult Document)
-            go [] = Nothing
-            go ms = Just $ SearchResult (fromIntegral $ length ms) d
-
-            fix :: T.Text -> [T.Text]
-            fix = filter (not . T.null)
-                . map T.strip
-                . T.words
-                . T.toCaseFold
-                . T.filter (`notElem` ",.-")
+    match      = keywordMatch
 
 formatProperty :: Property -> T.Text
 formatProperty p = T.intercalate ", "
