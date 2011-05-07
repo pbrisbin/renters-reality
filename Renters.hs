@@ -17,13 +17,14 @@ module Renters where
 
 import Model
 import Yesod
-import Yesod.Comments
+import Yesod.Comments hiding (userEmail)
 import Yesod.Comments.Storage
 import Yesod.Form.Core (GFormMonad)
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.OpenId
 import Yesod.Helpers.Auth.Facebook
 import Yesod.Helpers.Static
+import Data.Maybe (fromMaybe)
 import Database.Persist.GenericSql
 import qualified Settings
 
@@ -150,6 +151,12 @@ instance YesodComments Renters where
         muser <- runDB $ get uid
         case muser of
             Just u  -> return $ showName u
+            Nothing -> return ""
+
+    displayEmail uid = do
+        muser <- runDB $ get uid
+        case muser of
+            Just u  -> return . fromMaybe "" $ userEmail u
             Nothing -> return ""
 
 instance YesodAuth Renters where
