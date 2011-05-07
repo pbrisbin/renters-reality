@@ -58,6 +58,20 @@ looseMatch a b = fix a `T.isInfixOf` fix b
             . T.toCaseFold
             . T.filter (`notElem` [',', '.'])
 
+-- | Pagination
+myPageOptions :: PageOptions Document Renters Renters
+myPageOptions = PageOptions
+    { itemsPerPage = 5
+    , showItems    = \docs ->
+        [hamlet|
+            $if null docs
+                ^{noReviews}
+            $else
+                $forall doc <- docs
+                    ^{shortReview doc}
+            |]
+    }
+
 getSearchR :: Handler RepHtml
 getSearchR = do
     mterm <- lookupGetParam "term"
@@ -71,11 +85,7 @@ getSearchR = do
                 [hamlet|
                     <h1>Search results
                     <div .tabdiv>
-                        $if null docs
-                            ^{noReviews}
-                        $else
-                            $forall doc <- docs
-                                ^{shortReview doc}
+                        ^{paginate myPageOptions docs}
                     |]
 
 allReviews :: Handler RepHtml
@@ -86,8 +96,7 @@ allReviews = do
         [hamlet|
             <h1>All reviews
             <div .tabdiv>
-                $forall doc <- docs
-                    ^{shortReview doc}
+                ^{paginate myPageOptions docs}
             |]
 
 noReviews :: Widget ()
