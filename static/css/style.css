@@ -351,15 +351,21 @@ table.review-form {
 }
 
 /* profile pages */
-.profile table, .profile hr {
-  margin: 25px;
+.profile {
+  padding: 25px;
+  background-color: #dedbd1;
+}
+
+.profile th {
+  font-weight: bold;
 }
 
 .profile .gravatar {
   float:   left;
-  margin:  0px 10px;
+  margin:  0px;
+  margin-right: 10px;
   padding: 2px;
-  border:  dotted 1px #999;
+  border:  solid 1px #999;
 }
 
 td.buttons {
@@ -368,12 +374,27 @@ td.buttons {
 }
 
 p.edit-button, p.delete-button {
+  text-align: right;
+  margin: 0px;
   margin-top: 25px;
-  margin-bottom: 0px;
+  padding: 2px;
   text-transform: uppercase;
 }
 
 /* comments */
+.yesod_comment_avatar_input img,
+.yesod_comment_avatar_list  img {
+  margin-top:  5px;
+  margin-left: 10px;
+  padding: 1px;
+  border: solid 1px #999;
+}
+
+.yesod_comment_avatar_input img {
+  height: 48px;
+  width: 48px;
+}
+
 .discussion { 
   padding: 10px;
   margin: 10px;
