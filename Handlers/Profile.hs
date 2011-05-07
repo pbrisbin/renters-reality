@@ -81,8 +81,9 @@ getEditProfileR = defaultLayout $ do
 
                 <p>
                     Your email is not publicly displayed anywhere. It 
-                    may be used in an upcoming "notifications" feature 
-                    of the site and even then, only if you opt-in.
+                    is used to find your gravatar image and may be used 
+                    in an upcoming "notifications" feature of the site 
+                    and even then, only if you opt-in.
 
                 <hr>
 
