@@ -88,6 +88,9 @@ getEditProfileR = defaultLayout $ do
                 <hr>
 
                 ^{showForm}
+
+                <p .delete-button>
+                    <a href="@{DeleteProfileR}">delete
         |]
 
 postEditProfileR :: Handler RepHtml
@@ -123,9 +126,6 @@ editForm u = do
                     <td .buttons colspan="2">
                         <input type="submit" value="Save">
                     <td>&nbsp;
-
-            <p .delete-button>
-                <a href="@{DeleteProfileR}">delete
             |])
     where
 
@@ -143,7 +143,7 @@ editForm u = do
                         &nbsp;
             |]
 
--- todo: unique usernames, no numer-conly usernames
+-- todo: unique usernames, no numeric-only usernames
 saveChanges :: UserId -> EditForm -> Handler ()
 saveChanges uid ef = do
     runDB $ update uid 
@@ -160,6 +160,9 @@ getDeleteProfileR = defaultLayout [hamlet|
     <h1>Are you sure?
     <div .tabdiv>
         <p>There's no going back. Everything of yours will be deleted.
+
+        <p>
+            <em>Are you sure?
 
         <div .confirm>
             <form method="post">
