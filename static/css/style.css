@@ -362,10 +362,16 @@ table.review-form {
 
 .profile .gravatar {
   float:   left;
-  margin:  0px;
+}
+
+.profile .gravatar img {
+  height:       48px;
+  width:        48px;
+  margin:       0px
+  margin-top:   2px;
   margin-right: 10px;
-  padding: 2px;
-  border:  solid 1px #999;
+  padding:      1px;
+  border:       solid 1px #999;
 }
 
 td.buttons {
@@ -374,10 +380,10 @@ td.buttons {
 }
 
 p.edit-button, p.delete-button {
-  text-align: right;
-  margin: 0px;
-  margin-top: 25px;
-  padding: 2px;
+  text-align:     right;
+  margin:         0px;
+  margin-top:     25px;
+  padding:        2px;
   text-transform: uppercase;
 }
 
@@ -392,48 +398,43 @@ p.edit-button, p.delete-button {
 
 .yesod_comment_avatar_input img {
   height: 48px;
-  width: 48px;
+  width:  48px;
 }
 
 .discussion { 
-  padding: 10px;
-  margin: 10px;
-  margin-left: 20px;
+  padding:          10px;
+  margin:           10px;
+  margin-left:      20px;
   background-color: #dedbd1;
-  border: dotted 1px #999;
+  border:           dotted 1px #999;
 }
 
 .discussion h4 { 
   margin-left: -5px;
-  font-size: 98%;
+  font-size:   98%;
 }
 
 .discussion p.helptext { display: none; }
 
 .discussion blockquote { 
   background-color: white;
-  border-left: solid 3px #999;
+  border-left:      solid 3px #999;
 }
 
 #markdown-help {
-  display: none; /* toggled via jquery */
-  z-index: 10;
+  display:          none; /* toggled via jquery */
+  position:         fixed;
+  top:              25%;
+  left:             15%;
+  height:           30%;
+  width:            70%;
+  z-index:          10;
+  padding:          20px;
+  font-size:        90%;
+  text-align:       left;
   background-color: white;
-  padding:    20px;
-
-  font-size:   90%;
-  text-align: left;
-
-  height: 30%;
-  width:  70%;
-
-  position: fixed;
-  top:      25%;
-  left:     15%;
-
-  border: solid 1px #dedbd1;
-
-  overflow-y: auto;
+  border:           solid 1px #dedbd1;
+  overflow-y:       auto;
 
   -webkit-border-radius: 4px; 
      -moz-border-radius: 4px; 
