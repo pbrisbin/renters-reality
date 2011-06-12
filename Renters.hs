@@ -142,22 +142,12 @@ instance YesodBreadcrumbs Renters where
     breadcrumb _              = return ("404"    , Just RootR   )
 
 instance YesodComments Renters where
-    getComment    = getCommentPersist
-    storeComment  = storeCommentPersist
-    deleteComment = deleteCommentPersist
-    loadComments  = loadCommentsPersist
-
-    displayUser uid = do
-        muser <- runDB $ get uid
-        case muser of
-            Just u  -> return $ showName u
-            Nothing -> return ""
-
-    displayEmail uid = do
-        muser <- runDB $ get uid
-        case muser of
-            Just u  -> return . fromMaybe "" $ userEmail u
-            Nothing -> return ""
+    getComment       = getCommentPersist
+    storeComment     = storeCommentPersist
+    deleteComment    = deleteCommentPersist
+    loadComments     = loadCommentsPersist
+    displayUser  uid = return .                maybe ""      showName  =<< runDB (get uid)
+    displayEmail uid = return . fromMaybe "" . maybe Nothing userEmail =<< runDB (get uid)
 
 instance YesodAuth Renters where
     type AuthId Renters = UserId
