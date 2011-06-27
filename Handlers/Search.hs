@@ -85,9 +85,7 @@ getSearchR = do
             |]
 
         [hamlet|
-            <h1>Search results
-
-            <div .search>
+            <div .search-form>
                 <form .search method="get" action="@{SearchR}">
                    <p>
                        <input #search-input size=30 name="q">
@@ -115,14 +113,11 @@ shortReview (Document rid r l u) = do
     
     [hamlet|
         <div .searchresult .review>
-            <div .landlord>
-                <p>#{landlordName l}
-
-            <div .address>
-                <p>#{reviewAddress r}
-
-            <div .grade>
-                <p>#{prettyGrade $ reviewGrade r}
+            <div .title>
+                <p>
+                    #{landlordName l} 
+                    <span .grade>
+                        #{prettyGrade $ reviewGrade r}
 
             <div .content>
                 #{content}

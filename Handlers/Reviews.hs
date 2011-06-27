@@ -24,23 +24,19 @@ getReviewsR rid = do
             defaultLayout $ do
                 Settings.setTitle "View review"
                 [hamlet|
-                    <h1>View review
                     <div .tabdiv>
-                        <div .landlord>
-                            <p>#{landlordName l}
+                        <div .view-review>
+                            <div .title>
+                                <p>
+                                    #{landlordName l}
+                                    <span .grade>#{prettyGrade $ reviewGrade r}
 
-                        <div .address>
-                            <p>#{reviewAddress r}
+                            <div .review>
+                                <p>Review:
+                                <blockquote>#{markdownToHtml $ reviewContent r}
 
-                        <div .grade>
-                            <p>#{prettyGrade $ reviewGrade r}
-
-                        <div .review>
-                            <p>Review:
-                            <blockquote>#{markdownToHtml $ reviewContent r}
-
-                        <div .reviewer>
-                            <p>Submitted by #{showName u} #{reviewTime}
+                            <div .reviewer>
+                                <p>Submitted by #{showName u} #{reviewTime}
 
                         <h3>Discussion
                         <div .discussion>

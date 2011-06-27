@@ -70,6 +70,7 @@ html { overflow-y: scroll; }
 
 /* end reset }}} */
 
+/* main styling {{{ */
 body, 
 select, 
 input,     /* site-wide font for all elements */
@@ -86,6 +87,7 @@ h1 { padding: 1ex 0px; }
 
 /* indented elements */
 pre, table { margin-left:  1em; }
+
 ul, ol, dl {
   margin-left:  3em;
   padding-left: 3em;
@@ -127,13 +129,11 @@ a:link, a:hover, a:visited { text-decoration: none; }
   background:  black;
   text-shadow: none;
 }
+/* }}} */
 
 blockquote {
   margin:  5px 40px;
 }
-
-.Positive blockquote { border-left: solid 4px #b0d87c; }
-.Negative blockquote { border-left: solid 4px #fc4930; }
 
 #breadcrumbs, #right-nav {
   font-size: 85%;
@@ -145,6 +145,12 @@ blockquote {
 
 #breadcrumbs { left:  10px; }
 #right-nav   { right: 10px; }
+
+#message {
+  font-style:     italic;
+  text-transform: lowercase;
+  text-align:     center;
+}
 
 ul.tabnav { margin: 0px; padding: 0px; }
 
@@ -165,8 +171,8 @@ ul.tabnav { margin: 0px; padding: 0px; }
 }
 
 .tabnav li a {
-  font-weight: bold;
-  text-transform: uppercase;
+  font-weight:     bold;
+  text-transform:  uppercase;
   text-decoration: none;
 
   padding: 5px 20px;
@@ -187,11 +193,8 @@ ul.tabnav { margin: 0px; padding: 0px; }
   text-decoration: none;
 }
 
-.tabdiv {
-  border: 1px solid #cecbc1;
-}
-
-.tabdiv p { padding: 10px 20px; }
+.tabdiv   { border:  1px solid #cecbc1; }
+.tabdiv p { padding: 7px 10px;          }
 
 .accordion h3 {
   cursor:  pointer;
@@ -199,17 +202,18 @@ ul.tabnav { margin: 0px; padding: 0px; }
   outline: none;
 }
 
-form { margin: 5px 25px; }
-
-th, td { padding: 2px 5px; }
-
 th {
-  font-weight:    normal;
+  padding:        2px 5px;
   text-align:     right;
   vertical-align: top;
 }
 
 tr#ip { display: none; }
+
+tr#address textarea {
+  width:  200px;
+  height: 100px;
+}
 
 tr#review textarea {
   width:  450px;
@@ -240,15 +244,50 @@ tr#review textarea {
   cursor:           pointer;
 }
 
-.by .view-link {
+/* review {{{ */
+.search-form form.search p {
+  text-align: right;
+}
+
+.searchresult, .view-review {
+  margin: 15px;
+}
+
+.searchresult, .view-review p {
+  margin:  0px;
+  padding: 0px;
+}
+
+.searchresult .title,
+.view-review  .title {
+  font-size: 175%;
+  border-bottom: 1px solid #dedbd1;
+}
+
+.searchresult .title .grade,
+.view-review  .title .grade {
   float: right;
 }
 
-h3 span.Positive { border-bottom: dotted 1px #b0d87c; }
-h3 span.Negative { border-bottom: dotted 1px #fc4930; }
+.searchresult .content,
+.view-review  .review {
+  padding: 20px 10px;
+}
 
+.searchresult .reviewer,
+.view-review  .reviewer {
+  padding-top: 10px;
+  font-size: 85%;
+}
+
+.searchresult .reviewer .view-link {
+  float: right;
+}
+/* }}} */
+
+/* search/review inputs {{{ */
 form.search, form.new {
-  margin-left: auto;
+  margin-left:  auto;
   margin-right: auto;
 }
 
@@ -257,72 +296,14 @@ form.search p, form.new p {
 }
 
 form.search input[type="submit"],
-form.new input[type="submit"] { 
+form.new    input[type="submit"] { 
   margin:  2px;
   padding: 2px;
   width:   60px;
 }
+/* }}} */
 
-h3 .property { float: right; }
-
-table.review-form {
-  margin: 25px;
-}
-
-.review {
-  margin: 10px;
-  margin-bottom: 20px;
-
-  border: solid 1px #dedbd1;
-
-  -webkit-border-radius: 8px;
-     -moz-border-radius: 8px;
-          border-radius: 8px;
-
-  -webkit-box-shadow: #cecbc1 3px 3px 7px;
-     -moz-box-shadow: #cecbc1 3px 3px 7px;
-          box-shadow: #cecbc1 3px 3px 7px;
-}
-
-.review p { margin: 0px; padding: 5px 15px; }
-
-.review .property p { font-size: 110%; }
-
-.by p { 
-  font-size:  85%;
-  font-style: italic;
-}
-
-.review .property {
-  -webkit-border-top-left-radius:  8px;
-  -webkit-border-top-right-radius: 8px;
-     -moz-border-radius-topleft:   8px;
-     -moz-border-radius-topright:  8px;
-          border-top-left-radius:  8px;
-          border-top-right-radius: 8px;
-}
-
-.Positive .property {
-  background-color: #b0d87c;
-  background-image: -moz-linear-gradient(top, #b0d87c, white); /* FF3.6 */
-  background-image: -o-linear-gradient(top, #b0d87c, white); /* Opera 11.10+ */
-  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #b0d87c),color-stop(1, white)); /* Saf4+, Chrome */
-  background-image: -webkit-linear-gradient(#b0d87c, white); /* Chrome 10+, Saf5.1+ */
-  background-image: linear-gradient(top, #b0d87c, white);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#b0d87c', EndColorStr='white'); /* IE6–IE9 */
-}
-
-.Negative .property {
-  background-color: #fc4930;
-  background-image: -moz-linear-gradient(top, #fc4930, white); /* FF3.6 */
-  background-image: -o-linear-gradient(top, #fc4930, white); /* Opera 11.10+ */
-  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #fc4930),color-stop(1, white)); /* Saf4+, Chrome */
-  background-image: -webkit-linear-gradient(#fc4930, white); /* Chrome 10+, Saf5.1+ */
-  background-image: linear-gradient(top, #fc4930, white);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#fc4930', EndColorStr='white'); /* IE6–IE9 */
-}
-
-/* login */
+/* login  {{{ */
 #login table {
   margin: 5px auto;
 }
@@ -343,14 +324,9 @@ table.review-form {
 #login .open-id h3 {
   text-align: center;
 }
+/* }}} */
 
-#message {
-  font-style:     italic;
-  text-transform: lowercase;
-  text-align:     center;
-}
-
-/* profile pages */
+/* profile page {{{ */
 .profile {
   padding: 25px;
   background-color: #dedbd1;
@@ -358,10 +334,11 @@ table.review-form {
 
 .profile th {
   font-weight: bold;
+  padding:     2px 5px;
 }
 
 .profile .gravatar {
-  float:   left;
+  float: left;
 }
 
 .profile .gravatar img {
@@ -386,8 +363,9 @@ p.edit-button, p.delete-button {
   padding:        2px;
   text-transform: uppercase;
 }
+/* }}} */
 
-/* comments */
+/* comments {{{ */
 .yesod_comment_avatar_input img,
 .yesod_comment_avatar_list  img {
   margin-top:  5px;
@@ -420,6 +398,7 @@ p.edit-button, p.delete-button {
   background-color: white;
   border-left:      solid 3px #999;
 }
+/* }}} */
 
 #markdown-help {
   display:          none; /* toggled via jquery */
@@ -446,20 +425,3 @@ p.edit-button, p.delete-button {
 }
 
 #markdown-help p.example { margin-left: 10px; }
-
-/* thank you John Hicks! */
-
-/* mobile layout */
-@media all and (max-width: 800px) {
-  /* todo:  */
-}
-
-/* desktop layout */
-@media all and (min-width: 801px) {
-  /* todo: */
-}
-
-/* widescreen desktop layout */
-@media all and (min-width: 1280px) {
-  /* todo: */
-}
