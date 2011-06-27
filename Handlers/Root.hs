@@ -26,7 +26,7 @@ getRootR = do
                     minLength: 3
                 });
 
-                $('.landlord-input').autocomplete({
+                $('#landlord-input').autocomplete({
                     source:    "@{CompLandlordsR}",
                     minLength: 3
                 });
@@ -54,8 +54,7 @@ getRootR = do
                         $maybe _ <- muid
                             <div .accordion>
                                 ^{searchForm}
-                                ^{newForm Positive}
-                                ^{newForm Negative}
+                                ^{newForm}
 
                         $nothing
                             ^{searchForm}
@@ -111,19 +110,16 @@ getRootR = do
                     <div>
                         <form .search method="get" action="@{SearchR}">
                            <p>
-                               <input #search-input size=45 name="term">
+                               <input #search-input size=45 name="q">
                                <input type="submit" value="Search">
                     |]
 
-                newForm :: ReviewType -> Widget ()
-                newForm rt = [hamlet|
-                    <h3>Submit a 
-                        <span .#{show rt}>#{map toLower $ show rt}
-                        \ review
-
+                newForm :: -> Widget ()
+                newForm = [hamlet|
+                    <h3>Review your landlord
                     <div>
-                        <form .new method="get" action="@{NewR rt}">
+                        <form .new method="get" action="@{NewR}">
                             <p>
-                                <input .landlord-input size=45 name="landlord" placeholder="Name of landlord or management company">
+                                <input #landlord-input size=45 name="landlord" placeholder="Name of landlord or management company">
                                 <input type="submit" value="Next">
                     |]
