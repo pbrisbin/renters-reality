@@ -45,17 +45,14 @@ withServer f = Settings.withConnectionPool $ \p -> do
         loadDocuments = do
             users      <- return . M.fromList =<< runDB (selectList [] [UserUsernameAsc] 0 0)
             landlords  <- return . M.fromList =<< runDB (selectList [] [LandlordNameAsc] 0 0)
-            properties <- return . M.fromList =<< runDB (selectList [] [PropertyZipAsc ] 0 0)
-
-            reviews <- runDB $ selectList [] [ReviewCreatedDateDesc] 0 0
+            reviews    <- runDB $ selectList [] [ReviewCreatedDateDesc] 0 0
 
             docs <- forM reviews $ \(k,v) -> do
                 let u = M.lookup (reviewReviewer v) users
                 let l = M.lookup (reviewLandlord v) landlords
-                let p = M.lookup (reviewProperty v) properties
 
-                return $ case (u, l, p) of
-                    (Just u', Just l', Just p' ) -> [ Document k v l' p' u' ]
-                    _                            -> []
+                return $ case (u, l) of
+                    (Just u', Just l') -> [ Document k v l' u' ]
+                    _                  -> []
 
             return $ concat docs

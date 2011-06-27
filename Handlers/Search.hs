@@ -21,20 +21,21 @@ getCompLandlordsR = generalCompletion $ \t -> do
     return . concat =<< (forM res $ \(_, (Landlord name)) ->
         return $ if t `looseMatch` name then [name] else [])
 
+-- TODO
 getCompSearchesR :: Handler RepJson
 getCompSearchesR = generalCompletion $ \t -> do
     resL <- runDB $ selectList [] [LandlordNameAsc] 0 0
-    resP <- runDB $ selectList [] [PropertyZipAsc]  0 0
+    --resP <- runDB $ selectList [] [PropertyZipAsc]  0 0
 
     -- autocomplete landlord names
     landSS <- forM resL $ \(_, (Landlord name)) ->
         return $ if t `looseMatch` name then [name] else []
 
     -- autocomplete property strings
-    propSS <- forM resP $ \(_, p) ->
-        return $ if t `looseMatch` formatProperty p then [formatProperty p] else []
+    {-propSS <- forM resP $ \(_, p) ->-}
+        {-return $ if t `looseMatch` formatProperty p then [formatProperty p] else []-}
 
-    return $ concat $ landSS ++ propSS
+    return $ concat $ landSS
 
 -- | Get the term from the request and pass it to the completion 
 --   function, serve the retured values as a list
@@ -74,7 +75,7 @@ myPageOptions = PageOptions
 
 getSearchR :: Handler RepHtml
 getSearchR = do
-    mterm <- lookupGetParam "term"
+    mterm <- lookupGetParam "q"
     case mterm of
         Nothing   -> allReviews
         Just ""   -> allReviews
@@ -106,26 +107,25 @@ noReviews = [hamlet|
 
     <p>
         Would you like to 
-        <a title="submit a positive review" href="@{NewR Positive}">write 
-        <a title="submit a negative review" href="@{NewR Negative}">one
+        <a href="@{NewR}">write one
         ?
     |]
 
 shortReview :: Document -> Widget ()
-shortReview (Document rid r l p u) = do
+shortReview (Document rid r l u) = do
     let content = markdownToHtml . shorten 400 $ reviewContent r
     reviewTime <- lift . humanReadableTime $ reviewCreatedDate r
     
     [hamlet|
-        <div .review>
-            <div .#{show $ reviewType r}>
-                <div .property>
-                    <p>#{landlordName l} - #{formatProperty p}
-                <div .content>
-                    #{content}
-                <div .by>
-                    <p>
-                        Reviewed by #{showName u} #{reviewTime} 
-                        <span .view-link>
-                            <a href="@{ReviewsR $ rid}">View
+        <div .searchresult .review>
+            <div .landlord>
+                <p>#{landlordName l}
+            <div .content>
+                #{content}
+
+            <div .reviewer>
+                <p>
+                    Reviewed by #{showName u} #{reviewTime} 
+                    <span .view-link>
+                        <a href="@{ReviewsR $ rid}">View
         |]
