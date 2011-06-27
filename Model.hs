@@ -64,6 +64,8 @@ data Document = Document
     , user     :: User
     }
 
+-- | To search a "document" as text is to search it's landlord's name 
+--   and the single-string address info
 instance TextSearch Document where
     toText (Document _ r l _) = landlordName l `append` (T.pack . show $ reviewAddress r)
 
@@ -71,6 +73,7 @@ instance TextSearch Document where
             append :: T.Text -> T.Text -> T.Text
             a `append` b = a `T.append` " " `T.append` b
 
+-- | Search by keyword and lend preference to more recent reviews
 instance Search Document where
     preference = comparing (reviewCreatedDate . review . searchResult)
     match      = keywordMatch
@@ -79,3 +82,33 @@ showName :: User -> T.Text
 showName (User _         (Just un) _ _ _) = shorten 40 un
 showName (User (Just fn) _         _ _ _) = shorten 40 fn
 showName _                                = "anonymous"
+
+landlordGPA :: LandlordId -> [Document] -> Double
+landlordGPA lid = gpa . map reviewGrade . filter ((== lid) . reviewLandlord) . map review
+
+gpa :: [Grade] -> Double
+gpa = mean . map toNumeric
+
+    where
+        -- http://cgi.cse.unsw.edu.au/~dons/blog/2008/05/16#fast
+        mean :: [Double] -> Double
+        mean = go 0 0
+            where
+                go :: Double -> Int -> [Double] -> Double
+                go s l []     = s / fromIntegral l
+                go s l (x:xs) = go (s+x) (l+1) xs
+
+        toNumeric :: Grade -> Double
+        toNumeric Aplus  = 4.5
+        toNumeric A      = 4.0
+        toNumeric Aminus = 3.75
+        toNumeric Bplus  = 3.5
+        toNumeric B      = 3.0
+        toNumeric Bminus = 2.75
+        toNumeric Cplus  = 2.5
+        toNumeric C      = 2.0
+        toNumeric Cminus = 1.75
+        toNumeric Dplus  = 1.5
+        toNumeric D      = 1.0
+        toNumeric Dminus = 0.75
+        toNumeric F      = 0.0
