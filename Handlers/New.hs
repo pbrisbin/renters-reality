@@ -91,13 +91,13 @@ mdExamples = [ MarkdownExample "*italic text*"
                     [hamlet|<img alt="even images" src="http://pbrisbin.com/static/images/feed.png">|]
              ]
 
-postNewR :: ReviewType -> Handler RepHtml
+postNewR :: Handler RepHtml
 postNewR = getNewR
 
 runReviewForm :: UserId -> Maybe T.Text -> Widget ()
 runReviewForm uid ml = do
-    ip <- lift $ return . show . remoteHost =<< waiRequest
-    ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm ml (T.pack ip)
+    ip <- lift $ return . T.pack . show . remoteHost =<< waiRequest
+    ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm ml ip
     case res of
         FormMissing    -> return ()
         FormFailure _  -> return ()
@@ -106,7 +106,7 @@ runReviewForm uid ml = do
             rid <- insertFromForm uid rf
             redirect RedirectTemporary $ tm (ReviewsR rid)
 
-    [hamlet|<form enctype="#{enctype}" method="post"> ^{form}|]
+    [hamlet|<form enctype="#{enctype}" method="post">^{form}|]
 
 reviewForm :: Maybe T.Text -- ^ maybe landlord name
            -> T.Text       -- ^ IP address of submitter
@@ -120,9 +120,9 @@ reviewForm ml ip = do
     (fReview   , fiReview   ) <- markdownField            (ffs "Review:"      "review"   ) $ Nothing
 
     return (ReviewForm 
-        <$> fIp     <*> fLandlord  
-        <*> fAddres <*> fTimeframe  
-        <*> fGrade  <*> fReview, [hamlet|
+        <$> fIp      <*> fLandlord  
+        <*> fAddress <*> fTimeframe  
+        <*> fGrade <*> fReview, [hamlet|
             <table .review-form>
                 ^{fieldRow fiIp}
                 ^{fieldRow fiLandlord}
@@ -154,7 +154,7 @@ reviewForm ml ip = do
             |])
 
     where
-        gradesList :: [(Grade, String)]
+        gradesList :: [(Grade, T.Text)]
         gradesList = [ (Aplus , "A+")
                      , (A     , "A" )
                      , (Aminus, "A-")
@@ -168,6 +168,7 @@ reviewForm ml ip = do
                      , (D     , "D" )
                      , (Dminus, "D-")
                      , (F     , "F" )
+                     ]
 
         ffs :: T.Text -> T.Text -> FormFieldSettings
         ffs label theId = FormFieldSettings label mempty (Just theId) Nothing
@@ -192,8 +193,7 @@ insertFromForm uid rf = do
     landlordId <- findOrCreate $ Landlord $ rfLandlord rf
 
     runDB $ insert $ Review
-            { reviewType        = rtype
-            , reviewCreatedDate = now
+            { reviewCreatedDate = now
             , reviewIpAddress   = rfIp rf
             , reviewGrade       = rfGrade rf
             , reviewAddress     = rfAddress rf
@@ -201,7 +201,6 @@ insertFromForm uid rf = do
             , reviewTimeframe   = rfTimeframe rf
             , reviewReviewer    = uid
             , reviewLandlord    = landlordId
-            , reviewProperty    = propertyId
             }
 
     where

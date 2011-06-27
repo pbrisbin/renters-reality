@@ -114,7 +114,7 @@ getRootR = do
                                <input type="submit" value="Search">
                     |]
 
-                newForm :: -> Widget ()
+                newForm :: Widget ()
                 newForm = [hamlet|
                     <h3>Review your landlord
                     <div>

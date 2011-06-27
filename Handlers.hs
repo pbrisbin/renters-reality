@@ -4,7 +4,7 @@ module Handlers
     , getRobotsR
     , module Handlers.Root
     , module Handlers.Legal
-    , module Handlers.Search
+    {-, module Handlers.Search-}
     , module Handlers.New
     , module Handlers.Profile
     , module Handlers.Reviews
@@ -14,7 +14,7 @@ import Yesod
 import Renters
 import Handlers.Root
 import Handlers.Legal
-import Handlers.Search
+--import Handlers.Search
 import Handlers.New
 import Handlers.Profile
 import Handlers.Reviews

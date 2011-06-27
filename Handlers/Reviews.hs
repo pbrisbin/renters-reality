@@ -12,7 +12,6 @@ import Database.Persist.Base
 import Yesod.Comments
 import Yesod.Goodies.Markdown
 import Yesod.Goodies.Time
-import Data.List (partition)
 import qualified Data.Text as T
 import qualified Settings
 
@@ -20,32 +19,23 @@ getReviewsR :: Key Review -> Handler RepHtml
 getReviewsR rid = do
     docs <- siteDocs =<< getYesod
     case lookup' rid docs of
-        Just (Document _ r l p u) -> do
+        Just (Document _ r l u) -> do
             reviewTime <- humanReadableTime $ reviewCreatedDate r
-            let plusMinus = getPlusMinus docs l
             defaultLayout $ do
                 Settings.setTitle "View review"
                 [hamlet|
                     <h1>View review
                     <div .tabdiv>
                         <h3>
-                            <span .landlord>
-                                <a title="show other reviews for this landlord" href="@{SearchR}?term=#{landlordName l}">
-                                    #{landlordName l} #{plusMinus}
-                            <span .property>
-                                <a title="show other reviews for this property" href="@{SearchR}?term=#{formatProperty p}">
-                                    #{formatProperty p}
+                            <div .landlord>
+                                <p>#{landlordName l}
 
-                        <div .view-review>
+                        <div .review>
                             <p>Review:
+                            <blockquote>#{markdownToHtml $ reviewContent r}
 
-                            <div .#{show $ reviewType r}>
-                                <blockquote>
-                                    #{markdownToHtml $ reviewContent r}
-
-                        <div .review-by>
-                            <p>
-                                Submitted by #{showName u} #{reviewTime}
+                        <div .reviewer>
+                            <p>Submitted by #{showName u} #{reviewTime}
 
                         <h3>Discussion
                         <div .discussion>
@@ -78,21 +68,6 @@ lookup' rid docs =
     case filter ((rEq rid) . reviewId) docs of
         []    -> Nothing
         (x:_) -> Just x
-
-getPlusMinus :: [Document] -> Landlord -> String
-getPlusMinus docs l = do
-    let reviews      = map review $ filter ((== l) . landlord) docs
-    let (pos,neg)    = partition ((== Positive) . reviewType) reviews
-    let (plus,minus) = (length pos, length neg)
-    go $ plus - minus
-
-    where
-        go :: Int -> String
-        go n
-            | n == 0 = ""
-            | n <  0 = "[ -" ++ show (abs n) ++ " ]"
-            | n >  0 = "[ +" ++ show n       ++ " ]"
-            | otherwise = "" -- won't happen
 
 postReviewsR :: ReviewId -> Handler RepHtml
 postReviewsR = getReviewsR
