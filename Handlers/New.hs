@@ -21,12 +21,9 @@ import qualified Settings
 data ReviewForm = ReviewForm
     { rfIp        :: T.Text
     , rfLandlord  :: T.Text
-    , rfAddrOne   :: T.Text
-    , rfAddrTwo   :: Maybe T.Text
-    , rfCity      :: T.Text
-    , rfState     :: T.Text
-    , rfZip       :: T.Text
+    , rfAddress   :: Textarea
     , rfTimeframe :: T.Text
+    , rfGrade     :: Grade
     , rfReview    :: Markdown
     }
 
@@ -35,11 +32,11 @@ data MarkdownExample = MarkdownExample
     , mdHtml :: Widget ()
     }
 
-getNewR :: ReviewType -> Handler RepHtml
-getNewR rtype = do
+getNewR :: Handler RepHtml
+getNewR = do
     (uid, _) <- requireAuth
 
-    ml <- lookupGetParam (T.pack "landlord")
+    ml <- lookupGetParam "landlord"
     defaultLayout $ do
         Settings.setTitle "New review"
 
@@ -49,13 +46,6 @@ getNewR rtype = do
                 $("#open-help").click(function() { $("#markdown-help").fadeIn(); return false; });
                 $("#close-help").click(function() { $("#markdown-help").fadeOut(); return false; });
 
-                /* add some placeholder texts */
-                $("input#addrone").attr("placeholder"  , "248 Kelton St."          );
-                $("input#addrtwo").attr("placeholder"  , "Apt 4"                   );
-                $("input#timeframe").attr("placeholder", "2009 - 2010"             );
-                $("textarea#review").attr("placeholder", "What was it really like?");
-
-                /* auto complete the landlords */
                 $('input#landlord').autocomplete({
                     source:     "@{CompLandlordsR}",
                     minLength : 3
@@ -67,7 +57,7 @@ getNewR rtype = do
             <h1>New review
 
             <div .tabdiv>
-                ^{runReviewForm uid ml rtype}
+                ^{runReviewForm uid ml}
 
             <div #markdown-help>
                 <span style="float: right;">
@@ -104,8 +94,8 @@ mdExamples = [ MarkdownExample "*italic text*"
 postNewR :: ReviewType -> Handler RepHtml
 postNewR = getNewR
 
-runReviewForm :: UserId -> Maybe T.Text -> ReviewType -> Widget ()
-runReviewForm uid ml rtype = do
+runReviewForm :: UserId -> Maybe T.Text -> Widget ()
+runReviewForm uid ml = do
     ip <- lift $ return . show . remoteHost =<< waiRequest
     ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm ml (T.pack ip)
     case res of
@@ -113,7 +103,7 @@ runReviewForm uid ml rtype = do
         FormFailure _  -> return ()
         FormSuccess rf -> lift $ do
             tm  <- getRouteToMaster
-            rid <- insertFromForm uid rtype rf
+            rid <- insertFromForm uid rf
             redirect RedirectTemporary $ tm (ReviewsR rid)
 
     [hamlet|<form enctype="#{enctype}" method="post"> ^{form}|]
@@ -122,21 +112,17 @@ reviewForm :: Maybe T.Text -- ^ maybe landlord name
            -> T.Text       -- ^ IP address of submitter
            -> FormMonad (FormResult ReviewForm, Widget())
 reviewForm ml ip = do
-    (fIp       , fiIp       ) <- hiddenField      (ffs ""             "ip"       ) $ Just ip
-    (fLandlord , fiLandlord ) <- stringField      (ffs "Landlord:"    "landlord" ) $ ml
-    (fAddrOne  , fiAddrOne  ) <- stringField      (ffs "Address (1):" "addrone"  ) $ Nothing
-    (fAddrTwo  , fiAddrTwo  ) <- maybeStringField (ffs "Address (2):" "addrtwo"  ) $ Nothing
-    (fCity     , fiCity     ) <- stringField      (ffs "City:"        "city"     ) $ Nothing
-    (fState    , fiState    ) <- stringField      (ffs "State:"       "state"    ) $ Nothing
-    (fZip      , fiZip      ) <- stringField      (ffs "Zip:"         "zip"      ) $ Nothing
-    (fTimeframe, fiTimeframe) <- stringField      (ffs "Time frame:"  "timeframe") $ Nothing
-    (fReview   , fiReview   ) <- markdownField    (ffs "Review:"      "review"   ) $ Nothing
+    (fIp       , fiIp       ) <- hiddenField              (ffs ""             "ip"       ) $ Just ip
+    (fLandlord , fiLandlord ) <- stringField              (ffs "Landlord:"    "landlord" ) $ ml
+    (fAddress  , fiAddress  ) <- textareaField            (ffs "Address:"     "address"  ) $ Nothing
+    (fTimeframe, fiTimeframe) <- stringField              (ffs "Time frame:"  "timeframe") $ Nothing
+    (fGrade    , fiGrade    ) <- selectField   gradesList (ffs "Grade:"       "grade"    ) $ Nothing
+    (fReview   , fiReview   ) <- markdownField            (ffs "Review:"      "review"   ) $ Nothing
 
     return (ReviewForm 
-        <$> fIp      <*> fLandlord  
-        <*> fAddrOne <*> fAddrTwo <*> fCity 
-        <*> fState   <*> fZip     <*> fTimeframe 
-        <*> fReview, [hamlet|
+        <$> fIp     <*> fLandlord  
+        <*> fAddres <*> fTimeframe  
+        <*> fGrade  <*> fReview, [hamlet|
             <table .review-form>
                 ^{fieldRow fiIp}
                 ^{fieldRow fiLandlord}
@@ -144,12 +130,9 @@ reviewForm ml ip = do
                 <tr .spacer>
                     <td colspan="3">&nbsp;
 
-                ^{fieldRow fiAddrOne}
-                ^{fieldRow fiAddrTwo}
-                ^{fieldRow fiCity}
-                ^{fieldRow fiState}
-                ^{fieldRow fiZip}
+                ^{fieldRow fiAddress}
                 ^{fieldRow fiTimeframe}
+                ^{fieldRow fiGrade}
 
                 <tr .spacer>
                     <td colspan="3">&nbsp;
@@ -171,6 +154,21 @@ reviewForm ml ip = do
             |])
 
     where
+        gradesList :: [(Grade, String)]
+        gradesList = [ (Aplus , "A+")
+                     , (A     , "A" )
+                     , (Aminus, "A-")
+                     , (Bplus , "B+")
+                     , (B     , "B" )
+                     , (Bminus, "B-")
+                     , (Cplus , "C+")
+                     , (C     , "C" )
+                     , (Cminus, "C-")
+                     , (Dplus , "D+")
+                     , (D     , "D" )
+                     , (Dminus, "D-")
+                     , (F     , "F" )
+
         ffs :: T.Text -> T.Text -> FormFieldSettings
         ffs label theId = FormFieldSettings label mempty (Just theId) Nothing
 
@@ -188,26 +186,17 @@ reviewForm ml ip = do
                         &nbsp;
             |]
 
-insertFromForm :: UserId -> ReviewType -> ReviewForm -> Handler ReviewId
-insertFromForm uid rtype rf = do
-    now <- liftIO getCurrentTime
-
+insertFromForm :: UserId -> ReviewForm -> Handler ReviewId
+insertFromForm uid rf = do
+    now        <- liftIO getCurrentTime
     landlordId <- findOrCreate $ Landlord $ rfLandlord rf
-
-    propertyId <- findOrCreate $ Property
-        { propertyAddrOne = rfAddrOne rf
-        , propertyAddrTwo = fromMaybe "" $ rfAddrTwo rf
-        , propertyCity    = rfCity rf
-        , propertyState   = rfState rf
-        , propertyZip     = rfZip rf
-        }
-
-    _ <- findOrCreate $ Ownership propertyId landlordId
 
     runDB $ insert $ Review
             { reviewType        = rtype
             , reviewCreatedDate = now
-            , reviewIpAddress   =  rfIp rf
+            , reviewIpAddress   = rfIp rf
+            , reviewGrade       = rfGrade rf
+            , reviewAddress     = rfAddress rf
             , reviewContent     = rfReview rf
             , reviewTimeframe   = rfTimeframe rf
             , reviewReviewer    = uid
