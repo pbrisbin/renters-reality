@@ -47,7 +47,7 @@ mkYesodData "Renters" [parseRoutes|
     /search/comp/landlords CompLandlordsR GET
     /search/comp/searches  CompSearchesR  GET
 
-    /new/#ReviewType    NewR     GET POST
+    /new                NewR     GET POST
     /reviews/#ReviewId  ReviewsR GET POST
 
     /profile         ProfileR        GET
@@ -133,7 +133,7 @@ instance YesodBreadcrumbs Renters where
     breadcrumb RootR          = return ("Home"   , Nothing      )
     breadcrumb SearchR        = return ("search" , Just RootR   )
     breadcrumb (ReviewsR _)   = return ("view"   , Just RootR   )
-    breadcrumb (NewR _)       = return ("new"    , Just RootR   )
+    breadcrumb NewR           = return ("new"    , Just RootR   )
     breadcrumb LegalR         = return ("legal"  , Just RootR   )
     breadcrumb (AuthR _)      = return ("login"  , Just RootR   )
     breadcrumb ProfileR       = return ("profile", Just RootR   )
