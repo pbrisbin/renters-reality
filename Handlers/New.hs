@@ -43,12 +43,11 @@ getNewR = do
         addJulius [julius|
             $(function() {
                 /* add help onclick handlers */
-                $("#open-help").click(function() { $("#markdown-help").fadeIn(); return false; });
+                $("#open-help").click(function()  { $("#markdown-help").fadeIn();  return false; });
                 $("#close-help").click(function() { $("#markdown-help").fadeOut(); return false; });
-
                 $('input#landlord').autocomplete({
-                    source:     "@{CompLandlordsR}",
-                    minLength : 3
+                    source:    "@{CompLandlordsR}",
+                    minLength: 3
                 });
             });
             |]
@@ -112,79 +111,80 @@ reviewForm :: Maybe T.Text -- ^ maybe landlord name
            -> T.Text       -- ^ IP address of submitter
            -> FormMonad (FormResult ReviewForm, Widget())
 reviewForm ml ip = do
-    (fIp       , fiIp       ) <- hiddenField              (ffs ""             "ip"       ) $ Just ip
-    (fLandlord , fiLandlord ) <- stringField              (ffs "Landlord:"    "landlord" ) $ ml
-    (fAddress  , fiAddress  ) <- textareaField            (ffs "Address:"     "address"  ) $ Nothing
-    (fTimeframe, fiTimeframe) <- stringField              (ffs "Time frame:"  "timeframe") $ Nothing
-    (fGrade    , fiGrade    ) <- selectField   gradesList (ffs "Grade:"       "grade"    ) $ Nothing
-    (fReview   , fiReview   ) <- markdownField            (ffs "Review:"      "review"   ) $ Nothing
+    (fIp       , fiIp       ) <- hiddenField    (ffs ""            "ip"       ) $ Just ip
+    (fLandlord , fiLandlord ) <- stringField    (ffs "Landlord:"   "landlord" ) $ ml
+    (fAddress  , fiAddress  ) <- textareaField  (ffs "Address:"    "address"  ) $ Nothing
+    (fTimeframe, fiTimeframe) <- stringField    (ffs "Time frame:" "timeframe") $ Nothing
+    (fGrade    , fiGrade    ) <- selectField'   (ffs "Grade:"      "grade"    ) $ Nothing
+    (fReview   , fiReview   ) <- markdownField  (ffs "Review:"     "review"   ) $ Nothing
 
     return (ReviewForm 
         <$> fIp      <*> fLandlord  
         <*> fAddress <*> fTimeframe  
         <*> fGrade <*> fReview, [hamlet|
             <table .review-form>
-                ^{fieldRow fiIp}
-                ^{fieldRow fiLandlord}
+                <tr #ip>^{fieldCell 4 fiIp}
 
-                <tr .spacer>
-                    <td colspan="3">&nbsp;
+                <tr #landlord-grade>
+                    ^{fieldCell 1 fiLandlord}
+                    ^{fieldCell 1 fiGrade}
 
-                ^{fieldRow fiAddress}
-                ^{fieldRow fiTimeframe}
-                ^{fieldRow fiGrade}
+                <tr #timeframe>
+                    ^{fieldCell 4 fiTimeframe}
+                    <td colspan=3>&nbsp;
 
-                <tr .spacer>
-                    <td colspan="3">&nbsp;
+                <tr #address>
+                    ^{fieldCell 4 fiAddress}
+                    <td colspan=3>&nbsp;
 
-                <tr>
+                <tr #review-help>
                     <td>&nbsp;
-                    <td colspan="2">
+                    <td colspan="5">
                         <small>
                             <em>
                                 Reviews are parsed as pandoc-style markdown. 
                                 <a #open-help href="#">Tips.
 
-                ^{fieldRow fiReview}
+                <tr #review>^{fieldCell 4 fiReview}
 
                 <tr>
-                    <td .buttons colspan="2">
-                        <input type="submit" value="Save">
                     <td>&nbsp;
+                    <td .buttons colspan="4">
+                        <input type="submit" value="Save">
             |])
 
     where
-        gradesList :: [(Grade, T.Text)]
-        gradesList = [ (Aplus , "A+")
-                     , (A     , "A" )
-                     , (Aminus, "A-")
-                     , (Bplus , "B+")
-                     , (B     , "B" )
-                     , (Bminus, "B-")
-                     , (Cplus , "C+")
-                     , (C     , "C" )
-                     , (Cminus, "C-")
-                     , (Dplus , "D+")
-                     , (D     , "D" )
-                     , (Dminus, "D-")
-                     , (F     , "F" )
-                     ]
+        selectField' = selectField gradesList
+            where
+                gradesList :: [(Grade, T.Text)]
+                gradesList = [ (Aplus , "A+")
+                             , (A     , "A" )
+                             , (Aminus, "A-")
+                             , (Bplus , "B+")
+                             , (B     , "B" )
+                             , (Bminus, "B-")
+                             , (Cplus , "C+")
+                             , (C     , "C" )
+                             , (Cminus, "C-")
+                             , (Dplus , "D+")
+                             , (D     , "D" )
+                             , (Dminus, "D-")
+                             , (F     , "F" )
+                             ]
 
         ffs :: T.Text -> T.Text -> FormFieldSettings
         ffs label theId = FormFieldSettings label mempty (Just theId) Nothing
 
-        fieldRow fi = [hamlet|
-            <tr ##{fiIdent fi}>
-                <th>
-                    <label for="#{fiIdent fi}">#{fiLabel fi}
-                    <div .tooltip>#{fiTooltip fi}
-                <td>
-                    ^{fiInput fi}
-                <td>
-                    $maybe error <- fiErrors fi
-                        #{error}
-                    $nothing
-                        &nbsp;
+        -- span for the input cell only
+        fieldCell span fi = [hamlet|
+            <th>
+                <label for="#{fiIdent fi}">#{fiLabel fi}
+            <td ##{fiIdent fi} colspan=#{show span}>^{fiInput fi}
+            <td>
+                $maybe error <- fiErrors fi
+                    #{error}
+                $nothing
+                    &nbsp;
             |]
 
 insertFromForm :: UserId -> ReviewForm -> Handler ReviewId

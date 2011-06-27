@@ -117,7 +117,7 @@ shortReview (Document rid r l u) = do
                 <p>
                     #{landlordName l} 
                     <span .grade>
-                        #{prettyGrade $ reviewGrade r}
+                        Grade: #{prettyGrade $ reviewGrade r}
 
             <div .content>
                 #{content}
@@ -126,5 +126,5 @@ shortReview (Document rid r l u) = do
                 <p>
                     Reviewed by #{showName u} #{reviewTime} 
                     <span .view-link>
-                        <a href="@{ReviewsR $ rid}">View
+                        <a href="@{ReviewsR $ rid}">Read more...
         |]

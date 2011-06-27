@@ -29,7 +29,7 @@ getReviewsR rid = do
                             <div .title>
                                 <p>
                                     #{landlordName l}
-                                    <span .grade>#{prettyGrade $ reviewGrade r}
+                                    <span .grade>Grade: #{prettyGrade $ reviewGrade r}
 
                             <div .review>
                                 <p>Review:

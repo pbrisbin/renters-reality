@@ -208,18 +208,6 @@ th {
   vertical-align: top;
 }
 
-tr#ip { display: none; }
-
-tr#address textarea {
-  width:  200px;
-  height: 100px;
-}
-
-tr#review textarea {
-  width:  450px;
-  height: 500px;
-}
-
 .ui-tabs-hide {
   display: none;
 }
@@ -253,15 +241,17 @@ tr#review textarea {
   margin: 15px;
 }
 
-.searchresult, .view-review p {
+.searchresult p, .view-review p {
   margin:  0px;
   padding: 0px;
 }
 
 .searchresult .title,
 .view-review  .title {
+  color: #333;
   font-size: 175%;
   border-bottom: 1px solid #dedbd1;
+  text-shadow: #cecbc1 1px 1px 5px;
 }
 
 .searchresult .title .grade,
@@ -283,6 +273,34 @@ tr#review textarea {
 .searchresult .reviewer .view-link {
   float: right;
 }
+/* }}} */
+
+/* new review {{{ */
+table.review-form {
+  margin: 20px auto;
+}
+
+table.review-form td {
+  padding: 2px;
+}
+
+tr#ip { display: none; }
+
+tr#address textarea {
+  width:  155px;
+  height: 75px;
+}
+
+tr#review textarea {
+  width:  450px;
+  height: 300px;
+}
+
+td#grade {
+  text-align: right;
+}
+
+
 /* }}} */
 
 /* search/review inputs {{{ */
