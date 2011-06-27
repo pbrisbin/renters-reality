@@ -17,25 +17,12 @@ import qualified Settings
 getCompLandlordsR :: Handler RepJson
 getCompLandlordsR = generalCompletion $ \t -> do
     res <- runDB $ selectList [] [LandlordNameAsc] 0 0
-
     return . concat =<< (forM res $ \(_, (Landlord name)) ->
         return $ if t `looseMatch` name then [name] else [])
 
 -- TODO
 getCompSearchesR :: Handler RepJson
-getCompSearchesR = generalCompletion $ \t -> do
-    resL <- runDB $ selectList [] [LandlordNameAsc] 0 0
-    --resP <- runDB $ selectList [] [PropertyZipAsc]  0 0
-
-    -- autocomplete landlord names
-    landSS <- forM resL $ \(_, (Landlord name)) ->
-        return $ if t `looseMatch` name then [name] else []
-
-    -- autocomplete property strings
-    {-propSS <- forM resP $ \(_, p) ->-}
-        {-return $ if t `looseMatch` formatProperty p then [formatProperty p] else []-}
-
-    return $ concat $ landSS
+getCompSearchesR = getCompLandlordsR
 
 -- | Get the term from the request and pass it to the completion 
 --   function, serve the retured values as a list
@@ -55,8 +42,7 @@ looseMatch a b = fix a `T.isInfixOf` fix b
 
     where
         fix :: T.Text -> T.Text
-        fix = T.strip
-            . T.toCaseFold
+        fix = T.strip . T.toCaseFold
             . T.filter (`notElem` [',', '.'])
 
 -- | Pagination
@@ -76,26 +62,37 @@ myPageOptions = PageOptions
 getSearchR :: Handler RepHtml
 getSearchR = do
     mterm <- lookupGetParam "q"
-    case mterm of
-        Nothing   -> allReviews
-        Just ""   -> allReviews
-        Just term -> do
-            docs <- fmap (search_ term) $ siteDocs =<< getYesod
-            defaultLayout $ do
-                Settings.setTitle "Search results" 
-                [hamlet|
-                    <h1>Search results
-                    <div .tabdiv>
-                        ^{paginate myPageOptions docs}
-                    |]
+    docs <- case mterm of
+        Nothing   -> siteDocs =<< getYesod
+        Just ""   -> siteDocs =<< getYesod
+        Just term -> fmap (search_ term) $ siteDocs =<< getYesod
 
-allReviews :: Handler RepHtml
-allReviews = do
-    docs <- siteDocs =<< getYesod
     defaultLayout $ do
-        Settings.setTitle "All reviews"
+        Settings.setTitle "Search results" 
+
+        addJulius [julius|
+            $(function() {
+                $('#search-input').autocomplete({
+                    source:    "@{CompSearchesR}",
+                    minLength: 3
+                });
+            });
+            |]
+
+        addCassius [cassius|
+            .ui-autocomplete-loading
+                background: white url(@{StaticR images_ui_anim_basic_16x16_gif}) right center no-repeat
+            |]
+
         [hamlet|
-            <h1>All reviews
+            <h1>Search results
+
+            <div .search>
+                <form .search method="get" action="@{SearchR}">
+                   <p>
+                       <input #search-input size=30 name="q">
+                       <input type="submit" value="Search">
+
             <div .tabdiv>
                 ^{paginate myPageOptions docs}
             |]
@@ -120,6 +117,13 @@ shortReview (Document rid r l u) = do
         <div .searchresult .review>
             <div .landlord>
                 <p>#{landlordName l}
+
+            <div .address>
+                <p>#{reviewAddress r}
+
+            <div .grade>
+                <p>#{prettyGrade $ reviewGrade r}
+
             <div .content>
                 #{content}
 

@@ -112,3 +112,20 @@ gpa = mean . map toNumeric
         toNumeric D      = 1.0
         toNumeric Dminus = 0.75
         toNumeric F      = 0.0
+
+prettyGrade :: Grade -> T.Text
+prettyGrade Aplus  = "A+"
+prettyGrade A      = "A"
+prettyGrade Aminus = "A-"
+prettyGrade Bplus  = "B+"
+prettyGrade B      = "B"
+prettyGrade Bminus = "B-"
+prettyGrade Cplus  = "C+"
+prettyGrade C      = "C"
+prettyGrade Cminus = "C-"
+prettyGrade Dplus  = "D+"
+prettyGrade D      = "D"
+prettyGrade Dminus = "D-"
+prettyGrade F      = "F"
+
+

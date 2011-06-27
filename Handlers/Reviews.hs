@@ -26,9 +26,14 @@ getReviewsR rid = do
                 [hamlet|
                     <h1>View review
                     <div .tabdiv>
-                        <h3>
-                            <div .landlord>
-                                <p>#{landlordName l}
+                        <div .landlord>
+                            <p>#{landlordName l}
+
+                        <div .address>
+                            <p>#{reviewAddress r}
+
+                        <div .grade>
+                            <p>#{prettyGrade $ reviewGrade r}
 
                         <div .review>
                             <p>Review:
