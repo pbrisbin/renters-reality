@@ -21,47 +21,28 @@ import Data.Time (UTCTime(..))
 
 import qualified Data.Text as T
 
--- | Reviews can be good or bad
-data ReviewType = Positive | Negative 
-    deriving (Show,Read,Eq)
+data Grade = Aplus | A | Aminus
+           | Bplus | B | Bminus
+           | Cplus | C | Cminus
+           | Dplus | D | Dminus
+           | F deriving (Eq, Ord, Read, Show)
 
-instance SinglePiece ReviewType where
-    toSinglePiece Positive = "positive"
-    toSinglePiece Negative = "negative"
-
-    fromSinglePiece "positive" = Just Positive
-    fromSinglePiece "negative" = Just Negative
-    fromSinglePiece _          = Nothing
-
-derivePersistField "ReviewType"
+derivePersistField "Grade"
 
 share2 mkPersist (mkMigrate "doMigration") [persist|
     Landlord
         name T.Text Eq Asc
         UniqueLandlord name
 
-    Property
-        addrOne T.Text Eq Asc
-        addrTwo T.Text Eq Asc
-        city    T.Text Eq Asc
-        state   T.Text Eq Asc
-        zip     T.Text Eq Asc
-        UniqueProperty addrOne addrTwo city state zip
-
-    Ownership
-        property PropertyId Eq
-        landlord LandlordId Eq
-        UniqueOwnership property landlord
-
     Review
         createdDate UTCTime Desc
-        ipAddress   T.Text
-        type        ReviewType Eq
-        content     Markdown
-        timeframe   T.Text
         reviewer    UserId     Eq
         landlord    LandlordId Eq
-        property    PropertyId Eq
+        grade       Grade      Eq Asc Desc
+        ipAddress   T.Text
+        address     Textarea
+        timeframe   T.Text
+        content     Markdown
 
     User
         fullname      T.Text Maybe Update
@@ -80,12 +61,11 @@ data Document = Document
     { reviewId :: ReviewId
     , review   :: Review
     , landlord :: Landlord
-    , property :: Property
     , user     :: User
     }
 
 instance TextSearch Document where
-    toText (Document _ _ l p _) = landlordName l `append` formatProperty p
+    toText (Document _ r l _) = landlordName l `append` (T.pack . show $ reviewAddress r)
 
         where
             append :: T.Text -> T.Text -> T.Text
@@ -94,17 +74,6 @@ instance TextSearch Document where
 instance Search Document where
     preference = comparing (reviewCreatedDate . review . searchResult)
     match      = keywordMatch
-
-formatProperty :: Property -> T.Text
-formatProperty p = T.intercalate ", "
-                 . filter (not . T.null)
-                 . map T.strip
-                 $ [ propertyAddrOne p
-                   , propertyAddrTwo p
-                   , propertyCity    p
-                   , propertyState   p
-                   , propertyZip     p
-                   ]
 
 showName :: User -> T.Text
 showName (User _         (Just un) _ _ _) = shorten 40 un
