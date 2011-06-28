@@ -30,6 +30,18 @@ data Grade = Aplus | A | Aminus
 derivePersistField "Grade"
 
 share2 mkPersist (mkMigrate "doMigration") [persist|
+    User
+        fullname      T.Text Maybe Update
+        username      T.Text Maybe Update Asc
+        email         T.Text Maybe Update
+        verifiedEmail Bool default=false Eq Update
+        verkey        T.Text Maybe Update
+
+    Ident
+        ident T.Text Asc
+        user  UserId Eq
+        UniqueIdent ident
+
     Landlord
         name T.Text Eq Asc
         UniqueLandlord name
@@ -43,18 +55,6 @@ share2 mkPersist (mkMigrate "doMigration") [persist|
         address     Textarea
         timeframe   T.Text
         content     Markdown
-
-    User
-        fullname      T.Text Maybe Update
-        username      T.Text Maybe Update Asc
-        email         T.Text Maybe Update
-        verifiedEmail Bool default=false Eq Update
-        verkey        T.Text Maybe Update
-
-    Ident
-        ident T.Text Asc
-        user  UserId Eq
-        UniqueIdent ident
     |]
 
 data Document = Document

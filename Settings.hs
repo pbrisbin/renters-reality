@@ -19,7 +19,7 @@ module Settings
     , withConnectionPool
     ) where
 
-import Database.Persist.Sqlite
+import Database.Persist.Postgresql
 import qualified Yesod
 import qualified Data.Text as T
 
@@ -39,8 +39,11 @@ staticRoot = T.unpack approot ++ "/static"
 setTitle :: (Yesod.Yesod m) => String -> Yesod.GWidget s m ()
 setTitle s = Yesod.setTitle . Yesod.toHtml $ "Renters' reality | " ++ s
 
-dataBase :: T.Text
-dataBase = "db.s3db"
+connStr :: T.Text
+connStr = "user=renters password=reality host=localhost port=5432 dbname=renters"
+
+connCount :: Int
+connCount = 100
 
 withConnectionPool :: Yesod.MonadControlIO m => (ConnectionPool -> m a) -> m a
-withConnectionPool = withSqlitePool dataBase 10
+withConnectionPool = withPostgresqlPool connStr connCount
