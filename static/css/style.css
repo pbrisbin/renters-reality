@@ -1,10 +1,9 @@
 /*
- * 2011 pbrisbin standard styles
+ * 2011 pbrisbin
  *
  */
 
 /* begin modified reset based on html5boilerplate {{{ */
- 
 html, body, div, span, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp,
@@ -85,7 +84,6 @@ h4, h5, h6 { padding: 1ex 1ex; }
 
 h1 { padding: 1ex 0px; }
 
-/* indented elements */
 pre, table { margin-left:  1em; }
 
 ul, ol, dl {
@@ -118,6 +116,17 @@ footer {
 
 a:link, a:hover, a:visited { text-decoration: none; }
 
+blockquote {
+  margin:  5px 40px;
+}
+
+td, th { padding: 2px 5px; }
+
+th {
+  text-align:     right;
+  vertical-align: top;
+}
+
 ::-moz-selection {
   color:       white;
   background:  black;
@@ -131,10 +140,7 @@ a:link, a:hover, a:visited { text-decoration: none; }
 }
 /* }}} */
 
-blockquote {
-  margin:  5px 40px;
-}
-
+/* main layout {{{ */
 #breadcrumbs, #right-nav {
   font-size: 85%;
   padding:   0px;
@@ -202,16 +208,12 @@ ul.tabnav { margin: 0px; padding: 0px; }
   outline: none;
 }
 
-th {
-  padding:        2px 5px;
-  text-align:     right;
-  vertical-align: top;
-}
-
 .ui-tabs-hide {
   display: none;
 }
+/* }}} */
 
+/* autocomplete {{{ */
 .ui-autocomplete {
   width:      60px;
   background: white;
@@ -231,10 +233,14 @@ th {
   background-color: #dedbd1;
   cursor:           pointer;
 }
+/* }}} */
 
 /* review {{{ */
 .search-form form.search p {
   text-align: right;
+  padding: 0px;
+  margin:  0px;
+  margin-bottom: 2px;
 }
 
 .searchresult, .view-review {
@@ -261,12 +267,17 @@ th {
 
 .searchresult .content,
 .view-review  .review {
-  padding: 20px 10px;
+  padding: 20px 5px;
+}
+
+.searchresult .content p,
+.view-review  .review  p {
+  text-align: justify;
+  padding: 5px;
 }
 
 .searchresult .reviewer,
 .view-review  .reviewer {
-  padding-top: 10px;
   font-size: 85%;
 }
 
@@ -278,10 +289,6 @@ th {
 /* new review {{{ */
 table.review-form {
   margin: 20px auto;
-}
-
-table.review-form td {
-  padding: 2px;
 }
 
 tr#ip { display: none; }
@@ -299,8 +306,6 @@ tr#review textarea {
 td#grade {
   text-align: right;
 }
-
-
 /* }}} */
 
 /* search/review inputs {{{ */
@@ -418,6 +423,7 @@ p.edit-button, p.delete-button {
 }
 /* }}} */
 
+/* markdown help {{{ */
 #markdown-help {
   display:          none; /* toggled via jquery */
   position:         fixed;
@@ -443,3 +449,4 @@ p.edit-button, p.delete-button {
 }
 
 #markdown-help p.example { margin-left: 10px; }
+/* }}} */
