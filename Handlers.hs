@@ -8,6 +8,7 @@ module Handlers
     , module Handlers.New
     , module Handlers.Profile
     , module Handlers.Reviews
+    , module Handlers.Landlords
     ) where
     
 import Yesod
@@ -18,6 +19,7 @@ import Handlers.Search
 import Handlers.New
 import Handlers.Profile
 import Handlers.Reviews
+import Handlers.Landlords
 
 -- | Favicon
 getFaviconR :: Handler ()

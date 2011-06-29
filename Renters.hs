@@ -47,8 +47,9 @@ mkYesodData "Renters" [parseRoutes|
     /search/comp/landlords CompLandlordsR GET
     /search/comp/searches  CompSearchesR  GET
 
-    /new                NewR     GET POST
-    /reviews/#ReviewId  ReviewsR GET POST
+    /new                   NewR       GET POST
+    /reviews/#ReviewId     ReviewsR   GET POST
+    /landlords/#LandlordId LandlordsR GET
 
     /profile         ProfileR        GET
     /profile/edit    EditProfileR    GET POST
