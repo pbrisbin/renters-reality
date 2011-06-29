@@ -243,17 +243,22 @@ ul.tabnav { margin: 0px; padding: 0px; }
   margin-bottom: 2px;
 }
 
-.searchresult, .view-review {
+.searchresult, 
+.view-review,
+.view-landlord {
   margin: 15px;
 }
 
-.searchresult p, .view-review p {
+.searchresult p,
+.view-review p,
+.view-landlord p {
   margin:  0px;
   padding: 0px;
 }
 
 .searchresult .title,
-.view-review  .title {
+.view-review  .title,
+.view-landlord  .title {
   color: #333;
   font-size: 175%;
   border-bottom: 1px solid #dedbd1;
@@ -261,7 +266,8 @@ ul.tabnav { margin: 0px; padding: 0px; }
 }
 
 .searchresult .title .grade,
-.view-review  .title .grade {
+.view-review  .title .grade,
+.view-landlord  .title .grade {
   float: right;
 }
 
@@ -283,6 +289,29 @@ ul.tabnav { margin: 0px; padding: 0px; }
 
 .searchresult .reviewer .view-link {
   float: right;
+}
+
+.review .title {
+  font-size: 100%;
+  border-bottom: none;
+}
+
+.review .address {
+  float: left;
+  font-size: 90%;
+  width: 100px;
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
+.review .review {
+  margin: 25px;
+  margin-top: 10px;
+  margin-left: 110px;
+}
+
+.review {
+  margin-top: 10px;
 }
 /* }}} */
 
