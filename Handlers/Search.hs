@@ -8,6 +8,7 @@ module Handlers.Search
 
 import Renters
 import Model
+import Helpers.Widgets
 import Yesod
 import Yesod.Goodies
 import Control.Monad (forM)
@@ -55,7 +56,10 @@ myPageOptions = PageOptions
                 ^{noReviews}
             $else
                 $forall doc <- docs
-                    ^{shortReview doc}
+                    <div .searchresult>
+                        ^{landlordGrade doc}
+                        ^{reviewContentBlock doc True}
+                        ^{reviewedByLink doc}
             |]
     }
 
@@ -97,34 +101,12 @@ getSearchR = do
 
 noReviews :: Widget ()
 noReviews = [hamlet|
-    <p>
-        I'm sorry, there are no reviews that meet your search criteria.
+    <div .tabdiv>
+        <p>
+            I'm sorry, there are no reviews that meet your search criteria.
 
-    <p>
-        Would you like to 
-        <a href="@{NewR}">write one
-        ?
+        <p>
+            Would you like to 
+            <a href="@{NewR}">write one
+            ?
     |]
-
-shortReview :: Document -> Widget ()
-shortReview (Document rid r l u) = do
-    let content = markdownToHtml . shorten 400 $ reviewContent r
-    reviewTime <- lift . humanReadableTime $ reviewCreatedDate r
-    
-    [hamlet|
-        <div .searchresult .review>
-            <div .title>
-                <p>
-                    #{landlordName l} 
-                    <span .grade>
-                        Grade: #{prettyGrade $ reviewGrade r}
-
-            <div .content>
-                #{content}
-
-            <div .reviewer>
-                <p>
-                    Reviewed by #{showName u} #{reviewTime} 
-                    <span .view-link>
-                        <a href="@{ReviewsR $ rid}">Read more...
-        |]

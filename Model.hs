@@ -83,9 +83,6 @@ showName (User _         (Just un) _ _ _) = shorten 40 un
 showName (User (Just fn) _         _ _ _) = shorten 40 fn
 showName _                                = "anonymous"
 
-landlordGPA :: LandlordId -> [Document] -> Double
-landlordGPA lid = gpa . map reviewGrade . filter ((== lid) . reviewLandlord) . map review
-
 gpa :: [Grade] -> Double
 gpa = mean . map toNumeric
 

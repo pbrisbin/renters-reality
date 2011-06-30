@@ -131,16 +131,17 @@ instance YesodPersist Renters where
     runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
 
 instance YesodBreadcrumbs Renters where
-    breadcrumb RootR          = return ("Home"   , Nothing      )
-    breadcrumb SearchR        = return ("search" , Just RootR   )
-    breadcrumb (ReviewsR _)   = return ("view"   , Just RootR   )
-    breadcrumb NewR           = return ("new"    , Just RootR   )
-    breadcrumb LegalR         = return ("legal"  , Just RootR   )
-    breadcrumb (AuthR _)      = return ("login"  , Just RootR   )
-    breadcrumb ProfileR       = return ("profile", Just RootR   )
-    breadcrumb EditProfileR   = return ("edit"   , Just ProfileR)
-    breadcrumb DeleteProfileR = return ("delete" , Just ProfileR)
-    breadcrumb _              = return ("404"    , Just RootR   )
+    breadcrumb RootR           = return ("Home"         , Nothing      )
+    breadcrumb SearchR         = return ("search"       , Just RootR   )
+    breadcrumb (ReviewsR  _)   = return ("view review"  , Just RootR   )
+    breadcrumb (LandlordsR _)  = return ("view landlord", Just RootR   )
+    breadcrumb NewR            = return ("new"          , Just RootR   )
+    breadcrumb LegalR          = return ("legal"        , Just RootR   )
+    breadcrumb (AuthR _)       = return ("login"        , Just RootR   )
+    breadcrumb ProfileR        = return ("profile"      , Just RootR   )
+    breadcrumb EditProfileR    = return ("edit"         , Just ProfileR)
+    breadcrumb DeleteProfileR  = return ("delete"       , Just ProfileR)
+    breadcrumb _               = return ("404"          , Just RootR   )
 
 instance YesodComments Renters where
     getComment       = getCommentPersist
