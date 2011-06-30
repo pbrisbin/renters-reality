@@ -256,63 +256,65 @@ ul.tabnav { margin: 0px; padding: 0px; }
   padding: 0px;
 }
 
-.searchresult .title,
-.view-review  .title,
-.view-landlord  .title {
+.landlord-grade, .landlord-gpa {
   color: #333;
   font-size: 175%;
   border-bottom: 1px solid #dedbd1;
   text-shadow: #cecbc1 1px 1px 5px;
 }
 
-.searchresult .title .grade,
-.view-review  .title .grade,
-.view-landlord  .title .grade {
+.landlord-grade a {
+  color: inherit;
+}
+
+.landlord-grade a:hover {
+  color: blue;
+}
+
+.grade, .gpa {
   float: right;
 }
 
-.searchresult .content,
-.view-review  .review {
-  padding: 20px 5px;
-}
-
-.searchresult .content p,
-.view-review  .review  p {
-  text-align: justify;
-  padding: 5px;
-}
-
-.searchresult .reviewer,
-.view-review  .reviewer {
-  font-size: 85%;
-}
-
-.searchresult .reviewer .view-link {
-  float: right;
-}
-
-.review .title {
-  font-size: 100%;
-  border-bottom: none;
-}
-
-.review .address {
+.review-address {
   float: left;
   font-size: 90%;
   width: 100px;
+  padding: 0px;
   margin-top: 10px;
   margin-right: 10px;
 }
 
-.review .review {
-  margin: 25px;
+.review-content {
+  padding: 0px;
   margin-top: 10px;
   margin-left: 110px;
+  margin-right: 25px;
 }
 
-.review {
-  margin-top: 10px;
+.review-content blockquote {
+  padding: 0px;
+  margin: 0px;
 }
+
+.review-content blockquote p {
+  padding-bottom: 10px;
+}
+
+.reviewed-by-link {
+  font-size: 90%;
+  padding-top: 0px;
+  padding-bottom: 15px;
+}
+
+.reviewed-by-grade {
+  font-size: 110%;
+  padding-top: 25px;
+}
+
+.review-link {
+  float: right;
+}
+
 /* }}} */
 
 /* new review {{{ */
