@@ -271,7 +271,8 @@ ul.tabnav { margin: 0px; padding: 0px; }
   color: blue;
 }
 
-.grade, .gpa {
+.grade, .gpa,
+.review-link {
   float: right;
 }
 
@@ -309,10 +310,6 @@ ul.tabnav { margin: 0px; padding: 0px; }
 .reviewed-by-grade {
   font-size: 110%;
   padding-top: 25px;
-}
-
-.review-link {
-  float: right;
 }
 
 /* }}} */
