@@ -67,18 +67,11 @@ data Document = Document
 -- | To search a "document" as text is to search it's landlord's name 
 --   and the single-string address info
 instance TextSearch Document where
-    toText (Document _ r l _) = landlordName l `append` formatAddress r
+    toText d@(Document _ _ l _) = landlordName l `append` formatAddress d
 
         where
             append :: T.Text -> T.Text -> T.Text
             a `append` b = a `T.append` " " `T.append` b
-
-            -- remove \r and swap \n with simple ' '
-            formatAddress :: Review -> T.Text
-            formatAddress = T.map go . T.filter (/= '\r') . unTextarea . reviewAddress
-                where
-                    go '\n' = ' '
-                    go x    = x
 
 -- | Search by keyword and lend preference to more recent reviews
 instance Search Document where
@@ -89,6 +82,14 @@ showName :: User -> T.Text
 showName (User _         (Just un) _ _ _) = shorten 40 un
 showName (User (Just fn) _         _ _ _) = shorten 40 fn
 showName _                                = "anonymous"
+
+formatAddress :: Document -> T.Text
+formatAddress (Document _ r _ _) = T.map go . T.filter (/= '\r') . unTextarea $ reviewAddress r
+
+    where
+        go :: Char -> Char
+        go '\n' = ' '
+        go x    = x
 
 gpa :: [Grade] -> Double
 gpa = mean . map toNumeric
@@ -131,5 +132,3 @@ prettyGrade Dplus  = "D+"
 prettyGrade D      = "D"
 prettyGrade Dminus = "D-"
 prettyGrade F      = "F"
-
-

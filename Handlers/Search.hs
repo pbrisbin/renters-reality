@@ -11,22 +11,35 @@ import Model
 import Helpers.Widgets
 import Yesod
 import Yesod.Goodies
+import Data.List (nub)
 import Control.Monad (forM)
 import qualified Data.Text as T
 import qualified Settings
 
 getCompLandlordsR :: Handler RepJson
 getCompLandlordsR = generalCompletion $ \t -> do
-    res <- runDB $ selectList [] [LandlordNameAsc] 0 0
-    return . concat =<< (forM res $ \(_, (Landlord name)) ->
-        return $ if t `looseMatch` name then [name] else [])
+    landlords <- uniqueLandlords
+    return $ filter (looseMatch t) landlords
 
--- TODO
 getCompSearchesR :: Handler RepJson
-getCompSearchesR = getCompLandlordsR
+getCompSearchesR = generalCompletion $ \t -> do
+    landlords <- uniqueLandlords
+    addrs     <- uniqueAddresses
+    return $ filter (looseMatch t) (landlords ++ addrs)
+
+-- | known landlords, formatted for search
+uniqueLandlords :: Handler [T.Text]
+uniqueLandlords = return . map (landlordName . snd) =<< runDB (selectList [] [LandlordNameAsc] 0 0)
+
+-- | known addresses, formatted for search
+uniqueAddresses :: Handler [T.Text]
+uniqueAddresses = do
+    docs <- siteDocs =<< getYesod
+    return . nub $ map formatAddress docs
 
 -- | Get the term from the request and pass it to the completion 
---   function, serve the retured values as a list
+--   function, serve the returned values as a list for use in 
+--   auto-completion jquery
 generalCompletion :: (T.Text -> Handler [T.Text]) -> Handler RepJson
 generalCompletion f = do
     mterm <- lookupGetParam "term"
