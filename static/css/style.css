@@ -277,6 +277,7 @@ ul.tabnav { margin: 0px; padding: 0px; }
 }
 
 .review-address {
+  text-align: left;
   float: left;
   font-size: 90%;
   width: 100px;
