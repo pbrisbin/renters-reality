@@ -213,28 +213,6 @@ ul.tabnav { margin: 0px; padding: 0px; }
 }
 /* }}} */
 
-/* autocomplete {{{ */
-.ui-autocomplete {
-  width:      60px;
-  background: white;
-  border:     solid 1px black;
-  border-top: none;
-  padding: 0px;
-  margin:  0px;
-}
-
-.ui-autocomplete li {
-  list-style: none;
-  padding:    2px 5px;
-}
-
-.ui-autocomplete li:hover {
-  color:            blue;
-  background-color: #dedbd1;
-  cursor:           pointer;
-}
-/* }}} */
-
 /* review {{{ */
 .search-form form.search p {
   text-align: right;

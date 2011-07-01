@@ -86,21 +86,7 @@ getSearchR = do
 
     defaultLayout $ do
         Settings.setTitle "Search results" 
-
-        addJulius [julius|
-            $(function() {
-                $('#search-input').autocomplete({
-                    source:    "@{CompSearchesR}",
-                    minLength: 3
-                });
-            });
-            |]
-
-        addCassius [cassius|
-            .ui-autocomplete-loading
-                background: white url(@{StaticR images_ui_anim_basic_16x16_gif}) right center no-repeat
-            |]
-
+        addAutoCompletion "#search-input" CompSearchesR
         [hamlet|
             <div .search-form>
                 <form .search method="get" action="@{SearchR}">

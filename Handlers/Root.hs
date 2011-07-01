@@ -2,10 +2,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Handlers.Root (getRootR) where
 
-import Yesod
-import Yesod.Helpers.Auth
 import Renters
 import Model
+import Yesod
+import Helpers.Widgets
+import Yesod.Helpers.Auth
 import Data.Char (toLower)
 import qualified Settings
 
@@ -20,23 +21,12 @@ getRootR = do
             $(function() {
                 $('.tabbed').tabs();
                 $('.accordion').accordion({ autoHeight: false });
-
-                $('#search-input').autocomplete({
-                    source:    "@{CompSearchesR}",
-                    minLength: 3
-                });
-
-                $('#landlord-input').autocomplete({
-                    source:    "@{CompLandlordsR}",
-                    minLength: 3
-                });
             });
             |]
 
-        addCassius [cassius|
-            .ui-autocomplete-loading
-                background: white url(@{StaticR images_ui_anim_basic_16x16_gif}) right center no-repeat
-            |]
+        -- inefficient but whatever...
+        addAutoCompletion "#search-input"   CompSearchesR
+        addAutoCompletion "#landlord-input" CompLandlordsR
 
         [hamlet|
             <h1>Renters' reality

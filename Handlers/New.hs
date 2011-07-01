@@ -2,19 +2,17 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Handlers.New (getNewR, postNewR) where
 
-import Yesod
-import Yesod.Goodies.Markdown
-import Yesod.Helpers.Auth
-
 import Renters
 import Model
-
+import Yesod
+import Helpers.Widgets
+import Yesod.Goodies.Markdown
+import Yesod.Helpers.Auth
 import Control.Applicative ((<$>),(<*>))
 import Data.Maybe          (fromMaybe)
 import Data.Monoid         (mempty)
 import Data.Time           (getCurrentTime)
 import Network.Wai         (remoteHost)
-
 import qualified Data.Text as T
 import qualified Settings
 
@@ -45,12 +43,10 @@ getNewR = do
                 /* add help onclick handlers */
                 $("#open-help").click(function()  { $("#markdown-help").fadeIn();  return false; });
                 $("#close-help").click(function() { $("#markdown-help").fadeOut(); return false; });
-                $('input#landlord').autocomplete({
-                    source:    "@{CompLandlordsR}",
-                    minLength: 3
-                });
             });
             |]
+
+        addAutoCompletion "input#landlord" CompLandlordsR
 
         [hamlet|
             <h1>New review

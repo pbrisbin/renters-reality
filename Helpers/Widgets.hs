@@ -75,3 +75,40 @@ reviewContentBlock (Document _ r _ _) s = do
             <blockquote>
                 #{content}
         |]
+
+-- | Add the js and css required for autocompletion to work
+addAutoCompletion :: T.Text       -- ^ the input's id
+                  -> RentersRoute -- ^ the route providing the JSON
+                  -> Widget ()
+addAutoCompletion ident route = do
+        addJulius [julius|
+            $(function() {
+                $('#{ident}').autocomplete({
+                    source:    "@{route}",
+                    minLength: 3
+                });
+            });
+            |]
+
+        addCassius [cassius|
+            .ui-autocomplete-loading
+                background: white url(@{StaticR images_ui_anim_basic_16x16_gif}) right center no-repeat
+
+            .ui-autocomplete
+              width:      60px
+              background: white
+              border:     solid 1px black
+              border-top: none
+              padding: 0px
+              margin:  0px
+
+            .ui-autocomplete li
+              list-style: none
+              padding:    2px 5px
+
+            .ui-autocomplete li:hover
+              color:            blue
+              background-color: #dedbd1
+              cursor:           pointer
+
+            |]
