@@ -100,10 +100,7 @@ instance Yesod Renters where
                             #{t}
 
                     <div #right-nav>
-                        <p>
-                            ^{pageBody authNav}
-                            \ | 
-                            <a href="@{LegalR}">legal
+                        <p>^{pageBody authNav}
 
                     $maybe mesg <- mmesg
                         <div #message>
@@ -113,8 +110,10 @@ instance Yesod Renters where
 
                     <footer>
                         <p>
-                            <small>copyright patrick brisbin 2011. 
-                            <a href="https://github.com/pbrisbin/renters-reality">source code.
+                            <small>
+                                copyright patrick brisbin 2011. 
+                                <a href="https://github.com/pbrisbin/renters-reality">source code. 
+                                <a href="@{LegalR}">legal
             |]
 
         where
