@@ -55,42 +55,45 @@ getRootR = do
                                 \ to submit a review.
 
                 <div #landlord .tabdiv>
-                    <p>
-                        Landlords,
+                    <div #landlords-note>
+                        <p>
+                            Landlords,
 
-                    <p>
-                        We hope to some day ofter a suite of tools to 
-                        help you maintain your own reputation on this 
-                        site.
+                        <p>
+                            We hope to some day ofter a suite of tools 
+                            to help you maintain your own reputation on 
+                            this site.
 
-                    <p>
-                        We would like to provide ways to track, discuss, 
-                        and resolve negative reviews as well as easily 
-                        use the positive reviews found here to better 
-                        promote your business.
+                        <p>
+                            We would like to provide ways to track, 
+                            discuss, and resolve negative reviews as 
+                            well as easily use the positive reviews 
+                            found here to better promote your business.
 
-                    <p>
-                        If you have any ideas for how to make this site 
-                        useful for yourself, please open an issue at 
-                        this site's 
-                        <a href="https://github.com/pbrisbin/renters-reality/issues">project page
-                        \.
+                        <p>
+                            If you have any ideas for how to make this 
+                            site useful for yourself, please open an 
+                            issue at this site's 
+                            <a href="https://github.com/pbrisbin/renters-reality/issues">project page
+                            \.
 
                 <div #about .tabdiv>
-                    <p>
-                        We aim to provide an easy to use service where 
-                        residents can write a review of their landlord.
+                    <div #about-note>
+                        <p>
+                            We aim to provide an easy to use service 
+                            where residents can write a review of their 
+                            landlord.
 
-                    <p>
-                        Would-be residents can then search our database 
-                        before unknowingly renting an apartment from a 
-                        bad landlord.
+                        <p>
+                            Would-be residents can then search our 
+                            database before unknowingly renting an 
+                            apartment from a bad landlord.
 
-                    <p>
-                        If you find any bugs or would like to request a 
-                        feature please use the 
-                        <a href="https://github.com/pbrisbin/renters-reality/issues">issues tracker
-                        \.
+                        <p>
+                            If you find any bugs or would like to 
+                            request a feature please use the 
+                            <a href="https://github.com/pbrisbin/renters-reality/issues">issues tracker
+                            \.
             |]
 
             where
@@ -113,3 +116,22 @@ getRootR = do
                                 <input #landlord-input size=45 name="landlord" placeholder="Name of landlord or management company">
                                 <input type="submit" value="Next">
                     |]
+
+{-helpBoxContents :: Widget ()-}
+{-helpBoxContents = [hamlet|-}
+    {-<p>-}
+        {-This will be a keyword search against any landlords and -}
+        {-addresses known to this site.-}
+
+    {-<p>-}
+        {-That means that if you search for "brighton" you'll get results -}
+        {-for -}
+        {-<em>both -}
+        {-"Brighton, MA" -}
+        {-<em>and -}
+        {-the realty company "Brighton Realty"-}
+
+    {-<p>-}
+        {-If this is undesireable, add the special prefix "landlord:" or -}
+        {-"address:" to specify.-}
+    {-|]-}
