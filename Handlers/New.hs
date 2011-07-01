@@ -54,23 +54,24 @@ getNewR = do
             <div .tabdiv>
                 ^{runReviewForm uid ml}
 
-            <div #markdown-help>
-                <span style="float: right;">
-                    <a #close-help href="#">[close]
-
-                <h3>Some quick examples:
-
-                $forall mdExample <- mdExamples
-                    <p .example>
-                        <code>#{mdText mdExample} 
-                        will render as ^{mdHtml mdExample}
-
-                <p>
-                    <em>
-                        Additional documentation can be found 
-                        <a href="http://daringfireball.net/projects/markdown/syntax">here
-                        \.
+            ^{addHelpBox helpBoxContents}
             |]
+
+helpBoxContents :: Widget ()
+helpBoxContents = [hamlet|
+        <h3>Some quick examples:
+
+        $forall mdExample <- mdExamples
+            <p .example>
+                <code>#{mdText mdExample} 
+                will render as ^{mdHtml mdExample}
+
+        <p>
+            <em>
+                Additional documentation can be found 
+                <a href="http://daringfireball.net/projects/markdown/syntax">here
+                \.
+    |]
 
 mdExamples :: [MarkdownExample]
 mdExamples = [ MarkdownExample "*italic text*"

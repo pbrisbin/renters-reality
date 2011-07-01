@@ -430,30 +430,6 @@ p.edit-button, p.delete-button {
 }
 /* }}} */
 
-/* markdown help {{{ */
-#markdown-help {
-  display:          none; /* toggled via jquery */
-  position:         fixed;
-  top:              25%;
-  left:             15%;
-  height:           30%;
-  width:            70%;
-  z-index:          10;
-  padding:          20px;
-  font-size:        90%;
-  text-align:       left;
-  background-color: white;
-  border:           solid 1px #dedbd1;
-  overflow-y:       auto;
-
-  -webkit-border-radius: 4px; 
-     -moz-border-radius: 4px; 
-          border-radius: 4px; 
-
-  -webkit-box-shadow: 3px 3px 40px #333;
-     -moz-box-shadow: 3px 3px 40px #333;
-          box-shadow: 3px 3px 40px #333;
-}
-
-#markdown-help p.example { margin-left: 10px; }
+/* help boxes {{{ */
+#helpbox p.example { margin-left: 10px; }
 /* }}} */
