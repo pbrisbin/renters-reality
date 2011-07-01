@@ -13,28 +13,29 @@ getLegalR = defaultLayout $ do
     addHamlet [hamlet|
         <h1>Legal information
         <div .tabdiv>
-            <h3>Content
-            <p>
-                The content on this site is entered by its users. It 
-                represents their opinions and beliefs.
+            <div #legal-note>
+                <h3>Content
+                <p>
+                    The content on this site is entered by its users. It 
+                    represents their opinions and beliefs.
 
-            <p>
-                We make no attempt to validate these claims.
+                <p>
+                    We make no attempt to validate these claims.
 
 
-            <h3>Fair use
-            <p>
-                Content that fits the following categories will be 
-                removed immediately.
+                <h3>Fair use
+                <p>
+                    Content that fits the following categories will be 
+                    removed immediately.
 
-            <ul>
-                <li>Offensive language
-                <li>Defamation of character
-                <li>Name calling
-                <li>Bickering
+                <ul>
+                    <li>Offensive language
+                    <li>Defamation of character
+                    <li>Name calling
+                    <li>Bickering
 
-            <p>
-                That said, we reserve the right to remove any and 
-                all content, at any time, for no reason and at our 
-                sole discretion.
+                <p>
+                    That said, we reserve the right to remove any and 
+                    all content, at any time, for no reason and at our 
+                    sole discretion.
         |]

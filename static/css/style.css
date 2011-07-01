@@ -202,7 +202,9 @@ ul.tabnav { margin: 0px; padding: 0px; }
 .tabdiv   { border:  1px solid #cecbc1; }
 .tabdiv p { padding: 7px 10px;          }
 
-#landlords-note, #about-note {
+#landlords-note, 
+#about-note,
+#legal-note {
   padding: 10px;
 }
 
