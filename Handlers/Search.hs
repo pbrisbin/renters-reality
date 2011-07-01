@@ -101,12 +101,11 @@ getSearchR = do
 
 noReviews :: Widget ()
 noReviews = [hamlet|
-    <div .tabdiv>
-        <p>
-            I'm sorry, there are no reviews that meet your search criteria.
+    <p>
+        I'm sorry, there are no reviews that meet your search criteria.
 
-        <p>
-            Would you like to 
-            <a href="@{NewR}">write one
-            ?
+    <p>
+        Would you like to 
+        <a href="@{NewR}">write one
+        ?
     |]

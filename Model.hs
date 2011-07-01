@@ -67,11 +67,18 @@ data Document = Document
 -- | To search a "document" as text is to search it's landlord's name 
 --   and the single-string address info
 instance TextSearch Document where
-    toText (Document _ r l _) = landlordName l `append` (T.pack . show $ reviewAddress r)
+    toText (Document _ r l _) = landlordName l `append` formatAddress r
 
         where
             append :: T.Text -> T.Text -> T.Text
             a `append` b = a `T.append` " " `T.append` b
+
+            -- remove \r and swap \n with simple ' '
+            formatAddress :: Review -> T.Text
+            formatAddress = T.map go . T.filter (/= '\r') . unTextarea . reviewAddress
+                where
+                    go '\n' = ' '
+                    go x    = x
 
 -- | Search by keyword and lend preference to more recent reviews
 instance Search Document where
