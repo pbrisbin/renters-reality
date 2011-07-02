@@ -11,8 +11,6 @@ import Yesod
 import Helpers.Widgets
 import Database.Persist.Base
 import Yesod.Comments
-import Yesod.Goodies.Markdown
-import Yesod.Goodies.Time
 import qualified Data.Text as T
 import qualified Settings
 
@@ -20,8 +18,7 @@ getReviewsR :: Key Review -> Handler RepHtml
 getReviewsR rid = do
     docs <- siteDocs =<< getYesod
     case lookup' rid docs of
-        Just d@(Document _ r l u) -> do
-            reviewTime <- humanReadableTime $ reviewCreatedDate r
+        Just d -> do
             defaultLayout $ do
                 Settings.setTitle "View review"
                 [hamlet|
@@ -49,6 +46,7 @@ rText = go . unReviewId
     where
         go (PersistText  t) = t
         go (PersistInt64 i) = T.pack $ show i
+        go _                = ""
 
 lookup' :: ReviewId -> [Document] -> Maybe Document
 lookup' rid docs =

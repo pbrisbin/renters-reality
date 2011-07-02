@@ -12,7 +12,6 @@ import Helpers.Widgets
 import Yesod
 import Yesod.Goodies
 import Data.List (nub)
-import Control.Monad (forM)
 import qualified Data.Text as T
 import qualified Settings
 

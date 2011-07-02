@@ -9,7 +9,6 @@ import Helpers.Widgets
 import Yesod.Goodies.Markdown
 import Yesod.Helpers.Auth
 import Control.Applicative ((<$>),(<*>))
-import Data.Maybe          (fromMaybe)
 import Data.Monoid         (mempty)
 import Data.Time           (getCurrentTime)
 import Network.Wai         (remoteHost)
@@ -173,10 +172,11 @@ reviewForm ml ip = do
         ffs label theId = FormFieldSettings label mempty (Just theId) Nothing
 
         -- span for the input cell only
-        fieldCell span fi = [hamlet|
+        fieldCell :: Int -> FieldInfo s m -> GWidget s m ()
+        fieldCell colspan fi = [hamlet|
             <th>
                 <label for="#{fiIdent fi}">#{fiLabel fi}
-            <td ##{fiIdent fi} colspan=#{show span}>^{fiInput fi}
+            <td ##{fiIdent fi} colspan=#{show colspan}>^{fiInput fi}
             <td>
                 $maybe error <- fiErrors fi
                     #{error}

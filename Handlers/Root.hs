@@ -3,11 +3,9 @@
 module Handlers.Root (getRootR) where
 
 import Renters
-import Model
 import Yesod
 import Helpers.Widgets
 import Yesod.Helpers.Auth
-import Data.Char (toLower)
 import qualified Settings
 
 -- | Home page

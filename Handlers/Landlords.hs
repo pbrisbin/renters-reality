@@ -7,8 +7,6 @@ import Model
 import Yesod
 import Helpers.Widgets
 import Database.Persist.Base
-import Yesod.Comments
-import Yesod.Goodies
 import qualified Data.Text as T
 import qualified Settings
 
