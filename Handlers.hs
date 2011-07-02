@@ -2,24 +2,19 @@
 module Handlers
     ( getFaviconR
     , getRobotsR
-    , module Handlers.Root
-    , module Handlers.Legal
-    , module Handlers.Search
-    , module Handlers.New
-    , module Handlers.Profile
-    , module Handlers.Reviews
-    , module Handlers.Landlords
+    , module X
     ) where
     
 import Yesod
 import Renters
-import Handlers.Root
-import Handlers.Legal
-import Handlers.Search
-import Handlers.New
-import Handlers.Profile
-import Handlers.Reviews
-import Handlers.Landlords
+
+import Handlers.Root      as X
+import Handlers.Legal     as X
+import Handlers.Search    as X
+import Handlers.New       as X
+import Handlers.Profile   as X
+import Handlers.Reviews   as X
+import Handlers.Landlords as X
 
 -- | Favicon
 getFaviconR :: Handler ()
