@@ -202,14 +202,14 @@ instance YesodAuth Renters where
                             <td>
                                 <form method="get" action="@{AuthR forwardUrl}" .button .google>
                                     <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
-                                    <input type="image" src="@{StaticR google_gif}" value="Login via Google">
+                                    <input type="image" src="@{StaticR images_google_gif}" value="Login via Google">
                             <td>
                                 <form method="get" action="@{AuthR forwardUrl}" .button .yahoo>
                                     <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
-                                    <input type="image" src="@{StaticR yahoo_gif}" value="Login via Yahoo!">
+                                    <input type="image" src="@{StaticR images_yahoo_gif}" value="Login via Yahoo!">
                             <td>
                                 <a href="@{AuthR facebookUrl}" .button .facebook>
-                                    <img src="@{StaticR facebook_gif}" value="Login via Facebook">
+                                    <img src="@{StaticR images_facebook_gif}" value="Login via Facebook">
 
                 <div .open-id>
                     <h3>&mdash; OR &mdash;
