@@ -103,6 +103,20 @@ docsByLandlord lid = filter ((lEq lid) . reviewLandlord . review)
         go (PersistInt64 i) (PersistText  t) = t == (T.pack $ show i)
         go _                _                = False
 
+docByReviewId:: ReviewId -> [Document] -> Maybe Document
+docByReviewId rid docs =
+    case filter ((rEq rid) . reviewId) docs of
+        []    -> Nothing
+        (x:_) -> Just x
+
+    where
+        rEq :: ReviewId -> ReviewId -> Bool
+        rEq a b = a == b || go (unReviewId a) (unReviewId b)
+
+        go (PersistText  t) (PersistInt64 i) = t == (T.pack $ show i)
+        go (PersistInt64 i) (PersistText  t) = t == (T.pack $ show i)
+        go _                _                = False
+
 gpa :: [Grade] -> Double
 gpa = mean . map toNumeric
 
