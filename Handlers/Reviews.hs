@@ -8,6 +8,7 @@ module Handlers.Reviews
 import Renters
 import Model
 import Yesod
+import Yesod.Helpers.Auth
 import Helpers.Widgets
 import Database.Persist.Base
 import Yesod.Comments
@@ -25,7 +26,7 @@ getReviewsR rid = do
                     <div .view-review>
                         ^{landlordGrade d}
                         ^{reviewContentBlock d False}
-                        ^{reviewedBy "reviewed-by" d nothing}
+                        ^{reviewedBy "reviewed-by" d $ editLink d}
 
                     <h3>Discussion
                     <div .discussion>
@@ -35,9 +36,19 @@ getReviewsR rid = do
         Nothing -> notFound
 
     where
-        -- reviewed by with nothing on the right
-        nothing :: Widget ()
-        nothing = return ()
+        editLink :: Document -> Widget ()
+        editLink (Document rid r _ _) = do
+            muid <- lift $ maybeAuth
+            case muid of
+                Just (uid,_) ->
+                    if uid == reviewReviewer r
+                        then [hamlet|
+                            <span .edit-link>
+                                <a href="@{EditR rid}">EDIT
+                            |]
+                        else return ()
+
+                _ -> return ()
 
 rText :: ReviewId -> T.Text
 rText = go . unReviewId

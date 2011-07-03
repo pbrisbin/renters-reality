@@ -257,7 +257,8 @@ ul.tabnav { margin: 0px; padding: 0px; }
 }
 
 .grade, .gpa,
-.review-link {
+.review-link,
+.edit-link {
   float: right;
 }
 

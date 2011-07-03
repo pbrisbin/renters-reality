@@ -17,27 +17,32 @@ getEditR rid = do
     (uid, _) <- requireAuth
     docs <- siteDocs =<< getYesod
     case docByReviewId rid docs of
-        Just d -> defaultLayout $ do
-            Settings.setTitle "Edit review"
+        Just d -> if uid == (reviewReviewer $ review d)
+            then defaultLayout $ do
+                Settings.setTitle "Edit review"
 
-            addJulius [julius|
-                $(function() {
-                    /* add help onclick handlers */
-                    $("#open-help").click(function()  { $("#markdown-help").fadeIn();  return false; });
-                    $("#close-help").click(function() { $("#markdown-help").fadeOut(); return false; });
-                });
-                |]
+                addJulius [julius|
+                    $(function() {
+                        /* add help onclick handlers */
+                        $("#open-help").click(function()  { $("#markdown-help").fadeIn();  return false; });
+                        $("#close-help").click(function() { $("#markdown-help").fadeOut(); return false; });
+                    });
+                    |]
 
-            addAutoCompletion "input#landlord" CompLandlordsR
+                addAutoCompletion "input#landlord" CompLandlordsR
 
-            [hamlet|
-                <h1>New review
+                [hamlet|
+                    <h1>New review
 
-                <div .tabdiv>
-                    ^{runReviewForm d uid}
+                    <div .tabdiv>
+                        ^{runReviewForm d uid}
 
-                ^{addHelpBox helpBoxContents}
-                |]
+                    ^{addHelpBox helpBoxContents}
+                    |]
+                else do
+                    -- not your review, no edit for you
+                    tm <- getRouteToMaster
+                    redirect RedirectTemporary $ tm (ReviewsR rid)
 
         _ -> notFound
 
