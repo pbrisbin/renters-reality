@@ -4,7 +4,7 @@
 
 * display recent reviews on homepage
 
-* edit/delete "my" reviews
+* delete "my" reviews
 
 * notifications 
 
