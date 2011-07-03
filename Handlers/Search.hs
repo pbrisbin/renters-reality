@@ -81,7 +81,11 @@ getSearchR = do
     docs <- case mterm of
         Nothing   -> siteDocs =<< getYesod
         Just ""   -> siteDocs =<< getYesod
-        Just term -> fmap (search_ term) $ siteDocs =<< getYesod
+        Just term -> do
+            docs' <- siteDocs =<< getYesod
+            return $ tryPrefixes term [ ("landlord:", searchByLandlord)
+                                      , ("address:" , searchByAddress )
+                                      ] fullSearch docs'
 
     defaultLayout $ do
         Settings.setTitle "Search results" 
@@ -96,6 +100,30 @@ getSearchR = do
             <div .tabdiv>
                 ^{paginate myPageOptions docs}
             |]
+
+-- | handles all sorts of searches
+type SearchFunction = T.Text -> [Document] -> [Document]
+
+-- | wrap in newtype to the correct search instance is used
+searchByLandlord :: SearchFunction
+searchByLandlord t = map (\(Land d) -> d) . search_ t . map Land
+
+-- | wrap in newtype to the correct search instance is used
+searchByAddress :: SearchFunction
+searchByAddress t = map (\(Addr d) -> d) . search_ t . map Addr
+
+-- | Uses standard Search instance of Document
+fullSearch :: SearchFunction
+fullSearch = search_
+
+tryPrefixes :: T.Text                     -- ^ the search term itself
+            -> [(T.Text, SearchFunction)] -- ^ mappings of prefix -> search function
+            -> SearchFunction             -- ^ fall back when nothing matches
+            -> [Document] -> [Document]
+tryPrefixes term []               fallback docs = fallback term docs
+tryPrefixes term ((pref, f):rest) fallback docs = if pref `T.isPrefixOf` term
+    then f (T.drop (T.length pref) term) docs
+    else tryPrefixes term rest fallback docs
 
 noReviews :: Widget ()
 noReviews = [hamlet|
