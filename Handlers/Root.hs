@@ -93,6 +93,8 @@ getRootR = do
                             request a feature please use the 
                             <a href="https://github.com/pbrisbin/renters-reality/issues">issues tracker
                             \.
+
+                ^{addHelpBox helpBoxContents}
             |]
 
             where
@@ -104,6 +106,8 @@ getRootR = do
                            <p>
                                <input #search-input size=45 name="q">
                                <input type="submit" value="Search">
+                        <p .search-tips>
+                            <a #open-help href="#">search tips
                     |]
 
                 newForm :: Widget ()
@@ -116,21 +120,40 @@ getRootR = do
                                 <input type="submit" value="Next">
                     |]
 
-{-helpBoxContents :: Widget ()-}
-{-helpBoxContents = [hamlet|-}
-    {-<p>-}
-        {-This will be a keyword search against any landlords and -}
-        {-addresses known to this site.-}
+helpBoxContents :: Widget ()
+helpBoxContents = [hamlet|
+    <h3>Search tips:
 
-    {-<p>-}
-        {-That means that if you search for "brighton" you'll get results -}
-        {-for -}
-        {-<em>both -}
-        {-"Brighton, MA" -}
-        {-<em>and -}
-        {-the realty company "Brighton Realty"-}
+    <p>
+        By default, the search will return matches on landlord name and 
+        reviewed address.
 
-    {-<p>-}
-        {-If this is undesireable, add the special prefix "landlord:" or -}
-        {-"address:" to specify.-}
-    {-|]-}
+    <p>
+        That means that if you search for "brighton" you'll get results 
+        for both "Brighton, MA" 
+        <strong>and 
+        "Brighton Realty"
+
+    <p>
+        Since this isn't always wanted, there are two prefixes you can 
+        use to change how the search is performed:
+
+    <table>
+        <tr>
+            <td>
+                <code>landlord: something
+            <td>
+                <em>
+                    Only show reviews where "something" is part of the 
+                    landlord's name
+        <tr>
+            <td>
+                <code>address: something else
+            <td>
+                <em>
+                    Only show reviews where "something else" is part of 
+                    the address
+
+    <p>
+        Results are sorted by closest match, then most recent.
+    |]

@@ -324,6 +324,12 @@ td#grade {
 /* }}} */
 
 /* search/review inputs {{{ */
+p.search-tips {
+  font-style: italic;
+  font-size: 85%;
+  text-align: center;
+}
+
 form.search, form.new {
   margin-left:  auto;
   margin-right: auto;
@@ -439,5 +445,11 @@ p.edit-button, p.delete-button {
 /* }}} */
 
 /* help boxes {{{ */
-#helpbox p.example { margin-left: 10px; }
+#helpbox p  { margin-left: 20px; }
+#helpbox h3 { margin-left: 10px; }
+#helpbox table {
+  margin: 15px;
+  margin-left: 50px;
+}
+
 /* }}} */
