@@ -6,11 +6,6 @@
 
 * edit/delete "my" reviews
 
-* rss feeds
-
-    1. recent reviews
-    2. reviews by landlord
-
 * notifications 
 
     1. when my landlord is reviewed

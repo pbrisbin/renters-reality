@@ -24,6 +24,7 @@ import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.OpenId
 import Yesod.Helpers.Auth.Facebook
 import Yesod.Helpers.Static
+import Yesod.Helpers.RssFeed
 import Data.Maybe (fromMaybe)
 import Database.Persist.GenericSql
 import qualified Settings
@@ -55,6 +56,9 @@ mkYesodData "Renters" [parseRoutes|
     /profile/edit    EditProfileR    GET POST
     /profile/delete  DeleteProfileR  GET POST
 
+    /feed               FeedR         GET
+    /feed/#LandlordId   FeedLandlordR GET
+
     /legal              LegalR   GET
     /static             StaticR Static getStatic
     /auth               AuthR   Auth   getAuth
@@ -72,10 +76,11 @@ instance Yesod Renters where
     defaultLayout widget = do
         (t,h)   <- breadcrumbs
         mmesg   <- getMessage
-        pc      <- widgetToPageContent widget
         mauth   <- maybeAuth
         authNav <- widgetToPageContent (authNavHelper mauth)
-
+        pc      <- widgetToPageContent $ do
+            rssLink FeedR "rss feed"
+            widget
         hamletToRepHtml [hamlet|
             \<!DOCTYPE html>
             <html lang="en">

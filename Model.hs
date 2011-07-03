@@ -15,6 +15,7 @@ import Yesod
 import Yesod.Goodies.Markdown
 import Yesod.Goodies.Search
 import Yesod.Goodies.Shorten
+import Database.Persist.Base
 import Data.List (intersect)
 import Data.Ord  (comparing)
 import Data.Time (UTCTime(..))
@@ -90,6 +91,17 @@ formatAddress (Document _ r _ _) = T.map go . T.filter (/= '\r') . unTextarea $ 
         go :: Char -> Char
         go '\n' = ' '
         go x    = x
+
+docsByLandlord :: LandlordId -> [Document] -> [Document]
+docsByLandlord lid = filter ((lEq lid) . reviewLandlord . review)
+
+    where
+        lEq :: LandlordId -> LandlordId -> Bool
+        lEq a b = a == b || go (unLandlordId a) (unLandlordId b)
+
+        go (PersistText  t) (PersistInt64 i) = t == (T.pack $ show i)
+        go (PersistInt64 i) (PersistText  t) = t == (T.pack $ show i)
+        go _                _                = False
 
 gpa :: [Grade] -> Double
 gpa = mean . map toNumeric

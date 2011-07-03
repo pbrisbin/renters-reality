@@ -6,14 +6,14 @@ import Renters
 import Model
 import Yesod
 import Helpers.Widgets
-import Database.Persist.Base
+import Yesod.Helpers.RssFeed
 import qualified Data.Text as T
 import qualified Settings
 
 getLandlordsR :: Key Landlord -> Handler RepHtml
 getLandlordsR lid = do
     docs <- siteDocs =<< getYesod
-    let ldocs = filterDocs lid docs
+    let ldocs = docsByLandlord lid docs
 
     -- show the no reviews page, 404 if ll doesn't exist at all
     if null ldocs
@@ -25,6 +25,7 @@ getLandlordsR lid = do
             
             defaultLayout $ do
                 Settings.setTitle . T.unpack $ landlordName l
+                rssLink (FeedLandlordR lid) ((++) "rss feed for " . T.unpack $ landlordName l)
                 [hamlet|
                     <div .tabdiv>
                         <div .view-landlord>
@@ -50,14 +51,3 @@ noReviews l = defaultLayout $ do
                 <a href="@NewR@landlord?#{landlordName l}">write one
                 ?
         |]
-
-filterDocs :: LandlordId -> [Document] -> [Document]
-filterDocs lid = filter ((lEq lid) . reviewLandlord . review)
-
-    where
-        lEq :: LandlordId -> LandlordId -> Bool
-        lEq a b = a == b || go (unLandlordId a) (unLandlordId b)
-
-        go (PersistText  t) (PersistInt64 i) = t == (T.pack $ show i)
-        go (PersistInt64 i) (PersistText  t) = t == (T.pack $ show i)
-        go _                _                = False
