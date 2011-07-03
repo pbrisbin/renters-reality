@@ -16,7 +16,6 @@ import Yesod.Goodies.Markdown
 import Yesod.Goodies.Search
 import Yesod.Goodies.Shorten
 import Database.Persist.Base
-import Data.List (intersect)
 import Data.Ord  (comparing)
 import Data.Time (UTCTime(..))
 
@@ -50,13 +49,13 @@ share2 mkPersist (mkMigrate "doMigration") [persist|
     Review
         createdDate UTCTime Desc
         reviewer    UserId     Eq
-        landlord    LandlordId Eq
-        grade       Grade      Eq Asc Desc
+        landlord    LandlordId Eq Update
+        grade       Grade      Eq Update Asc Desc
         ipAddress   T.Text
-        address     Textarea
-        timeframe   T.Text
-        content     Markdown
-    |]
+        address     Textarea Update
+        timeframe   T.Text   Update
+        content     Markdown Update
+    |] 
 
 data Document = Document
     { reviewId :: ReviewId

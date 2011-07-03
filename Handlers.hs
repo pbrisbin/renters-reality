@@ -12,6 +12,7 @@ import Handlers.Root      as X
 import Handlers.Legal     as X
 import Handlers.Search    as X
 import Handlers.New       as X
+import Handlers.Edit      as X
 import Handlers.Profile   as X
 import Handlers.Reviews   as X
 import Handlers.Landlords as X
