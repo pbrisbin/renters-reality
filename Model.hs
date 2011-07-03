@@ -64,6 +64,14 @@ data Document = Document
     , user     :: User
     }
 
+-- | to support "landlord: foo" and "address: bar" type searches, we'll 
+--   create some newtypes that wrap document, then make instances of 
+--   Search for them which only search the piece defined. Helpers.Search 
+--   just needs to wrap the data before calling search if/when it sees 
+--   the prefix
+newtype LDoc = Land Document -- ^ search just landlord
+newtype ADoc = Addr Document -- ^ search just addresses
+
 -- | To search a "document" as text is to search it's landlord's name 
 --   and the single-string address info
 instance TextSearch Document where
@@ -73,9 +81,23 @@ instance TextSearch Document where
             append :: T.Text -> T.Text -> T.Text
             a `append` b = a `T.append` " " `T.append` b
 
+instance TextSearch LDoc where
+    toText (Land (Document _ _ l _)) = landlordName l
+
+instance TextSearch ADoc where
+    toText (Addr d) = formatAddress d
+
 -- | Search by keyword and lend preference to more recent reviews
 instance Search Document where
     preference = comparing (reviewCreatedDate . review . searchResult)
+    match      = keywordMatch
+
+instance Search LDoc where
+    preference = comparing (reviewCreatedDate . review . (\(Land d) -> d) . searchResult)
+    match      = keywordMatch
+
+instance Search ADoc where
+    preference = comparing (reviewCreatedDate . review . (\(Addr d) -> d) . searchResult)
     match      = keywordMatch
 
 showName :: User -> T.Text
