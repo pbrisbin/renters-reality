@@ -1,6 +1,11 @@
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Helpers.Forms where -- TODO
+module Helpers.Forms
+    ( reviewForm
+    , insertFromForm
+    , updateFromForm
+    , helpBoxContents
+    ) where
 
 import Renters
 import Model
