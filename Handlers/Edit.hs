@@ -7,11 +7,7 @@ import Model
 import Yesod
 import Helpers.Forms
 import Helpers.Widgets
-import Yesod.Goodies.Markdown
 import Yesod.Helpers.Auth
-import Control.Applicative ((<$>),(<*>))
-import Data.Monoid         (mempty)
-import Data.Time           (getCurrentTime)
 import Network.Wai         (remoteHost)
 import qualified Data.Text as T
 import qualified Settings
@@ -57,7 +53,7 @@ runReviewForm (Document rid r l _) uid = do
         FormFailure _  -> return ()
         FormSuccess rf -> lift $ do
             tm  <- getRouteToMaster
-            rid <- updateFromForm rid uid rf
+            _   <- updateFromForm rid uid rf
             redirect RedirectTemporary $ tm (ReviewsR rid)
 
     [hamlet|<form enctype="#{enctype}" method="post">^{form}|]

@@ -5,15 +5,11 @@ module Helpers.Forms where -- TODO
 import Renters
 import Model
 import Yesod
-import Helpers.Widgets
 import Yesod.Goodies.Markdown
-import Yesod.Helpers.Auth
 import Control.Applicative ((<$>),(<*>))
 import Data.Monoid         (mempty)
 import Data.Time           (getCurrentTime)
-import Network.Wai         (remoteHost)
 import qualified Data.Text as T
-import qualified Settings
 
 data ReviewForm = ReviewForm
     { rfIp        :: T.Text
@@ -128,7 +124,7 @@ insertFromForm uid rf = do
             }
 
 updateFromForm :: ReviewId -> UserId -> ReviewForm -> Handler ReviewId
-updateFromForm rid uid rf = do
+updateFromForm rid _ rf = do
     -- might've changed
     landlordId <- findOrCreate $ Landlord $ rfLandlord rf
 
