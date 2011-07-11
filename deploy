@@ -6,7 +6,7 @@ app='app.cgi'
 ghc_opts=( -DPROD -threaded --make -o "$app" )
 
 touch Settings.hs
-ghc "${ghc_opts}" fastcgi.hs
+ghc "${ghc_opts[@]}" fastcgi.hs
 touch Settings.hs
 
 scp -r ./static ./app.cgi "$ip":~/
