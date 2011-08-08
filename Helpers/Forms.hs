@@ -1,22 +1,24 @@
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Helpers.Forms
-    ( reviewForm
-    , insertFromForm
-    , updateFromForm
-    , helpBoxContents
+    ( runReviewFormNew
+    , runReviewFormEdit
     , runProfileFormGet
     , runProfileFormPost
     ) where
 
 import Renters
+import Helpers.Widgets
 import Yesod.Helpers.Auth
 import Yesod.Goodies.Markdown
 import Yesod.Form.Core     (GFormMonad)
 import Control.Applicative ((<$>),(<*>))
 import Data.Monoid         (mempty)
 import Data.Time           (getCurrentTime)
-import Data.Text           (Text)
+import Network.Wai         (remoteHost)
+
+import Data.Text (Text)
+import qualified Data.Text as T
 
 type FormMonad a = GFormMonad Renters Renters a
 
@@ -34,7 +36,6 @@ data ProfileEditForm = ProfileEditForm
     , eUsername :: Maybe Text
     , eEmail    :: Maybe Text
     }
-
 
 data MarkdownExample = MarkdownExample
     { mdText :: String
@@ -70,6 +71,95 @@ runProfileFormGet = do
                     <a href="@{DeleteProfileR}">delete
         |]
 
+runProfileFormPost :: Handler ()
+runProfileFormPost = do
+    (uid, u)          <- requireAuth
+    ((res, _   ), _ ) <- runFormMonadPost $ profileEditForm u
+    case res of
+        FormSuccess ef -> saveChanges uid ef
+        _              -> return ()
+
+    where
+        saveChanges :: UserId -> ProfileEditForm -> Handler ()
+        saveChanges uid ef = do
+            runDB $ update uid 
+                [ UserFullname $ eFullname ef
+                , UserUsername $ eUsername ef
+                , UserEmail    $ eEmail    ef
+                ]
+
+            tm <- getRouteToMaster
+            redirect RedirectTemporary $ tm ProfileR
+
+runReviewFormEdit :: Document -> UserId -> Widget ()
+runReviewFormEdit (Document rid r l _) uid = do
+    ip <- lift $ return . T.pack . show . remoteHost =<< waiRequest
+    ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm (Just r) (Just $ landlordName l) ip
+    case res of
+        FormMissing    -> return ()
+        FormFailure _  -> return ()
+        FormSuccess rf -> lift $ do
+            tm  <- getRouteToMaster
+            _   <- updateFromForm rid uid rf
+            redirect RedirectTemporary $ tm (ReviewsR rid)
+
+    [hamlet|<form enctype="#{enctype}" method="post">^{form}|]
+
+    addAutoCompletion "input#landlord" CompLandlordsR
+    addHelpBox helpBoxContents
+
+    where
+        updateFromForm :: ReviewId -> UserId -> ReviewForm -> Handler ReviewId
+        updateFromForm rid _ rf = do
+            -- might've changed
+            landlordId <- findOrCreate $ Landlord $ rfLandlord rf
+
+            runDB $ update rid [ ReviewLandlord landlordId
+                               , ReviewGrade     $ rfGrade    rf
+                               , ReviewAddress   $ rfAddress  rf
+                               , ReviewTimeframe $ rfTimeframe rf
+                               , ReviewContent   $ rfReview   rf
+                               ]
+
+            -- for type consistency
+            return rid
+
+runReviewFormNew :: UserId -> Maybe T.Text -> Widget ()
+runReviewFormNew uid ml = do
+    ip <- lift $ return . T.pack . show . remoteHost =<< waiRequest
+    ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm Nothing ml ip
+    case res of
+        FormMissing    -> return ()
+        FormFailure _  -> return ()
+        FormSuccess rf -> lift $ do
+            tm  <- getRouteToMaster
+            rid <- insertFromForm uid rf
+            redirect RedirectTemporary $ tm (ReviewsR rid)
+
+    [hamlet|<form enctype="#{enctype}" method="post">^{form}|]
+
+    addAutoCompletion "input#landlord" CompLandlordsR
+    addHelpBox helpBoxContents
+
+    where
+        insertFromForm :: UserId -> ReviewForm -> Handler ReviewId
+        insertFromForm uid rf = do
+            now        <- liftIO getCurrentTime
+            landlordId <- findOrCreate $ Landlord $ rfLandlord rf
+
+            runDB $ insert $ Review
+                    { reviewCreatedDate = now
+                    , reviewIpAddress   = rfIp rf
+                    , reviewGrade       = rfGrade rf
+                    , reviewAddress     = rfAddress rf
+                    , reviewContent     = rfReview rf
+                    , reviewTimeframe   = rfTimeframe rf
+                    , reviewReviewer    = uid
+                    , reviewLandlord    = landlordId
+                    }
+
+
+
 profileEditForm :: User -> FormMonad (FormResult ProfileEditForm, Widget())
 profileEditForm u = do
     (fFullname, fiFullname) <- maybeStringField "Full name:"     $ Just $ userFullname u
@@ -102,29 +192,9 @@ profileEditForm u = do
                         &nbsp;
             |]
 
-runProfileFormPost :: Handler ()
-runProfileFormPost = do
-    (uid, u)          <- requireAuth
-    ((res, _   ), _ ) <- runFormMonadPost $ profileEditForm u
-    case res of
-        FormSuccess ef -> saveChanges uid ef
-        _              -> return ()
-
-    where
-        saveChanges :: UserId -> ProfileEditForm -> Handler ()
-        saveChanges uid ef = do
-            runDB $ update uid 
-                [ UserFullname $ eFullname ef
-                , UserUsername $ eUsername ef
-                , UserEmail    $ eEmail    ef
-                ]
-
-            tm <- getRouteToMaster
-            redirect RedirectTemporary $ tm ProfileR
-
 reviewForm :: Maybe Review -- ^ for use in edit
-           -> Maybe Text -- ^ maybe landlord name (for use in new)
-           -> Text       -- ^ IP address of submitter
+           -> Maybe Text   -- ^ maybe landlord name (for use in new)
+           -> Text         -- ^ IP address of submitter
            -> FormMonad (FormResult ReviewForm, Widget())
 reviewForm mr ml ip = do
     (fIp       , fiIp       ) <- hiddenField    (ffs ""            "ip"       ) $ Just ip
@@ -204,42 +274,9 @@ reviewForm mr ml ip = do
                         &nbsp;
                 |]
 
-insertFromForm :: UserId -> ReviewForm -> Handler ReviewId
-insertFromForm uid rf = do
-    now        <- liftIO getCurrentTime
-    landlordId <- findOrCreate $ Landlord $ rfLandlord rf
-
-    runDB $ insert $ Review
-            { reviewCreatedDate = now
-            , reviewIpAddress   = rfIp rf
-            , reviewGrade       = rfGrade rf
-            , reviewAddress     = rfAddress rf
-            , reviewContent     = rfReview rf
-            , reviewTimeframe   = rfTimeframe rf
-            , reviewReviewer    = uid
-            , reviewLandlord    = landlordId
-            }
-
-updateFromForm :: ReviewId -> UserId -> ReviewForm -> Handler ReviewId
-updateFromForm rid _ rf = do
-    -- might've changed
-    landlordId <- findOrCreate $ Landlord $ rfLandlord rf
-
-    runDB $ update rid [ ReviewLandlord landlordId
-                       , ReviewGrade     $ rfGrade    rf
-                       , ReviewAddress   $ rfAddress  rf
-                       , ReviewTimeframe $ rfTimeframe rf
-                       , ReviewContent   $ rfReview   rf
-                       ]
-
-    -- for type consistency
-    return rid
-
--- | Find or create an entity, returning its key in both cases
 findOrCreate :: PersistEntity a => a -> Handler (Key a)
 findOrCreate v = return . either fst id =<< runDB (insertBy v)
 
--- the markdown help tips
 helpBoxContents :: Widget ()
 helpBoxContents = [hamlet|
         <h3>Some quick examples:

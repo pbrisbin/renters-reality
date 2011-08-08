@@ -1,4 +1,3 @@
 <h1>New review
-
 <div .tabdiv>
-    ^{runReviewForm d uid}
+    ^{runReviewFormEdit d uid}
