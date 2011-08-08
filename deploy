@@ -14,4 +14,4 @@ command='
   sudo /etc/rc.d/lighttpd start
 '
 
-#ssh -t "$ip" "$command"
+ssh -t "$ip" "$command"
