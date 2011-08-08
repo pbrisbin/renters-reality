@@ -91,8 +91,8 @@ runProfileFormPost = do
             tm <- getRouteToMaster
             redirect RedirectTemporary $ tm ProfileR
 
-runReviewFormEdit :: Document -> UserId -> Widget ()
-runReviewFormEdit (Document rid r l _) uid = do
+runReviewFormEdit :: Document -> Widget ()
+runReviewFormEdit (Document rid r l _) = do
     ip <- lift $ return . T.pack . show . remoteHost =<< waiRequest
     ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm (Just r) (Just $ landlordName l) ip
     case res of
@@ -100,7 +100,7 @@ runReviewFormEdit (Document rid r l _) uid = do
         FormFailure _  -> return ()
         FormSuccess rf -> lift $ do
             tm  <- getRouteToMaster
-            _   <- updateFromForm rid uid rf
+            _   <- updateFromForm rf
             redirect RedirectTemporary $ tm (ReviewsR rid)
 
     [hamlet|<form enctype="#{enctype}" method="post">^{form}|]
@@ -109,16 +109,16 @@ runReviewFormEdit (Document rid r l _) uid = do
     addHelpBox helpBoxContents
 
     where
-        updateFromForm :: ReviewId -> UserId -> ReviewForm -> Handler ReviewId
-        updateFromForm rid _ rf = do
+        updateFromForm :: ReviewForm -> Handler ReviewId
+        updateFromForm  rf = do
             -- might've changed
             landlordId <- findOrCreate $ Landlord $ rfLandlord rf
 
             runDB $ update rid [ ReviewLandlord landlordId
-                               , ReviewGrade     $ rfGrade    rf
-                               , ReviewAddress   $ rfAddress  rf
+                               , ReviewGrade     $ rfGrade     rf
+                               , ReviewAddress   $ rfAddress   rf
                                , ReviewTimeframe $ rfTimeframe rf
-                               , ReviewContent   $ rfReview   rf
+                               , ReviewContent   $ rfReview    rf
                                ]
 
             -- for type consistency
@@ -133,7 +133,7 @@ runReviewFormNew uid ml = do
         FormFailure _  -> return ()
         FormSuccess rf -> lift $ do
             tm  <- getRouteToMaster
-            rid <- insertFromForm uid rf
+            rid <- insertFromForm rf
             redirect RedirectTemporary $ tm (ReviewsR rid)
 
     [hamlet|<form enctype="#{enctype}" method="post">^{form}|]
@@ -142,8 +142,8 @@ runReviewFormNew uid ml = do
     addHelpBox helpBoxContents
 
     where
-        insertFromForm :: UserId -> ReviewForm -> Handler ReviewId
-        insertFromForm uid rf = do
+        insertFromForm :: ReviewForm -> Handler ReviewId
+        insertFromForm rf = do
             now        <- liftIO getCurrentTime
             landlordId <- findOrCreate $ Landlord $ rfLandlord rf
 
