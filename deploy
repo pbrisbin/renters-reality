@@ -2,22 +2,16 @@
 
 ip="${1:-rentersreality.com}"
 
-app='app.cgi'
-ghc_opts=( -DPROD -threaded --make -o "$app" )
+touch config/Settings.hs
+cabal install --bindir=./
 
-touch Settings.hs
-ghc "${ghc_opts[@]}" fastcgi.hs
-touch Settings.hs
-
-scp -r ./static ./app.cgi "$ip":~/
+scp ./renters "$ip":~/
 
 command='
   sudo /etc/rc.d/lighttpd stop             &&
   cp -v  /srv/http/app.cgi ./app.cgi.bak   &&
-  cp -rv /srv/http/static  ./static.bak    &&
   sudo cp -v  ./app.cgi  /srv/http/app.cgi &&
-  sudo cp -rv ./static/* /srv/http/static/ &&
   sudo /etc/rc.d/lighttpd start
 '
 
-ssh -t "$ip" "$command"
+#ssh -t "$ip" "$command"
