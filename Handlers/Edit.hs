@@ -1,16 +1,14 @@
 {-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Handlers.Edit (getEditR, postEditR) where
 
 import Renters
-import Model
-import Yesod
 import Helpers.Forms
 import Helpers.Widgets
 import Yesod.Helpers.Auth
-import Network.Wai         (remoteHost)
+import Network.Wai (remoteHost)
 import qualified Data.Text as T
-import qualified Settings
 
 getEditR :: ReviewId -> Handler RepHtml
 getEditR rid = do
@@ -19,30 +17,17 @@ getEditR rid = do
     case docByReviewId rid docs of
         Just d -> if uid == (reviewReviewer $ review d)
             then defaultLayout $ do
-                Settings.setTitle "Edit review"
+                setTitle "Edit review"
+                addWidget $(widgetFile "edit")
 
-                addJulius [julius|
-                    $(function() {
-                        /* add help onclick handlers */
-                        $("#open-help").click(function()  { $("#markdown-help").fadeIn();  return false; });
-                        $("#close-help").click(function() { $("#markdown-help").fadeOut(); return false; });
-                    });
-                    |]
-
+                -- java script tricks
                 addAutoCompletion "input#landlord" CompLandlordsR
+                addHelpBox helpBoxContents
 
-                [hamlet|
-                    <h1>New review
-
-                    <div .tabdiv>
-                        ^{runReviewForm d uid}
-
-                    ^{addHelpBox helpBoxContents}
-                    |]
-                else do
-                    -- not your review, no edit for you
-                    tm <- getRouteToMaster
-                    redirect RedirectTemporary $ tm (ReviewsR rid)
+            else do
+                -- not your review, no edit for you
+                tm <- getRouteToMaster
+                redirect RedirectTemporary $ tm (ReviewsR rid)
 
         _ -> notFound
 

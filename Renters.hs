@@ -2,134 +2,61 @@
 {-# LANGUAGE TypeFamilies      #-}
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE OverloadedStrings #-}
--------------------------------------------------------------------------------
--- |
--- Module      :  Renters
--- Copyright   :  (c) Patrick Brisbin 2010 
--- License     :  as-is
---
--- Maintainer  :  pbrisbin@gmail.com
--- Stability   :  unstable
--- Portability :  unportable
---
--------------------------------------------------------------------------------
-module Renters where
+module Renters
+    ( Renters(..)
+    , RentersRoute(..)
+    , resourcesRenters
+    , Handler
+    , Widget
+    , module Yesod
+    , module Settings
+    , module Model
+    ) where
 
 import Model
-import Yesod
-import Yesod.Comments hiding (userEmail)
-import Yesod.Comments.Storage
-import Yesod.Form.Core (GFormMonad)
+import Yesod hiding (setTitle)
+import Yesod.Helpers.RssFeed
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.OpenId
 import Yesod.Helpers.Auth.Facebook
-import Yesod.Helpers.Static
-import Yesod.Helpers.RssFeed
+import Yesod.Comments hiding (userName, userEmail)
+import Yesod.Comments.Storage
 import Data.Maybe (fromMaybe)
 import Database.Persist.GenericSql
+
+import Settings ( setTitle
+                , staticLink
+                , hamletFile
+                , cassiusFile
+                , luciusFile
+                , juliusFile
+                , widgetFile
+                )
+
 import qualified Settings
 
--- | The main site type
 data Renters = Renters
-    { getStatic :: Static 
-    , siteDocs  :: Handler [Document]
+    { siteDocs  :: Handler [Document]
     , connPool  :: ConnectionPool 
     }
 
-type Handler     = GHandler   Renters Renters
-type Widget      = GWidget    Renters Renters
-type FormMonad a = GFormMonad Renters Renters a
+type Handler = GHandler Renters Renters
+type Widget  = GWidget  Renters Renters
 
--- | Define all of the routes and handlers
-mkYesodData "Renters" [parseRoutes|
-    /                   RootR    GET
-
-    /search                SearchR        GET
-    /search/comp/landlords CompLandlordsR GET
-    /search/comp/searches  CompSearchesR  GET
-
-    /new                   NewR       GET POST
-    /edit/#ReviewId        EditR      GET POST
-    /reviews/#ReviewId     ReviewsR   GET POST
-    /landlords/#LandlordId LandlordsR GET
-
-    /profile         ProfileR        GET
-    /profile/edit    EditProfileR    GET POST
-    /profile/delete  DeleteProfileR  GET POST
-
-    /feed               FeedR         GET
-    /feed/#LandlordId   FeedLandlordR GET
-
-    /legal              LegalR   GET
-    /static             StaticR Static getStatic
-    /auth               AuthR   Auth   getAuth
-
-    /favicon.ico FaviconR GET
-    /robots.txt  RobotsR  GET
-    |]
-
-staticFiles Settings.staticDir
+mkYesodData "Renters" $(parseRoutesFile "config/routes")
 
 instance Yesod Renters where 
     approot   _ = Settings.approot
     authRoute _ = Just $ AuthR LoginR
 
     defaultLayout widget = do
-        (t,h)   <- breadcrumbs
-        mmesg   <- getMessage
-        mauth   <- maybeAuth
-        authNav <- widgetToPageContent (authNavHelper mauth)
-        pc      <- widgetToPageContent $ do
+        (t,h) <- breadcrumbs
+        mmesg <- getMessage
+        mauth <- maybeAuth
+        pc    <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
             widget
-        hamletToRepHtml [hamlet|
-            \<!DOCTYPE html>
-            <html lang="en">
-                <head>
-                    <meta charset="utf-8">
-                    <link href="http://fonts.googleapis.com/css?family=Cardo" rel=stylesheet type=text/css>
-                    <title>#{pageTitle pc}
-                    <meta name="description" content="Submit and search reviews for landlords in your area.">
-                    <meta name="author" content="Patrick Brisbin">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <meta name="keywords" content="review, reviews, renter, renters, landlord, landlords, apartment, apartments, property, properties">
-                    <link rel="stylesheet" href="@{StaticR css_style_css}">
-                    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js">
-                    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js">
-                    ^{pageHead pc}
-                <body>
-                    <div #breadcrumbs>
-                        <p>
-                            $forall node <- h
-                                <a href="@{fst node}">#{snd node} 
-                                \ > 
-                            #{t}
-
-                    <div #right-nav>
-                        <p>^{pageBody authNav}
-
-                    $maybe mesg <- mmesg
-                        <div #message>
-                            <p>#{mesg}
-
-                    ^{pageBody pc}
-
-                    <footer>
-                        <p>
-                            <small>
-                                copyright patrick brisbin 2011. 
-                                <a href="https://github.com/pbrisbin/renters-reality">source code. 
-                                <a href="@{LegalR}">legal
-            |]
-
-        where
-            authNavHelper :: Maybe (UserId, User) -> GWidget s Renters ()
-            authNavHelper Nothing       = [hamlet|<a href="@{AuthR LoginR}">login|]
-            authNavHelper (Just (_, u)) = [hamlet|
-                <a href="@{ProfileR}" title="Manage your profile">#{showName u}
-                \ | 
-                <a href="@{AuthR LogoutR}">logout
-                |]
+        hamletToRepHtml $(hamletFile "default-layout")
 
 instance YesodPersist Renters where
     type YesodDB Renters = SqlPersist
@@ -191,32 +118,6 @@ instance YesodAuth Renters where
                   , authFacebook "206687389350404" "9d30284c6cb99ff2c7cbc4e5f8ae53e0" []
                   ]
 
-    loginHandler = defaultLayout [hamlet|
-        <h1>Log in
-        <div .tabdiv>
-            <div #login>
-                <h3>Please login using one of the following:
-                <div .services>
-                    <table>
-                        <tr>
-                            <td>
-                                <form method="get" action="@{AuthR forwardUrl}" .button .google>
-                                    <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
-                                    <input type="image" src="@{StaticR images_google_gif}" value="Login via Google">
-                            <td>
-                                <form method="get" action="@{AuthR forwardUrl}" .button .yahoo>
-                                    <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
-                                    <input type="image" src="@{StaticR images_yahoo_gif}" value="Login via Yahoo!">
-                            <td>
-                                <a href="@{AuthR facebookUrl}" .button .facebook>
-                                    <img src="@{StaticR images_facebook_gif}" value="Login via Facebook">
-
-                <div .open-id>
-                    <h3>&mdash; OR &mdash;
-                    <table>
-                        <tr>
-                            <td>
-                                <form method="get" action="@{AuthR forwardUrl}">
-                                    <input id="openid_identifier" type="text" name="openid_identifier" value="http://">
-                                    <input id="openid_submit" type="submit" value="Login via OpenID">
-        |]
+    loginHandler = defaultLayout $ do
+        setTitle "Login"
+        addWidget $(widgetFile "login")

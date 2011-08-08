@@ -1,0 +1,9 @@
+<div .tabdiv>
+  <div .view-review>
+    ^{landlordGrade d}
+    ^{reviewContentBlock d False}
+    ^{reviewedBy "reviewed-by" d $ editLink d}
+
+  <h3>Discussion
+  <div .discussion>
+    ^{addCommentsAuth $ rText rid}

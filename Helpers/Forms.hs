@@ -11,10 +11,13 @@ import Renters
 import Model
 import Yesod
 import Yesod.Goodies.Markdown
+import Yesod.Form.Core     (GFormMonad)
 import Control.Applicative ((<$>),(<*>))
 import Data.Monoid         (mempty)
 import Data.Time           (getCurrentTime)
 import qualified Data.Text as T
+
+type FormMonad a = GFormMonad Renters Renters a
 
 data ReviewForm = ReviewForm
     { rfIp        :: T.Text

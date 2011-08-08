@@ -29,33 +29,7 @@ data Grade = Aplus | A | Aminus
 
 derivePersistField "Grade"
 
-share2 mkPersist (mkMigrate "doMigration") [persist|
-    User
-        fullname      T.Text Maybe Update
-        username      T.Text Maybe Update Asc
-        email         T.Text Maybe Update
-        verifiedEmail Bool default=false Eq Update
-        verkey        T.Text Maybe Update
-
-    Ident
-        ident T.Text Asc
-        user  UserId Eq
-        UniqueIdent ident
-
-    Landlord
-        name T.Text Eq Asc
-        UniqueLandlord name
-
-    Review
-        createdDate UTCTime Desc
-        reviewer    UserId     Eq
-        landlord    LandlordId Eq Update
-        grade       Grade      Eq Update Asc Desc
-        ipAddress   T.Text
-        address     Textarea Update
-        timeframe   T.Text   Update
-        content     Markdown Update
-    |] 
+share [mkPersist, mkMigrate "doMigration"] $(persistFile "config/models")
 
 data Document = Document
     { reviewId :: ReviewId

@@ -92,7 +92,7 @@ addAutoCompletion ident route = do
 
         addCassius [cassius|
             .ui-autocomplete-loading
-                background: white url(@{StaticR images_ui_anim_basic_16x16_gif}) right center no-repeat
+                background: white url(#{staticLink "images_ui_anim_basic_16x16.gif"}) right center no-repeat
 
             .ui-autocomplete
               width:      60px

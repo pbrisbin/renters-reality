@@ -1,4 +1,5 @@
 {-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Handlers.Reviews 
     ( getReviewsR
@@ -6,32 +7,20 @@ module Handlers.Reviews
     ) where
 
 import Renters
-import Model
-import Yesod
 import Yesod.Helpers.Auth
 import Helpers.Widgets
 import Database.Persist.Base
 import Yesod.Comments
+import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Settings
 
 getReviewsR :: Key Review -> Handler RepHtml
 getReviewsR rid = do
     docs <- siteDocs =<< getYesod
     case docByReviewId rid docs of
         Just d -> defaultLayout $ do
-            Settings.setTitle "View review"
-            [hamlet|
-                <div .tabdiv>
-                    <div .view-review>
-                        ^{landlordGrade d}
-                        ^{reviewContentBlock d False}
-                        ^{reviewedBy "reviewed-by" d $ editLink d}
-
-                    <h3>Discussion
-                    <div .discussion>
-                        ^{addCommentsAuth $ rText rid}
-                |]
+            setTitle "View review"
+            addWidget $(widgetFile "reviews")
 
         Nothing -> notFound
 
@@ -50,7 +39,7 @@ getReviewsR rid = do
 
                 _ -> return ()
 
-rText :: ReviewId -> T.Text
+rText :: ReviewId -> Text
 rText = go . unReviewId
 
     where

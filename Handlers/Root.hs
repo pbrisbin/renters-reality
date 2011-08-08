@@ -3,17 +3,15 @@
 module Handlers.Root (getRootR) where
 
 import Renters
-import Yesod
 import Helpers.Widgets
 import Yesod.Helpers.Auth
-import qualified Settings
 
 -- | Home page
 getRootR :: Handler RepHtml
 getRootR = do
     muid <- maybeAuthId
     defaultLayout $ do
-        Settings.setTitle "Home"
+        setTitle "Home"
 
         addJulius [julius|
             $(function() {

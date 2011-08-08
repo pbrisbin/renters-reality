@@ -1,0 +1,8 @@
+<div .tabdiv>
+  <div .view-landlord>
+    ^{landlordGPA tp}
+    $forall d <- ldocs
+      <div .review>
+        ^{reviewedByGrade d}
+        ^{reviewContentBlock d True}
+        <a href=@{ReviewsR $ reviewId d}>Read more...

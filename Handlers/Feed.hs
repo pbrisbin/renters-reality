@@ -5,11 +5,9 @@ module Handlers.Feed
     ) where
 
 import Renters
-import Model
-import Yesod
 import Yesod.Helpers.RssFeed
 import Yesod.Goodies.Markdown
-
+import Data.Text (Text)
 import qualified Data.Text as T
 
 -- | Rss feed
@@ -49,7 +47,7 @@ docToRssEntry (Document rid r l _) = FeedEntry
     }
 
     where
-        mkTitle :: T.Text -> Grade -> T.Text
+        mkTitle :: Text -> Grade -> Text
         mkTitle n g = n `T.append` " reviewed as "
                         `T.append` prettyGrade g
                         `T.append` " on rentersreality.com"

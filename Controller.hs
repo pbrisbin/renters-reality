@@ -2,45 +2,42 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE TemplateHaskell       #-}
--------------------------------------------------------------------------------
--- |
--- Module      :  Controller
--- Copyright   :  (c) Patrick Brisbin 2010 
--- License     :  as-is
---
--- Maintainer  :  pbrisbin@gmail.com
--- Stability   :  unstable
--- Portability :  unportable
---
--------------------------------------------------------------------------------
 module Controller (withServer) where
 
 import Renters
-import Model
-import Handlers
 
-import Yesod
-import Yesod.Comments.Storage
+import Handlers.Root
+import Handlers.Legal
+import Handlers.Search
+import Handlers.New
+import Handlers.Edit
+import Handlers.Profile
+import Handlers.Reviews
+import Handlers.Landlords
+import Handlers.Feed
+
 import Yesod.Helpers.Auth
-import Yesod.Helpers.Static
-
+import Yesod.Comments.Storage
 import Control.Monad (forM)
 import Database.Persist.GenericSql
 import qualified Data.Map as M
 import qualified Settings
 
--- | Instantiate the Yesod route types
 mkYesodDispatch "Renters" resourcesRenters
 
--- | Create a Wai App of the site
+getFaviconR :: Handler ()
+getFaviconR = sendFile "image/x-icon" "config/favicon.ico"
+
+getRobotsR :: Handler RepPlain
+getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: String)
+
 withServer :: (Application -> IO a) -> IO a
 withServer f = Settings.withConnectionPool $ \p -> do
     runSqlPool (runMigration doMigration) p
     runSqlPool (runMigration migrateComments) p
-    f =<< toWaiApp (Renters s loadDocuments p)
-    where
-        s = static Settings.staticDir
+    f =<< toWaiApp (Renters loadDocuments p)
 
+    where
         loadDocuments :: Handler [Document]
         loadDocuments = do
             users      <- return . M.fromList =<< runDB (selectList [] [UserUsernameAsc] 0 0)

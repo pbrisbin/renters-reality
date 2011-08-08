@@ -1,16 +1,14 @@
 {-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Handlers.New (getNewR, postNewR) where
 
 import Renters
-import Model
-import Yesod
 import Helpers.Forms
 import Helpers.Widgets
 import Yesod.Helpers.Auth
-import Network.Wai         (remoteHost)
+import Network.Wai (remoteHost)
 import qualified Data.Text as T
-import qualified Settings
 
 getNewR :: Handler RepHtml
 getNewR = do
@@ -18,26 +16,10 @@ getNewR = do
 
     ml <- lookupGetParam "landlord"
     defaultLayout $ do
-        Settings.setTitle "New review"
-
-        addJulius [julius|
-            $(function() {
-                /* add help onclick handlers */
-                $("#open-help").click(function()  { $("#markdown-help").fadeIn();  return false; });
-                $("#close-help").click(function() { $("#markdown-help").fadeOut(); return false; });
-            });
-            |]
-
+        setTitle "New review"
+        addWidget $(widgetFile "new")
         addAutoCompletion "input#landlord" CompLandlordsR
-
-        [hamlet|
-            <h1>New review
-
-            <div .tabdiv>
-                ^{runReviewForm uid ml}
-
-            ^{addHelpBox helpBoxContents}
-            |]
+        addHelpBox helpBoxContents
 
 postNewR :: Handler RepHtml
 postNewR = getNewR

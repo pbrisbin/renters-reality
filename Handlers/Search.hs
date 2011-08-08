@@ -7,13 +7,11 @@ module Handlers.Search
     ) where
 
 import Renters
-import Model
 import Helpers.Widgets
-import Yesod
 import Yesod.Goodies
 import Data.List (nub)
+import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Settings
 
 getCompLandlordsR :: Handler RepJson
 getCompLandlordsR = generalCompletion $ \t -> do
@@ -27,11 +25,11 @@ getCompSearchesR = generalCompletion $ \t -> do
     return $ filter (looseMatch t) (landlords ++ addrs)
 
 -- | known landlords, formatted for search
-uniqueLandlords :: Handler [T.Text]
+uniqueLandlords :: Handler [Text]
 uniqueLandlords = return . map (landlordName . snd) =<< runDB (selectList [] [LandlordNameAsc] 0 0)
 
 -- | known addresses, formatted for search
-uniqueAddresses :: Handler [T.Text]
+uniqueAddresses :: Handler [Text]
 uniqueAddresses = do
     docs <- siteDocs =<< getYesod
     return . nub $ map formatAddress docs
@@ -39,7 +37,7 @@ uniqueAddresses = do
 -- | Get the term from the request and pass it to the completion 
 --   function, serve the returned values as a list for use in 
 --   auto-completion jquery
-generalCompletion :: (T.Text -> Handler [T.Text]) -> Handler RepJson
+generalCompletion :: (Text -> Handler [Text]) -> Handler RepJson
 generalCompletion f = do
     mterm <- lookupGetParam "term"
     ss    <- case mterm of
@@ -50,11 +48,11 @@ generalCompletion f = do
     jsonToRepJson . jsonList $ map (jsonScalar . T.unpack) ss
 
 -- | A loose infix match
-looseMatch :: T.Text -> T.Text -> Bool
+looseMatch :: Text -> Text -> Bool
 looseMatch a b = fix a `T.isInfixOf` fix b
 
     where
-        fix :: T.Text -> T.Text
+        fix :: Text -> Text
         fix = T.strip . T.toCaseFold
             . T.filter (`notElem` [',', '.'])
 
@@ -88,7 +86,7 @@ getSearchR = do
                                       ] fullSearch docs'
 
     defaultLayout $ do
-        Settings.setTitle "Search results" 
+        setTitle "Search results" 
         addAutoCompletion "#search-input" CompSearchesR
         [hamlet|
             <div .search-form>
@@ -102,7 +100,7 @@ getSearchR = do
             |]
 
 -- | handles all sorts of searches
-type SearchFunction = T.Text -> [Document] -> [Document]
+type SearchFunction = Text -> [Document] -> [Document]
 
 -- | wrap in newtype to the correct search instance is used
 searchByLandlord :: SearchFunction
@@ -116,8 +114,8 @@ searchByAddress t = map (\(Addr d) -> d) . search_ t . map Addr
 fullSearch :: SearchFunction
 fullSearch = search_
 
-tryPrefixes :: T.Text                     -- ^ the search term itself
-            -> [(T.Text, SearchFunction)] -- ^ mappings of prefix -> search function
+tryPrefixes :: Text                     -- ^ the search term itself
+            -> [(Text, SearchFunction)] -- ^ mappings of prefix -> search function
             -> SearchFunction             -- ^ fall back when nothing matches
             -> [Document] -> [Document]
 tryPrefixes term []               fallback docs = fallback term docs

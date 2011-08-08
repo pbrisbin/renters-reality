@@ -8,22 +8,18 @@ module Handlers.Profile
     , postDeleteProfileR
     ) where
 
-import Yesod
+import Renters
 import Yesod.Helpers.Auth
 import Yesod.Goodies.Gravatar
-import Renters
-import Model
-
+import Yesod.Form.Core (GFormMonad)
 import Control.Applicative ((<$>), (<*>))
 import Data.Maybe          (fromMaybe)
-
-import qualified Data.Text as T
-import qualified Settings
+import Data.Text           (Text)
 
 data EditForm = EditForm
-    { eFullname :: Maybe T.Text
-    , eUsername :: Maybe T.Text
-    , eEmail    :: Maybe T.Text
+    { eFullname :: Maybe Text
+    , eUsername :: Maybe Text
+    , eEmail    :: Maybe Text
     }
 
 getProfileR :: Handler RepHtml
@@ -36,7 +32,7 @@ getProfileR = do
     let pic      = gravatarImg email gravatarOpts
 
     defaultLayout $ do
-        Settings.setTitle "View profile"
+        setTitle "View profile"
         [hamlet|
             <h1>Your profile
             <div .tabdiv>
@@ -69,7 +65,7 @@ getProfileR = do
 
 getEditProfileR :: Handler RepHtml 
 getEditProfileR = defaultLayout $ do
-    Settings.setTitle "Edit profile"
+    setTitle "Edit profile"
     [hamlet|
         <h1>Edit profile
         <div .tabdiv>
@@ -111,7 +107,8 @@ showForm = do
 
     [hamlet|<form enctype="#{enctype}" method="post">^{form}|]
 
-editForm :: User -> FormMonad (FormResult EditForm, Widget())
+-- todo: move to helpers.forms
+editForm :: User -> GFormMonad Renters Renters (FormResult EditForm, Widget())
 editForm u = do
     (fFullname, fiFullname) <- maybeStringField "Full name:"     $ Just $ userFullname u
     (fUsername, fiUsername) <- maybeStringField "User name:"     $ Just $ userUsername u
