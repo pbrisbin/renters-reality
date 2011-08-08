@@ -23,11 +23,9 @@ import qualified Text.Hamlet  as H
 import qualified Text.Cassius as H
 import qualified Text.Julius  as H
 import qualified Text.Lucius  as H
-
 import Data.Text (Text)
-import qualified Data.Text as T
 
-import Yesod (MonadControlIO, hamlet, addWidget, addCassius, addJulius, addLucius)
+import Yesod (MonadControlIO, addWidget, addCassius, addJulius, addLucius)
 import qualified Yesod as Y
 
 setTitle :: Y.Yesod m => String -> Y.GWidget s m ()

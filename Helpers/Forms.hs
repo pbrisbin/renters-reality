@@ -8,22 +8,20 @@ module Helpers.Forms
     ) where
 
 import Renters
-import Model
-import Yesod
 import Yesod.Goodies.Markdown
 import Yesod.Form.Core     (GFormMonad)
 import Control.Applicative ((<$>),(<*>))
 import Data.Monoid         (mempty)
 import Data.Time           (getCurrentTime)
-import qualified Data.Text as T
+import Data.Text           (Text)
 
 type FormMonad a = GFormMonad Renters Renters a
 
 data ReviewForm = ReviewForm
-    { rfIp        :: T.Text
-    , rfLandlord  :: T.Text
+    { rfIp        :: Text
+    , rfLandlord  :: Text
     , rfAddress   :: Textarea
-    , rfTimeframe :: T.Text
+    , rfTimeframe :: Text
     , rfGrade     :: Grade
     , rfReview    :: Markdown
     }
@@ -34,8 +32,8 @@ data MarkdownExample = MarkdownExample
     }
 
 reviewForm :: Maybe Review -- ^ for use in edit
-           -> Maybe T.Text -- ^ maybe landlord name (for use in new)
-           -> T.Text       -- ^ IP address of submitter
+           -> Maybe Text -- ^ maybe landlord name (for use in new)
+           -> Text       -- ^ IP address of submitter
            -> FormMonad (FormResult ReviewForm, Widget())
 reviewForm mr ml ip = do
     (fIp       , fiIp       ) <- hiddenField    (ffs ""            "ip"       ) $ Just ip
@@ -83,7 +81,7 @@ reviewForm mr ml ip = do
         where
             selectField' = selectField gradesList
                 where
-                    gradesList :: [(Grade, T.Text)]
+                    gradesList :: [(Grade, Text)]
                     gradesList = [ (Aplus , "A+")
                                  , (A     , "A" )
                                  , (Aminus, "A-")
@@ -99,7 +97,7 @@ reviewForm mr ml ip = do
                                  , (F     , "F" )
                                  ]
 
-            ffs :: T.Text -> T.Text -> FormFieldSettings
+            ffs :: Text -> Text -> FormFieldSettings
             ffs label theId = FormFieldSettings label mempty (Just theId) Nothing
 
             -- span for the input cell only

@@ -10,7 +10,7 @@ scp ./renters "$ip":~/
 command='
   sudo /etc/rc.d/lighttpd stop             &&
   cp -v  /srv/http/app.cgi ./app.cgi.bak   &&
-  sudo cp -v  ./app.cgi  /srv/http/app.cgi &&
+  sudo cp -v  ./renters  /srv/http/app.cgi &&
   sudo /etc/rc.d/lighttpd start
 '
 

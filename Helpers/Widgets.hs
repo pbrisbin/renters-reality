@@ -3,10 +3,8 @@
 module Helpers.Widgets where
 
 import Renters
-import Model
-import Yesod
 import Yesod.Goodies
-import qualified Data.Text as T
+import Data.Text (Text)
 
 -- | Landlord name ... GPA
 landlordGPA :: (Landlord, [Document]) -> Widget ()
@@ -46,7 +44,7 @@ reviewedByLink d@(Document rid _ _ _) = reviewedBy "reviewed-by-link" d
             <a href=@{ReviewsR rid}>Read more...
         |]
 
-reviewedBy :: T.Text    -- ^ div class
+reviewedBy :: Text    -- ^ div class
            -> Document  -- ^ source doc
            -> Widget () -- ^ right hand side
            -> Widget ()
@@ -64,8 +62,8 @@ reviewContentBlock :: Document
                    -> Widget ()
 reviewContentBlock (Document _ r _ _) s = do
     let content = if s
-        then markdownToHtml . shorten 400 $ reviewContent r
-        else markdownToHtml               $ reviewContent r
+            then markdownToHtml . shorten 400 $ reviewContent r
+            else markdownToHtml               $ reviewContent r
 
     [hamlet|
         <div .review-address>
@@ -77,7 +75,7 @@ reviewContentBlock (Document _ r _ _) s = do
         |]
 
 -- | Add the js and css required for autocompletion to work
-addAutoCompletion :: T.Text       -- ^ the input's id
+addAutoCompletion :: Text       -- ^ the input's id
                   -> RentersRoute -- ^ the route providing the JSON
                   -> Widget ()
 addAutoCompletion ident route = do
