@@ -1,5 +1,5 @@
 .ui-autocomplete-loading
-  background: white url(#{staticLink "images/ui_anim_basic_16x16.gif"}) right center no-repeat
+  background: white url(#{staticLink "images/ui-anim_basic_16x16.gif"}) right center no-repeat
 
 .ui-autocomplete
   width:      60px
