@@ -1,4 +1,5 @@
 {-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Helpers.Widgets where
 
@@ -74,86 +75,14 @@ reviewContentBlock (Document _ r _ _) s = do
                 #{content}
         |]
 
--- | Add the js and css required for autocompletion to work
-addAutoCompletion :: Text       -- ^ the input's id
-                  -> RentersRoute -- ^ the route providing the JSON
-                  -> Widget ()
-addAutoCompletion ident route = do
-        addJulius [julius|
-            $(function() {
-                $('#{ident}').autocomplete({
-                    source:    "@{route}",
-                    minLength: 3
-                });
-            });
-            |]
+-- | Add an auto completion via jquery
+addAutoCompletion :: Text    -- ^ input id
+                  -> Route m -- ^ JSON route
+                  -> GWidget s m ()
+addAutoCompletion ident route = addWidget $(widgetFile "_autocompletion")
 
-        addCassius [cassius|
-            .ui-autocomplete-loading
-                background: white url(#{staticLink "images_ui_anim_basic_16x16.gif"}) right center no-repeat
-
-            .ui-autocomplete
-              width:      60px
-              background: white
-              border:     solid 1px black
-              border-top: none
-              padding: 0px
-              margin:  0px
-
-            .ui-autocomplete li
-              list-style: none
-              padding:    2px 5px
-
-            .ui-autocomplete li:hover
-              color:            blue
-              background-color: #dedbd1
-              cursor:           pointer
-
-            |]
-
--- add css js and html to provide a "tips" popup that fades in and out 
--- see "search tips" on home page for example NOTE: you must add some 
--- clickable element with the id "open-help" somewhere on the page
-addHelpBox :: Widget () -- help box contents
-           -> Widget ()
-addHelpBox contents = do
-        addJulius [julius|
-            $(function() {
-                /* add help onclick handlers */
-                $("#open-help").click(function()  { $("#helpbox").fadeIn();  return false; });
-                $("#close-help").click(function() { $("#helpbox").fadeOut(); return false; });
-            });
-            |]
-
-        addCassius [cassius|
-            #helpbox
-                display:          none /* toggled via jquery */
-                position:         fixed
-                top:              25%
-                left:             15%
-                height:           30%
-                width:            70%
-                z-index:          10
-                padding:          20px
-                font-size:        90%
-                text-align:       left
-                background-color: white
-                border:           solid 1px #dedbd1
-                overflow-y:       auto
-
-                -webkit-border-radius: 4px
-                   -moz-border-radius: 4px
-                        border-radius: 4px
-
-                -webkit-box-shadow: 3px 3px 40px #333
-                   -moz-box-shadow: 3px 3px 40px #333
-                        box-shadow: 3px 3px 40px #333
-            |]
-
-        [hamlet|
-            <div #helpbox>
-                <span style="float: right;">
-                    <a #close-help href="#">[close]
-
-                ^{contents}
-            |]
+-- | Add contents as a popup helpbox. NOTE: you must add some clickable 
+--   element with the id "open-help" somewhere on the page
+addHelpBox :: GWidget s m () -- help box contents
+           -> GWidget s m ()
+addHelpBox contents = addWidget $(widgetFile "_helpbox")

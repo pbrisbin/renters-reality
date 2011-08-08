@@ -1,4 +1,0 @@
-$(function() {
-  $("#open-help").click(function()  { $("#markdown-help").fadeIn();  return false; });
-  $("#close-help").click(function() { $("#markdown-help").fadeOut(); return false; });
-});
