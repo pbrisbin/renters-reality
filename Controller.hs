@@ -33,9 +33,9 @@ getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: String)
 
 withServer :: (Application -> IO a) -> IO a
 withServer f = Settings.withConnectionPool $ \p -> do
-    runSqlPool (runMigration doMigration) p
+    runSqlPool (runMigration doMigration    ) p
     runSqlPool (runMigration migrateComments) p
-    f =<< toWaiApp (Renters loadDocuments p)
+    f =<< toWaiApp (Renters p loadDocuments)
 
     where
         loadDocuments :: Handler [Document]

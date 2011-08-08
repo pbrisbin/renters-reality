@@ -36,8 +36,8 @@ import Settings ( setTitle
 import qualified Settings
 
 data Renters = Renters
-    { siteDocs  :: Handler [Document]
-    , connPool  :: ConnectionPool 
+    { connPool :: ConnectionPool 
+    , siteDocs :: Handler [Document]
     }
 
 type Handler = GHandler Renters Renters
