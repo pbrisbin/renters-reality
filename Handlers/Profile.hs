@@ -56,9 +56,6 @@ postDeleteProfileR :: Handler RepHtml
 postDeleteProfileR = do
     (uid, _) <- requireAuth 
 
-    -- todo: delete comments?
-
-    -- delete reviews and the user herself
     runDB $ deleteWhere [ReviewReviewerEq uid]
     runDB $ deleteWhere [IdentUserEq uid]
     runDB $ delete uid

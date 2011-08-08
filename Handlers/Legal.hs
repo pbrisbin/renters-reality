@@ -1,4 +1,3 @@
-{-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Handlers.Legal (getLegalR) where
