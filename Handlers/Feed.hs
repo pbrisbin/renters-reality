@@ -10,7 +10,6 @@ import Yesod.Goodies.Markdown
 import Data.Text (Text)
 import qualified Data.Text as T
 
--- | Rss feed
 getFeedR :: Handler RepRss
 getFeedR = do
     docs' <- siteDocs =<< getYesod
@@ -18,7 +17,6 @@ getFeedR = do
         []   -> notFound
         docs -> feedFromDocs $ take 10 docs
 
--- | Rss feed, limited to a tag
 getFeedLandlordR :: LandlordId -> Handler RepRss
 getFeedLandlordR lid = do
     docs <- siteDocs =<< getYesod
@@ -33,7 +31,6 @@ feedFromDocs docs = rssFeed Feed
     , feedLanguage    = "en-us"
     , feedLinkSelf    = FeedR
     , feedLinkHome    = RootR
-    -- note: docs is known to be non-empty
     , feedUpdated     = reviewCreatedDate . review $ head docs
     , feedEntries     = map docToRssEntry docs
     }

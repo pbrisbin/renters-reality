@@ -1,8 +1,0 @@
-<div .tabdiv>
-  <p>
-    I'm sorry, #{landlordName l} has not been reviewed yet.
-
-  <p>
-    Would you like to 
-    <a href="@{NewR}landlord?#{landlordName l}">write one
-    ?

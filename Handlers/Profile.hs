@@ -1,4 +1,4 @@
-{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Handlers.Profile
     ( getProfileR
@@ -9,18 +9,10 @@ module Handlers.Profile
     ) where
 
 import Renters
+import Helpers.Forms
 import Yesod.Helpers.Auth
 import Yesod.Goodies.Gravatar
-import Yesod.Form.Core (GFormMonad)
-import Control.Applicative ((<$>), (<*>))
-import Data.Maybe          (fromMaybe)
-import Data.Text           (Text)
-
-data EditForm = EditForm
-    { eFullname :: Maybe Text
-    , eUsername :: Maybe Text
-    , eEmail    :: Maybe Text
-    }
+import Data.Maybe (fromMaybe)
 
 getProfileR :: Handler RepHtml
 getProfileR = do
@@ -33,141 +25,32 @@ getProfileR = do
 
     defaultLayout $ do
         setTitle "View profile"
-        [hamlet|
-            <h1>Your profile
-            <div .tabdiv>
-                <div .profile>
-                    <div .gravatar>
-                        <a title="change your profile picture at gravatar" href="http://gravatar.com/emails/">
-                            <img src="#{pic}">
+        addWidget $(widgetFile "profile")
 
-                    <table>
-                        <tr>
-                            <th>Full name:
-                            <td>#{fullname}
-                        <tr>
-                            <th>User name:
-                            <td>#{username}
-                        <tr>
-                            <th>Email address:
-                            <td>#{email}
-
-                    <p .edit-button>
-                        <a href="@{EditProfileR}">edit
-            |]
-
-        where
-            gravatarOpts :: GravatarOptions
-            gravatarOpts = defaultOptions
-                { gSize    = Just $ Size 48
-                , gDefault = Just MM
-                }
+    where
+        gravatarOpts :: GravatarOptions
+        gravatarOpts = defaultOptions
+            { gSize    = Just $ Size 48
+            , gDefault = Just MM
+            }
 
 getEditProfileR :: Handler RepHtml 
 getEditProfileR = defaultLayout $ do
     setTitle "Edit profile"
-    [hamlet|
-        <h1>Edit profile
-        <div .tabdiv>
-            <div .profile>
-                <p>
-                    Reviews and comments will be tagged with your user 
-                    name. If you leave it blank, your full name will be 
-                    used in stead.
-
-                <p>
-                    Your email is not publicly displayed anywhere. It 
-                    is used to find your gravatar image and may be used 
-                    in an upcoming "notifications" feature of the site 
-                    and even then, only if you opt-in.
-
-                <hr>
-
-                ^{showForm}
-
-                <p .delete-button>
-                    <a href="@{DeleteProfileR}">delete
-        |]
+    runProfileFormGet
 
 postEditProfileR :: Handler RepHtml
 postEditProfileR = do
-    (uid, u)          <- requireAuth
-    ((res, _   ), _ ) <- runFormMonadPost $ editForm u
-    case res of
-        FormSuccess ef -> saveChanges uid ef
-        _              -> return ()
-
-    -- we should never get here since all fields are optional
+    runProfileFormPost
     getEditProfileR
 
-showForm :: Widget ()
-showForm = do
-    (_, u)               <- lift requireAuth
-    ((_, form), enctype) <- lift . runFormMonadPost $ editForm u
-
-    [hamlet|<form enctype="#{enctype}" method="post">^{form}|]
-
--- todo: move to helpers.forms
-editForm :: User -> GFormMonad Renters Renters (FormResult EditForm, Widget())
-editForm u = do
-    (fFullname, fiFullname) <- maybeStringField "Full name:"     $ Just $ userFullname u
-    (fUsername, fiUsername) <- maybeStringField "User name:"     $ Just $ userUsername u
-    (fEmail   , fiEmail   ) <- maybeEmailField  "Email address:" $ Just $ userEmail u
-
-    return (EditForm <$> fFullname <*> fUsername <*> fEmail, [hamlet|
-            <table .edit-form>
-                ^{fieldRow fiFullname}
-                ^{fieldRow fiUsername}
-                ^{fieldRow fiEmail}
-                <tr>
-                    <td .buttons colspan="2">
-                        <input type="submit" value="Save">
-                    <td>&nbsp;
-            |])
-    where
-
-        fieldRow fi = [hamlet|
-            <tr ##{fiIdent fi}>
-                <th>
-                    <label for="#{fiIdent fi}">#{fiLabel fi}
-                    <div .tooltip>#{fiTooltip fi}
-                <td>
-                    ^{fiInput fi}
-                <td>
-                    $maybe error <- fiErrors fi
-                        #{error}
-                    $nothing
-                        &nbsp;
-            |]
-
--- todo: unique usernames, no numeric-only usernames
-saveChanges :: UserId -> EditForm -> Handler ()
-saveChanges uid ef = do
-    runDB $ update uid 
-        [ UserFullname $ eFullname ef
-        , UserUsername $ eUsername ef
-        , UserEmail    $ eEmail    ef
-        ]
-
-    tm <- getRouteToMaster
-    redirect RedirectTemporary $ tm ProfileR
-
 getDeleteProfileR :: Handler RepHtml
-getDeleteProfileR = defaultLayout [hamlet|
-    <h1>Are you sure?
-    <div .tabdiv>
-        <p>There's no going back. Everything of yours will be deleted.
+getDeleteProfileR = do
+    _ <- requireAuth
 
-        <p>
-            <em>Are you sure?
-
-        <div .confirm>
-            <form method="post">
-                <input type="Submit" value="Yes, I'm sure.">
-            <p .nothanks>
-                <a href="@{EditProfileR}">No, take me back.
-
-    |]
+    defaultLayout $ do
+        setTitle "Delete profile"
+        addWidget $(widgetFile "deleteprofile")
 
 postDeleteProfileR :: Handler RepHtml
 postDeleteProfileR = do

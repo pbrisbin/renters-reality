@@ -1,0 +1,15 @@
+$if null docs
+  <p>
+    I'm sorry, there are no reviews that meet your search criteria.
+
+  <p>
+    Would you like to 
+    <a href="@{NewR}">write one
+    ?
+
+$else
+  $forall doc <- docs
+      <div .searchresult>
+          ^{landlordGrade doc}
+          ^{reviewContentBlock doc True}
+          ^{reviewedByLink doc}

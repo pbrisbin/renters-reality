@@ -1,0 +1,8 @@
+<div .search-form>
+  <form .search method="get" action="@{SearchR}">
+   <p>
+     <input #search-input size=30 name="q">
+     <input type="submit" value="Search">
+
+<div .tabdiv>
+  ^{paginate myPageOptions docs}

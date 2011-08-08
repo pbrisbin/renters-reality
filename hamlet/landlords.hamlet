@@ -1,8 +1,17 @@
 <div .tabdiv>
-  <div .view-landlord>
-    ^{landlordGPA tp}
-    $forall d <- ldocs
-      <div .review>
-        ^{reviewedByGrade d}
-        ^{reviewContentBlock d True}
-        <a href=@{ReviewsR $ reviewId d}>Read more...
+  $if none
+    <p>
+      I'm sorry, #{landlordName l} has not been reviewed yet.
+
+    <p>
+      Would you like to 
+      <a href="@{NewR}landlord?#{landlordName l}">write one
+      ?
+  $else
+    <div .view-landlord>
+      ^{landlordGPA tp}
+      $forall d <- ldocs
+        <div .review>
+          ^{reviewedByGrade d}
+          ^{reviewContentBlock d True}
+          <a href=@{ReviewsR $ reviewId d}>Read more...
