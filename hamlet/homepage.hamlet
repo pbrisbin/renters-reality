@@ -12,11 +12,31 @@
     <div #main-forms>
       $maybe _ <- muid
         <div .accordion>
-          ^{searchForm}
-          ^{newForm}
+          <h3>Search reviews
+          <div>
+            <form .search method="get" action="@{SearchR}">
+              <p>
+                <input #search-input size=45 name="q">
+                <input type="submit" value="Search">
+              <p .search-tips>
+                <a #open-help href="#">search tips
+
+          <h3>Review your landlord
+          <div>
+              <form .new method="get" action="@{NewR}">
+                <p>
+                  <input #landlord-input size=45 name="landlord" placeholder="Name of landlord or management company">
+                  <input type="submit" value="Next">
 
       $nothing
-        ^{searchForm}
+        <h3>Search reviews
+        <div>
+          <form .search method="get" action="@{SearchR}">
+            <p>
+              <input #search-input size=45 name="q">
+              <input type="submit" value="Search">
+            <p .search-tips>
+              <a #open-help href="#">search tips
 
         <p>
           Please 
