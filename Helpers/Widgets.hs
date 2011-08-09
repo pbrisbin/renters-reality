@@ -45,7 +45,7 @@ reviewedByLink d@(Document rid _ _ _) = reviewedBy "reviewed-by-link" d
             <a href=@{ReviewsR rid}>Read more...
         |]
 
-reviewedBy :: Text    -- ^ div class
+reviewedBy :: Text      -- ^ div class
            -> Document  -- ^ source doc
            -> Widget () -- ^ right hand side
            -> Widget ()
@@ -62,17 +62,17 @@ reviewContentBlock :: Document
                    -> Bool -- ^ shorten?
                    -> Widget ()
 reviewContentBlock (Document _ r _ _) s = do
-    let content = if s
-            then markdownToHtml . shorten 400 $ reviewContent r
-            else markdownToHtml               $ reviewContent r
-
+    let short = if s then shorten 400 else id
     [hamlet|
         <div .review-address>
             <p>#{reviewAddress r}
 
         <div .review-content>
             <blockquote>
-                #{content}
+                $if s
+                    #{markdownToHtml $ short $ reviewContent r}
+                $else
+                    #{markdownToHtml $ reviewContent r}
         |]
 
 -- | Add an auto completion via jquery
