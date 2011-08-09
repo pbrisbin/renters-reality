@@ -11,7 +11,7 @@ getLandlordsR :: Key Landlord -> Handler RepHtml
 getLandlordsR lid = do
     docs <- siteDocs =<< getYesod
 
-    let ldocs = docsByLandlord lid docs
+    let ldocs = docsByLandlordId lid docs
     let none  = null ldocs -- no reviews?
 
     l <- if none

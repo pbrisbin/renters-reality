@@ -1,4 +1,3 @@
-{-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE FlexibleContexts           #-}
@@ -65,8 +64,8 @@ formatAddress (Document _ r _ _) = T.map go . T.filter (/= '\r') . unTextarea $ 
         go '\n' = ' '
         go x    = x
 
-docsByLandlord :: LandlordId -> [Document] -> [Document]
-docsByLandlord lid = filter ((lEq lid) . reviewLandlord . review)
+docsByLandlordId :: LandlordId -> [Document] -> [Document]
+docsByLandlordId lid = filter ((lEq lid) . reviewLandlord . review)
 
     where
         lEq :: LandlordId -> LandlordId -> Bool

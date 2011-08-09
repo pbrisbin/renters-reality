@@ -20,7 +20,7 @@ getFeedR = do
 getFeedLandlordR :: LandlordId -> Handler RepRss
 getFeedLandlordR lid = do
     docs <- siteDocs =<< getYesod
-    case docsByLandlord lid docs of
+    case docsByLandlordId lid docs of
         []   -> notFound
         docs' -> feedFromDocs docs'
 
