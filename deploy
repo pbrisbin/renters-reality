@@ -2,6 +2,8 @@
 
 ip="${1:-rentersreality.com}"
 
+deptag # tag deployments
+
 touch config/Settings.hs
 cabal install --bindir=./
 
