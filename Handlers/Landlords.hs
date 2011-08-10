@@ -4,6 +4,7 @@
 module Handlers.Landlords (getLandlordsR) where
 
 import Renters
+import Helpers.Widgets
 import Yesod.Helpers.RssFeed
 import qualified Data.Text as T
 
@@ -23,4 +24,4 @@ getLandlordsR lid = do
     defaultLayout $ do
         setTitle . T.unpack $ landlordName l
         rssLink (FeedLandlordR lid) ((++) "rss feed for " . T.unpack $ landlordName l)
-        addWidget $(widgetFile "landlord")
+        addWidget $(widgetFile "landlords")
