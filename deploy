@@ -10,9 +10,8 @@ cabal install --bindir=./
 scp ./renters "$ip":~/
 
 ssh -t "$ip" '
-  sudo /etc/rc.d/lighttpd stop             &&
-  cp -v  /srv/http/app.cgi ./app.cgi.bak   &&
-  sudo cp -v  ./renters  /srv/http/app.cgi &&
-  sudo /etc/rc.d/lighttpd start            &&
+  sudo /etc/rc.d/lighttpd stop        &&
+  sudo mv ./renters /srv/http/app.cgi &&
+  sudo /etc/rc.d/lighttpd start       &&
   sleep 3
 '
