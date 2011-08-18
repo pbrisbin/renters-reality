@@ -79,6 +79,7 @@ instance YesodBreadcrumbs Renters where
 instance YesodComments Renters where
     getComment       = getCommentPersist
     storeComment     = storeCommentPersist
+    updateComment    = updateCommentPersist
     deleteComment    = deleteCommentPersist
     loadComments     = loadCommentsPersist
     displayUser  uid = return .                maybe ""      showName  =<< runDB (get uid)

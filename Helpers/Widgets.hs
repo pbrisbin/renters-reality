@@ -4,8 +4,11 @@
 module Helpers.Widgets where
 
 import Renters
-import Yesod.Goodies
-import Data.Text (Text)
+
+import Data.Text              (Text)
+import Yesod.Goodies.Markdown (markdownToHtml)
+import Yesod.Goodies.Shorten  (shorten)
+import Yesod.Goodies.Time     (humanReadableTime)
 
 -- | Landlord name ... GPA
 landlordGPA :: (Landlord, [Document]) -> Widget ()
@@ -69,10 +72,7 @@ reviewContentBlock (Document _ r _ _) s = do
 
         <div .review-content>
             <blockquote>
-                $if s
-                    #{markdownToHtml $ short $ reviewContent r}
-                $else
-                    #{markdownToHtml $ reviewContent r}
+                #{markdownToHtml $ short $ reviewContent r}
         |]
 
 -- | Add an auto completion via jquery
