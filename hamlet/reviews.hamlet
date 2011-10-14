@@ -1,4 +1,4 @@
-<div .tabdiv>
+<div .content>
   <div .view-review>
     ^{landlordGrade d}
     ^{reviewContentBlock d False}

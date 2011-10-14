@@ -10,8 +10,8 @@ module Helpers.Search
     , looseMatch
     ) where
 
-import Renters
-import Yesod.Goodies.Search
+import Foundation
+import Yesod.Goodies
 import Control.Monad (forM)
 import Data.List     (nub)
 import Data.Ord      (comparing)
@@ -63,7 +63,7 @@ fullSearch = search_
 
 uniqueLandlords :: Handler [Text]
 uniqueLandlords = do
-    lls <- runDB (selectList [] [LandlordNameAsc] 0 0)
+    lls <- runDB $ selectList [] [Asc LandlordName]
     forM lls $ \(_, v) -> do
         return $ landlordName v
 

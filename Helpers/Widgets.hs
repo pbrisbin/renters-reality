@@ -3,18 +3,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Helpers.Widgets where
 
-import Renters
-
-import Data.Text              (Text)
-import Yesod.Goodies.Markdown (markdownToHtml)
-import Yesod.Goodies.Shorten  (shorten)
-import Yesod.Goodies.Time     (humanReadableTime)
+import Foundation
+import Yesod.Goodies
+import Data.Text (Text)
 
 -- | Landlord name ... GPA
-landlordGPA :: (Landlord, [Document]) -> Widget ()
+landlordGPA :: (Landlord, [Document]) -> Widget
 landlordGPA (l, docs) = do
     let gpa' = gpa $ map (reviewGrade . review) docs
-    [hamlet|
+    [whamlet|
         <div .landlord-gpa>
             <p>
                 #{landlordName $ l}
@@ -23,8 +20,8 @@ landlordGPA (l, docs) = do
     |]
 
 -- | Landlord name ... Grade
-landlordGrade :: Document -> Widget ()
-landlordGrade (Document _ r l _) = [hamlet|
+landlordGrade :: Document -> Widget
+landlordGrade (Document _ r l _) = [whamlet|
     <div .landlord-grade>
         <p>
             <a href=@{LandlordsR $ reviewLandlord r}>#{landlordName $ l}
@@ -33,28 +30,28 @@ landlordGrade (Document _ r l _) = [hamlet|
     |]
 
 -- | Reviewed by when ... Grade
-reviewedByGrade :: Document -> Widget ()
+reviewedByGrade :: Document -> Widget
 reviewedByGrade d@(Document _ r _ _) = reviewedBy "reviewed-by-grade" d
-    [hamlet|
+    [whamlet|
         <span .grade>
             Grade: #{prettyGrade $ reviewGrade r}
         |]
 
 -- | Reviewed by when ... link to review
-reviewedByLink :: Document -> Widget ()
+reviewedByLink :: Document -> Widget
 reviewedByLink d@(Document rid _ _ _) = reviewedBy "reviewed-by-link" d
-    [hamlet|
+    [whamlet|
         <span .review-link>
             <a href=@{ReviewsR rid}>Read more...
         |]
 
 reviewedBy :: Text      -- ^ div class
            -> Document  -- ^ source doc
-           -> Widget () -- ^ right hand side
-           -> Widget ()
+           -> Widget    -- ^ right hand side
+           -> Widget
 reviewedBy c (Document _ r _ u) w = do
-    reviewTime <- lift . humanReadableTime $ reviewCreatedDate r
-    [hamlet|
+    reviewTime <- lift . liftIO . humanReadableTime $ reviewCreatedDate r
+    [whamlet|
         <div .#{c}>
             <p>
                 Reviewed by #{showName u} #{reviewTime}
@@ -63,10 +60,10 @@ reviewedBy c (Document _ r _ u) w = do
 
 reviewContentBlock :: Document
                    -> Bool -- ^ shorten?
-                   -> Widget ()
+                   -> Widget
 reviewContentBlock (Document _ r _ _) s = do
     let short = if s then shorten 400 else id
-    [hamlet|
+    [whamlet|
         <div .review-address>
             <p>#{reviewAddress r}
 
@@ -76,13 +73,13 @@ reviewContentBlock (Document _ r _ _) s = do
         |]
 
 -- | Add an auto completion via jquery
-addAutoCompletion :: Text    -- ^ input id
-                  -> Route m -- ^ JSON route
-                  -> GWidget s m ()
+addAutoCompletion :: Text         -- ^ input id
+                  -> RentersRoute -- ^ JSON route
+                  -> Widget
 addAutoCompletion ident route = addWidget $(widgetFile "_autocompletion")
 
 -- | Add contents as a popup helpbox. NOTE: you must add some clickable 
 --   element with the id "open-help" somewhere on the page
-addHelpBox :: GWidget s m () -- help box contents
-           -> GWidget s m ()
+addHelpBox :: Widget -- ^ help box contents
+           -> Widget
 addHelpBox contents = addWidget $(widgetFile "_helpbox")

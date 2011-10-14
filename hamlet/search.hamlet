@@ -4,5 +4,5 @@
      <input #search-input size=30 name="q">
      <input type="submit" value="Search">
 
-<div .tabdiv>
+<div .content>
   ^{paginate myPageOptions docs}

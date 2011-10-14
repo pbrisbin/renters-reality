@@ -1,5 +1,6 @@
-{-# LANGUAGE QuasiQuotes       #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes                 #-}
+{-# LANGUAGE OverloadedStrings           #-}
+{-# OPTIONS -fno-warn-missing-signatures #-}
 module Helpers.Forms
     ( runReviewFormNew
     , runReviewFormEdit
@@ -7,20 +8,15 @@ module Helpers.Forms
     , runProfileFormPost
     ) where
 
-import Renters
+import Foundation
 import Helpers.Widgets
-import Yesod.Helpers.Auth
-import Yesod.Goodies.Markdown
-import Yesod.Form.Core     (GFormMonad)
+import Yesod.Goodies
 import Control.Applicative ((<$>),(<*>))
-import Data.Monoid         (mempty)
 import Data.Time           (getCurrentTime)
 import Network.Wai         (remoteHost)
 
 import Data.Text (Text)
 import qualified Data.Text as T
-
-type FormMonad a = GFormMonad Renters Renters a
 
 data ReviewForm = ReviewForm
     { rfIp        :: Text
@@ -39,17 +35,17 @@ data ProfileEditForm = ProfileEditForm
 
 data MarkdownExample = MarkdownExample
     { mdText :: String
-    , mdHtml :: Widget ()
+    , mdHtml :: Widget
     }
 
-runProfileFormGet :: Widget ()
+runProfileFormGet :: Widget
 runProfileFormGet = do
     (_, u)               <- lift requireAuth
-    ((_, form), enctype) <- lift . runFormMonadPost $ profileEditForm u
+    ((_, form), enctype) <- lift . runFormPost $ profileEditForm u
 
-    [hamlet|
+    [whamlet|
         <h1>Edit profile
-        <div .tabdiv>
+        <div .content>
             <div .profile>
                 <p>
                     Reviews and comments will be tagged with your user 
@@ -65,7 +61,12 @@ runProfileFormGet = do
                 <hr>
 
                 <form enctype="#{enctype}" method="post">
-                    ^{form}
+                    <table>
+                        ^{form}
+                        <tr>
+                            <td>&nbsp;
+                            <td .buttons>
+                                <input type="submit" value="Save">
 
                 <p .delete-button>
                     <a href="@{DeleteProfileR}">delete
@@ -74,7 +75,7 @@ runProfileFormGet = do
 runProfileFormPost :: Handler ()
 runProfileFormPost = do
     (uid, u)          <- requireAuth
-    ((res, _   ), _ ) <- runFormMonadPost $ profileEditForm u
+    ((res, _   ), _ ) <- runFormPost $ profileEditForm u
     case res of
         FormSuccess ef -> saveChanges uid ef
         _              -> return ()
@@ -83,18 +84,18 @@ runProfileFormPost = do
         saveChanges :: UserId -> ProfileEditForm -> Handler ()
         saveChanges uid ef = do
             runDB $ update uid 
-                [ UserFullname $ eFullname ef
-                , UserUsername $ eUsername ef
-                , UserEmail    $ eEmail    ef
+                [ UserFullname =. eFullname ef
+                , UserUsername =. eUsername ef
+                , UserEmail    =. eEmail    ef
                 ]
 
             tm <- getRouteToMaster
             redirect RedirectTemporary $ tm ProfileR
 
-runReviewFormEdit :: Document -> Widget ()
+runReviewFormEdit :: Document -> Widget
 runReviewFormEdit (Document rid r l _) = do
     ip <- lift $ return . T.pack . show . remoteHost =<< waiRequest
-    ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm (Just r) (Just $ landlordName l) ip
+    ((res, form), enctype) <- lift . runFormPost $ reviewForm (Just r) (Just $ landlordName l) ip
     case res of
         FormMissing    -> return ()
         FormFailure _  -> return ()
@@ -103,7 +104,7 @@ runReviewFormEdit (Document rid r l _) = do
             _   <- updateFromForm rf
             redirect RedirectTemporary $ tm (ReviewsR rid)
 
-    [hamlet|<form enctype="#{enctype}" method="post">^{form}|]
+    [whamlet|<form enctype="#{enctype}" method="post">^{form}|]
 
     addAutoCompletion "input#landlord" CompLandlordsR
     addHelpBox helpBoxContents
@@ -114,20 +115,20 @@ runReviewFormEdit (Document rid r l _) = do
             -- might've changed
             landlordId <- findOrCreate $ Landlord $ rfLandlord rf
 
-            runDB $ update rid [ ReviewLandlord landlordId
-                               , ReviewGrade     $ rfGrade     rf
-                               , ReviewAddress   $ rfAddress   rf
-                               , ReviewTimeframe $ rfTimeframe rf
-                               , ReviewContent   $ rfReview    rf
+            runDB $ update rid [ ReviewLandlord  =.landlordId
+                               , ReviewGrade     =. rfGrade     rf
+                               , ReviewAddress   =. rfAddress   rf
+                               , ReviewTimeframe =. rfTimeframe rf
+                               , ReviewContent   =. rfReview    rf
                                ]
 
             -- for type consistency
             return rid
 
-runReviewFormNew :: UserId -> Maybe T.Text -> Widget ()
+runReviewFormNew :: UserId -> Maybe T.Text -> Widget
 runReviewFormNew uid ml = do
     ip <- lift $ return . T.pack . show . remoteHost =<< waiRequest
-    ((res, form), enctype) <- lift . runFormMonadPost $ reviewForm Nothing ml ip
+    ((res, form), enctype) <- lift . runFormPost $ reviewForm Nothing ml ip
     case res of
         FormMissing    -> return ()
         FormFailure _  -> return ()
@@ -136,7 +137,7 @@ runReviewFormNew uid ml = do
             rid <- insertFromForm rf
             redirect RedirectTemporary $ tm (ReviewsR rid)
 
-    [hamlet|<form enctype="#{enctype}" method="post">^{form}|]
+    [whamlet|<form enctype="#{enctype}" method="post">^{form}|]
 
     addAutoCompletion "input#landlord" CompLandlordsR
     addHelpBox helpBoxContents
@@ -158,56 +159,32 @@ runReviewFormNew uid ml = do
                     , reviewLandlord    = landlordId
                     }
 
-
-
-profileEditForm :: User -> FormMonad (FormResult ProfileEditForm, Widget())
-profileEditForm u = do
-    (fFullname, fiFullname) <- maybeStringField "Full name:"     $ Just $ userFullname u
-    (fUsername, fiUsername) <- maybeStringField "User name:"     $ Just $ userUsername u
-    (fEmail   , fiEmail   ) <- maybeEmailField  "Email address:" $ Just $ userEmail u
-
-    return (ProfileEditForm <$> fFullname <*> fUsername <*> fEmail, [hamlet|
-            <table .edit-form>
-                ^{fieldRow fiFullname}
-                ^{fieldRow fiUsername}
-                ^{fieldRow fiEmail}
-                <tr>
-                    <td .buttons colspan="2">
-                        <input type="submit" value="Save">
-                    <td>&nbsp;
-            |])
-
-    where
-        fieldRow fi = [hamlet|
-            <tr ##{fiIdent fi}>
-                <th>
-                    <label for="#{fiIdent fi}">#{fiLabel fi}
-                    <div .tooltip>#{fiTooltip fi}
-                <td>
-                    ^{fiInput fi}
-                <td>
-                    $maybe error <- fiErrors fi
-                        #{error}
-                    $nothing
-                        &nbsp;
-            |]
+profileEditForm :: User -> Html -> Form Renters Renters (FormResult ProfileEditForm, Widget)
+profileEditForm u = renderTable $ ProfileEditForm
+    <$> aopt textField "Full name" (Just $ userFullname u)
+    <*> aopt textField "User name" (Just $ userUsername u)
+    <*> aopt emailField "Email:"
+        { fsTooltip = Just "never displayed, only used to find your gravatar"
+        } (Just $ userEmail u)
 
 reviewForm :: Maybe Review -- ^ for use in edit
            -> Maybe Text   -- ^ maybe landlord name (for use in new)
            -> Text         -- ^ IP address of submitter
-           -> FormMonad (FormResult ReviewForm, Widget())
-reviewForm mr ml ip = do
-    (fIp       , fiIp       ) <- hiddenField    (ffs ""            "ip"       ) $ Just ip
-    (fLandlord , fiLandlord ) <- stringField    (ffs "Landlord:"   "landlord" ) $ ml
-    (fAddress  , fiAddress  ) <- textareaField  (ffs "Address:"    "address"  ) $ fmap reviewAddress   mr
-    (fTimeframe, fiTimeframe) <- stringField    (ffs "Time frame:" "timeframe") $ fmap reviewTimeframe mr
-    (fGrade    , fiGrade    ) <- selectField'   (ffs "Grade:"      "grade"    ) $ fmap reviewGrade     mr
-    (fReview   , fiReview   ) <- markdownField  (ffs "Review:"     "review"   ) $ fmap reviewContent   mr
+           -> Html         -- ^ nonce fragment
+           -> Form Renters Renters (FormResult ReviewForm, Widget)
+reviewForm mr ml ip fragment = do
+    (fIp       , fiIp       ) <- mreq hiddenField   (ffs ""            "ip"       ) (Just ip                )
+    (fLandlord , fiLandlord ) <- mreq textField     (ffs "Landlord:"   "landlord" ) (ml                     )
+    (fAddress  , fiAddress  ) <- mreq textareaField (ffs "Address:"    "address"  ) (fmap reviewAddress   mr)
+    (fTimeframe, fiTimeframe) <- mreq textField     (ffs "Time frame:" "timeframe") (fmap reviewTimeframe mr)
+    (fGrade    , fiGrade    ) <- mreq selectGrade   (ffs "Grade:"      "grade"    ) (fmap reviewGrade     mr)
+    (fReview   , fiReview   ) <- mreq markdownField (ffs "Review:"     "review"   ) (fmap reviewContent   mr)
 
     return (ReviewForm 
         <$> fIp      <*> fLandlord  
         <*> fAddress <*> fTimeframe  
-        <*> fGrade <*> fReview, [hamlet|
+        <*> fGrade   <*> fReview, [whamlet|
+            #{fragment}
             <table .review-form>
                 <tr #ip>^{fieldCell 4 fiIp}
 
@@ -240,45 +217,46 @@ reviewForm mr ml ip = do
             |])
 
         where
-            selectField' = selectField gradesList
+            selectGrade = selectField gradesList
                 where
-                    gradesList :: [(Grade, Text)]
-                    gradesList = [ (Aplus , "A+")
-                                 , (A     , "A" )
-                                 , (Aminus, "A-")
-                                 , (Bplus , "B+")
-                                 , (B     , "B" )
-                                 , (Bminus, "B-")
-                                 , (Cplus , "C+")
-                                 , (C     , "C" )
-                                 , (Cminus, "C-")
-                                 , (Dplus , "D+")
-                                 , (D     , "D" )
-                                 , (Dminus, "D-")
-                                 , (F     , "F" )
+                    gradesList :: [(Text, Grade)]
+                    gradesList = [ ("A+", Aplus )
+                                 , ("A" , A     )
+                                 , ("A-", Aminus)
+                                 , ("B+", Bplus )
+                                 , ("B" , B     )
+                                 , ("B-", Bminus)
+                                 , ("C+", Cplus )
+                                 , ("C" , C     )
+                                 , ("C-", Cminus)
+                                 , ("D+", Dplus )
+                                 , ("D" , D     )
+                                 , ("D-", Dminus)
+                                 , ("F" , F     )
                                  ]
 
-            ffs :: Text -> Text -> FormFieldSettings
-            ffs label theId = FormFieldSettings label mempty (Just theId) Nothing
+            ffs :: Text -> Text -> FieldSettings Text
+            ffs label theId = FieldSettings label Nothing (Just theId) Nothing
 
             -- span for the input cell only
-            fieldCell :: Int -> FieldInfo s m -> GWidget s m ()
-            fieldCell colspan fi = [hamlet|
+            fieldCell :: Int -> FieldView s m -> GWidget s m ()
+            fieldCell colspan fv = [whamlet|
                 <th>
-                    <label for="#{fiIdent fi}">#{fiLabel fi}
-                <td ##{fiIdent fi} colspan=#{show colspan}>^{fiInput fi}
+                    <label for="#{fvId fv}">#{fvLabel fv}
+                <td ##{fvId fv} colspan=#{show colspan}>^{fvInput fv}
                 <td>
-                    $maybe error <- fiErrors fi
+                    $maybe error <- fvErrors fv
                         #{error}
                     $nothing
                         &nbsp;
                 |]
 
-findOrCreate :: PersistEntity a => a -> Handler (Key a)
+-- FIXME: kind mismatch?
+--findOrCreate :: PersistEntity v => v -> Handler (Key Renters v)
 findOrCreate v = return . either fst id =<< runDB (insertBy v)
 
-helpBoxContents :: Widget ()
-helpBoxContents = [hamlet|
+helpBoxContents :: Widget
+helpBoxContents = [whamlet|
         <h3>Some quick examples:
 
         $forall mdExample <- mdExamples
@@ -295,14 +273,14 @@ helpBoxContents = [hamlet|
 
 mdExamples :: [MarkdownExample]
 mdExamples = [ MarkdownExample "*italic text*"
-                    [hamlet|<em>italic text|]
+                    [whamlet|<em>italic text|]
 
              , MarkdownExample "**bold text**"
-                    [hamlet|<strong>bold text|]
+                    [whamlet|<strong>bold text|]
 
              , MarkdownExample "[some link](http://example.com \"link title\")"
-                    [hamlet|<a href="http://example.com" title="link title">some link|]
+                    [whamlet|<a href="http://example.com" title="link title">some link|]
 
              , MarkdownExample "![even images](http://pbrisbin.com/static/images/feed.png)"
-                    [hamlet|<img alt="even images" src="http://pbrisbin.com/static/images/feed.png">|]
+                    [whamlet|<img alt="even images" src="http://pbrisbin.com/static/images/feed.png">|]
              ]

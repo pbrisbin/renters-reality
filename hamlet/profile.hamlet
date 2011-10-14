@@ -1,5 +1,5 @@
 <h1>Your profile
-<div .tabdiv>
+<div .content>
   <div .profile>
     <div .gravatar>
       <a title="change your profile picture at gravatar" href="http://gravatar.com/emails/">

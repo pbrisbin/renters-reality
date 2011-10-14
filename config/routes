@@ -15,4 +15,5 @@
 /favicon.ico           FaviconR        GET
 /robots.txt            RobotsR         GET
 
-/auth AuthR Auth getAuth
+/auth   AuthR   Auth   getAuth
+/static StaticR Static getStatic

@@ -1,0 +1,17 @@
+Default: &defaults
+  host: "localhost"
+  port: 3000
+
+Development:
+  <<: *defaults
+
+Test:
+  <<: *defaults
+
+Staging:
+  <<: *defaults
+
+Production:
+  host: "rentersreality.com"
+  port: 80
+  <<: *defaults

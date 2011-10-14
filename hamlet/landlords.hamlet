@@ -1,4 +1,4 @@
-<div .tabdiv>
+<div .content>
   $if none
     <p>
       I'm sorry, #{landlordName l} has not been reviewed yet.

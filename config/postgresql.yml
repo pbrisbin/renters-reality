@@ -1,0 +1,20 @@
+Default: &defaults
+  user: renters
+  password: reality
+  host: localhost
+  port: 5432
+  database: renters
+  poolsize: 10
+
+Development:
+  <<: *defaults
+
+Test:
+  <<: *defaults
+
+Staging:
+  <<: *defaults
+
+Production:
+  poolsize: 100
+  <<: *defaults

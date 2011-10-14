@@ -1,0 +1,16 @@
+#!/bin/bash -e
+
+ip="${1:-rentersreality.com}"
+
+deptag # tag deployments
+
+touch Settings.hs
+cabal clean
+cabal install -fproduction
+
+ssh "$ip" '
+  cd renters             &&
+  bin/selfupdate.sh      &&
+  bin/service.sh restart &&
+  sleep 3
+'

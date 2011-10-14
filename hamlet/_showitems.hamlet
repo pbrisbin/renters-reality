@@ -9,7 +9,7 @@ $if null docs
 
 $else
   $forall doc <- docs
-      <div .searchresult>
-          ^{landlordGrade doc}
-          ^{reviewContentBlock doc True}
-          ^{reviewedByLink doc}
+    <div .searchresult>
+      ^{landlordGrade doc}
+      ^{reviewContentBlock doc True}
+      ^{reviewedByLink doc}
