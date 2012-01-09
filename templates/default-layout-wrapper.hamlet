@@ -27,4 +27,8 @@
           <small>
             copyright patrick brisbin 2011. 
             <a href="https://github.com/pbrisbin/renters-reality">source code. 
-            <a href="@{LegalR}">legal
+            powered by 
+            <a href="http://yesodweb.com">yesod 
+            and 
+            <a href="http://twitter.github.com/bootstrap/">bootstrap
+            \.

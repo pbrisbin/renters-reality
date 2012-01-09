@@ -7,6 +7,8 @@
   outline: none;
 }
 
+footer { text-align: center; }
+
 /* yesod-comments {{{ */
 .yesod_comment_avatar_input img,
 .yesod_comment_avatar_list  img {
