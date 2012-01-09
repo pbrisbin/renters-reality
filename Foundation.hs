@@ -20,7 +20,7 @@ module Foundation
     , AuthRoute (..)
     ) where
 
-import Yesod hiding (setTitle)
+import Yesod hiding (setTitle, AppConfig(..), withYamlEnvironment)
 import Yesod.Static (Static, base64md5, StaticRoute(..))
 import Settings.StaticFiles
 import Yesod.Auth
@@ -42,7 +42,7 @@ import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
 
 data Renters = Renters
-    { settings  :: AppConfig DefaultEnv
+    { settings  :: AppConfig DefaultEnv ()
     , getLogger :: Logger
     , getStatic :: Static
     , connPool  :: Base.PersistConfigPool Settings.PersistConfig
@@ -62,9 +62,8 @@ instance Yesod Renters where
         mmsg  <- getMessage
         mauth <- maybeAuth
         pc    <- widgetToPageContent $ do
-            $(widgetFile "normalize")
             $(widgetFile "default-layout")
-        hamletToRepHtml $(hamletFile "hamlet/default-layout-wrapper.hamlet")
+        hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
 
     authRoute _ = Just $ AuthR LoginR
 

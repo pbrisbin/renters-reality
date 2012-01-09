@@ -159,7 +159,7 @@ runReviewFormNew uid ml = do
                     , reviewLandlord    = landlordId
                     }
 
-profileEditForm :: User -> Html -> Form Renters Renters (FormResult ProfileEditForm, Widget)
+profileEditForm :: User -> Html -> MForm Renters Renters (FormResult ProfileEditForm, Widget)
 profileEditForm u = renderTable $ ProfileEditForm
     <$> aopt textField "Full name" (Just $ userFullname u)
     <*> aopt textField "User name" (Just $ userUsername u)
@@ -171,7 +171,7 @@ reviewForm :: Maybe Review -- ^ for use in edit
            -> Maybe Text   -- ^ maybe landlord name (for use in new)
            -> Text         -- ^ IP address of submitter
            -> Html         -- ^ nonce fragment
-           -> Form Renters Renters (FormResult ReviewForm, Widget)
+           -> MForm Renters Renters (FormResult ReviewForm, Widget)
 reviewForm mr ml ip fragment = do
     (fIp       , fiIp       ) <- mreq hiddenField   (ffs ""            "ip"       ) (Just ip                )
     (fLandlord , fiLandlord ) <- mreq textField     (ffs "Landlord:"   "landlord" ) (ml                     )

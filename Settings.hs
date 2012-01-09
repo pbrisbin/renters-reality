@@ -25,12 +25,13 @@ type PersistConfig = PostgresConf
 staticDir :: FilePath
 staticDir = "static"
 
-staticRoot :: AppConfig DefaultEnv -> Text
+staticRoot :: AppConfig DefaultEnv () -> Text
 staticRoot conf = [st|#{appRoot conf}/static|]
 
 widgetFile :: String -> Q Exp
+widgetFile =
 #if PRODUCTION
-widgetFile = Yesod.Default.Util.widgetFileProduction
+    Yesod.Default.Util.widgetFileNoReload
 #else
-widgetFile = Yesod.Default.Util.widgetFileDebug
+    Yesod.Default.Util.widgetFileReload
 #endif

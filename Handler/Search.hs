@@ -14,26 +14,21 @@ import Yesod.Goodies
 getSearchR :: Handler RepHtml
 getSearchR = do
     mterm <- lookupGetParam "q"
-    docs <- case mterm of
+    docs' <- case mterm of
         Nothing   -> siteDocs =<< getYesod
         Just ""   -> siteDocs =<< getYesod
         Just term -> do
-            docs' <- siteDocs =<< getYesod
+            docs'' <- siteDocs =<< getYesod
             return $ tryPrefixes term [ ("landlord:", searchByLandlord)
                                       , ("address:" , searchByAddress )
-                                      ] fullSearch docs'
+                                      ] fullSearch docs''
+
+    (docs, pageWidget) <- paginate 4 docs'
 
     defaultLayout $ do
         setTitle "Search results" 
         addWidget $(widgetFile "search")
         addAutoCompletion "#search-input" CompSearchesR
-
-    where
-        myPageOptions :: PageOptions Document Renters Renters
-        myPageOptions = PageOptions
-            { itemsPerPage = 5
-            , showItems    = \docs -> addWidget $(widgetFile "_showitems")
-            }
 
 getCompLandlordsR :: Handler RepJson
 getCompLandlordsR = generalCompletion $ \t -> do

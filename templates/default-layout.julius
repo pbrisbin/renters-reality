@@ -1,4 +1,5 @@
 $(function() {
-  $('.tabbed').tabs();
+  $('#topbar').dropdown();
+  $('.tabs').tabs();
   $('.accordion').accordion({ autoHeight: false });
 });

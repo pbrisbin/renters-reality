@@ -1,0 +1,30 @@
+!!!
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>#{pageTitle pc}
+    <meta name="description" content="Submit and search reviews for landlords in your area.">
+    <meta name="author" content="Patrick Brisbin">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="review, reviews, renter, renters, landlord, landlords, apartment, apartments, property, properties">
+
+    \<!-- jquery  -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js">
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js">
+
+    \<!-- bootstrap -->
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
+    <script src="//twitter.github.com/bootstrap/1.4.0/bootstrap-tabs.js">
+    <script src="//twitter.github.com/bootstrap/1.4.0/bootstrap-dropdown.js">
+
+    ^{pageHead pc}
+  <body
+    <div .container>
+      ^{pageBody pc}
+
+      <footer>
+        <p>
+          <small>
+            copyright patrick brisbin 2011. 
+            <a href="https://github.com/pbrisbin/renters-reality">source code. 
+            <a href="@{LegalR}">legal

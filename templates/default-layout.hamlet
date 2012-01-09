@@ -1,0 +1,26 @@
+<div #topbar .topbar data-dropdown="dropdown">
+  <div .topbar-inner>
+    <div .container>
+      <h3>
+        <a href="@{RootR}">Renters' Reality
+
+      <ul .nav .secondary-nav>
+        $maybe uid <- mauth
+          <li .dropdown>
+            <a href="#" .dropdown-toggle>#{showName $ snd uid}
+            <ul .dropdown-menu>
+              <li>
+                <a href="@{ProfileR}">Your profile
+              <li>
+                <a href="@{AuthR LogoutR}">Logout
+        $nothing
+          <li>
+            <a href="@{AuthR LoginR}">Login
+
+<div style="display:block;height:45px;">
+
+$maybe msg <- mmsg
+  <div .alert-message .info>
+    <p>#{msg}
+
+^{widget}

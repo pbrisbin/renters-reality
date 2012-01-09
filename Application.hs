@@ -34,7 +34,7 @@ import Handler.Feed
 
 mkYesodDispatch "Renters" resourcesRenters
 
-withRenters :: AppConfig DefaultEnv -> Logger -> (Application -> IO ()) -> IO ()
+withRenters :: AppConfig DefaultEnv () -> Logger -> (Application -> IO ()) -> IO ()
 withRenters conf logger f = do
 #ifdef PRODUCTION
     s <- static Settings.staticDir

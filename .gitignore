@@ -1,3 +1,4 @@
-renters
 dist
+static
+.static-cache
 *.aes
