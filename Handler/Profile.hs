@@ -24,7 +24,7 @@ getProfileR = do
 
     defaultLayout $ do
         setTitle "View profile"
-        addWidget $(widgetFile "profile")
+        addWidget $(widgetFile "profile/show")
 
     where
         gravatarOpts :: GravatarOptions
@@ -34,9 +34,13 @@ getProfileR = do
             }
 
 getEditProfileR :: Handler RepHtml 
-getEditProfileR = defaultLayout $ do
-    setTitle "Edit profile"
-    runProfileFormGet
+getEditProfileR = do
+    (_, u)               <- requireAuth
+    ((_, form), enctype) <- runFormPost $ profileEditForm u
+
+    defaultLayout $ do
+        setTitle "Edit profile"
+        addWidget $(widgetFile "profile/edit")
 
 postEditProfileR :: Handler RepHtml
 postEditProfileR = do
@@ -49,7 +53,7 @@ getDeleteProfileR = do
 
     defaultLayout $ do
         setTitle "Delete profile"
-        addWidget $(widgetFile "deleteprofile")
+        addWidget $(widgetFile "profile/delete")
 
 postDeleteProfileR :: Handler RepHtml
 postDeleteProfileR = do

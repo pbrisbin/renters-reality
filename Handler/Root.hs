@@ -10,4 +10,4 @@ getRootR = do
     muid <- maybeAuthId
     defaultLayout $ do
         setTitle "Home"
-        addWidget $(widgetFile "homepage")
+        addWidget $(widgetFile "root")

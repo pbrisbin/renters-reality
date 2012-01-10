@@ -25,8 +25,6 @@ import qualified Data.Map as M
 import Handler.Root
 import Handler.Legal
 import Handler.Search
-import Handler.New
-import Handler.Edit
 import Handler.Profile
 import Handler.Reviews
 import Handler.Landlords

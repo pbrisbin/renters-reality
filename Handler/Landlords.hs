@@ -24,4 +24,4 @@ getLandlordsR lid = do
     defaultLayout $ do
         setTitle . T.unpack $ landlordName l
         rssLink (FeedLandlordR lid) ((++) "rss feed for " . T.unpack $ landlordName l)
-        addWidget $(widgetFile "landlords")
+        addWidget $(widgetFile "landlord/show")

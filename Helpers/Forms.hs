@@ -4,8 +4,8 @@
 module Helpers.Forms
     ( runReviewFormNew
     , runReviewFormEdit
-    , runProfileFormGet
     , runProfileFormPost
+    , profileEditForm
     ) where
 
 import Foundation
@@ -36,28 +36,6 @@ data ProfileEditForm = ProfileEditForm
     --{ mdText :: String
     --, mdHtml :: Widget
     --}
-
-runProfileFormGet :: Widget
-runProfileFormGet = do
-    (_, u)               <- lift requireAuth
-    ((_, form), enctype) <- lift . runFormPost $ profileEditForm u
-
-    [whamlet|
-        <div .content>
-            <div .page-header>
-                <h1>Edit profile
-
-            <div .pull-right>
-                <a href="@{DeleteProfileR}" .btn .danger>Delete
-
-            <form enctype="#{enctype}" method="post">
-                <table .condensed-table .border-free-table>
-                    ^{form}
-                    <tr>
-                        <td>&nbsp;
-                        <td>
-                            <input .btn type="submit" value="Save">
-        |]
 
 runProfileFormPost :: Handler ()
 runProfileFormPost = do

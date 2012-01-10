@@ -31,18 +31,15 @@ library
                      Model
                      Settings
                      Settings.StaticFiles
-                     Handler.Edit
                      Handler.Feed
                      Handler.Landlords
                      Handler.Legal
-                     Handler.New
                      Handler.Profile
                      Handler.Reviews
                      Handler.Root
                      Handler.Search
                      Helpers.Forms
                      Helpers.Search
-                     Helpers.Widgets
 
     ghc-options:   -Wall -threaded -O0
 

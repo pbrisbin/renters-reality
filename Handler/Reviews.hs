@@ -4,11 +4,17 @@
 module Handler.Reviews 
     ( getReviewsR
     , postReviewsR
+    , getEditR
+    , postEditR
+    , getNewR
+    , postNewR
     ) where
 
 import Foundation
+import Helpers.Forms
 import Helpers.Widgets
 import Yesod.Comments
+import Control.Monad (unless)
 import Database.Persist.Base
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -19,7 +25,7 @@ getReviewsR rid = do
     case docByReviewId rid docs of
         Just d -> defaultLayout $ do
             setTitle "View review"
-            addWidget $(widgetFile "reviews")
+            addWidget $(widgetFile "review/show")
 
         Nothing -> notFound
 
@@ -50,3 +56,34 @@ getReviewsR rid = do
 
 postReviewsR :: ReviewId -> Handler RepHtml
 postReviewsR = getReviewsR
+
+getEditR :: ReviewId -> Handler RepHtml
+getEditR rid = do
+    (uid, _) <- requireAuth
+    docs     <- siteDocs =<< getYesod
+    case docByReviewId rid docs of
+        Just d -> do
+            -- not your review, redirect to the view page
+            unless (uid == (reviewReviewer $ review d)) $ do
+                tm <- getRouteToMaster
+                redirect RedirectTemporary $ tm (ReviewsR rid)
+
+            defaultLayout $ do
+                setTitle "Edit review"
+                addWidget $(widgetFile "review/edit")
+
+        _ -> notFound
+
+postEditR :: ReviewId -> Handler RepHtml
+postEditR = getEditR
+
+getNewR :: Handler RepHtml
+getNewR = do
+    (uid, _) <- requireAuth
+    ml       <- lookupGetParam "landlord"
+    defaultLayout $ do
+        setTitle "New review"
+        addWidget $(widgetFile "review/new")
+
+postNewR :: Handler RepHtml
+postNewR = getNewR
