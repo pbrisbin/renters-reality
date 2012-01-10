@@ -7,73 +7,54 @@ import Foundation
 import Yesod.Goodies
 import Data.Text (Text)
 
--- | Landlord name ... GPA
 landlordGPA :: (Landlord, [Document]) -> Widget
 landlordGPA (l, docs) = do
     let gpa' = gpa $ map (reviewGrade . review) docs
     [whamlet|
-        <div .landlord-gpa>
-            <p>
+        <div .row>
+            <h3>
                 #{landlordName $ l}
-                <span .gpa>
+                <span .float-right>
                     GPA: #{show gpa'}
     |]
 
--- | Landlord name ... Grade
 landlordGrade :: Document -> Widget
-landlordGrade (Document _ r l _) = [whamlet|
-    <div .landlord-grade>
-        <p>
-            <a href=@{LandlordsR $ reviewLandlord r}>#{landlordName $ l}
-            <span .grade>
-                Grade: #{prettyGrade $ reviewGrade r}
-    |]
+landlordGrade = undefined
 
--- | Reviewed by when ... Grade
 reviewedByGrade :: Document -> Widget
-reviewedByGrade d@(Document _ r _ _) = reviewedBy "reviewed-by-grade" d
-    [whamlet|
-        <span .grade>
-            Grade: #{prettyGrade $ reviewGrade r}
-        |]
+reviewedByGrade = undefined
 
--- | Reviewed by when ... link to review
 reviewedByLink :: Document -> Widget
-reviewedByLink d@(Document rid _ _ _) = reviewedBy "reviewed-by-link" d
-    [whamlet|
-        <span .review-link>
-            <a href=@{ReviewsR rid}>Read more...
-        |]
+reviewedByLink = undefined
 
-reviewedBy :: Text      -- ^ div class
-           -> Document  -- ^ source doc
-           -> Widget    -- ^ right hand side
-           -> Widget
-reviewedBy c (Document _ r _ u) w = do
-    reviewTime <- lift . liftIO . humanReadableTime $ reviewCreatedDate r
-    [whamlet|
-        <div .#{c}>
-            <p>
-                Reviewed by #{showName u} #{reviewTime}
-                ^{w}
-            |]
+reviewedBy :: Text -> Document -> Widget -> Widget
+reviewedBy = undefined
 
 reviewContentBlock :: Document
                    -> Bool -- ^ shorten?
                    -> Widget
-reviewContentBlock (Document _ r _ _) s = do
-    let short = if s then shorten 400 else id
+reviewContentBlock (Document rid r _ u) s = do
+    reviewTime <- lift . liftIO . humanReadableTime $ reviewCreatedDate r
+
     [whamlet|
-        <div .review-address>
-            <p>#{reviewAddress r}
+        <div .row>
+            <div .span2>
+                <p>
+                    #{reviewAddress r}
 
-        <div .review-content>
-            <blockquote>
-                #{markdownToHtml $ short $ reviewContent r}
+            <div .span10>
+                <blockquote>
+                    $if s
+                        #{markdownToHtml $ shorten 400 $ reviewContent r}
+
+                        <small>
+                            Reviewed by #{showName u} #{reviewTime} &mdash; 
+                            <a href=@{ReviewsR rid}>Read more...
+
+                    $else
+                        #{markdownToHtml $ reviewContent r}
+
+                        <small>
+                            Reviewed by #{showName u} #{reviewTime} &mdash; 
+                            Grade: #{prettyGrade $ reviewGrade r}
         |]
-
--- | Add contents as a popup helpbox. NOTE: you must add some clickable 
---   element with the id "open-help" somewhere on the page
-addHelpBox :: Widget -- ^ help box contents
-           -> Widget
-addHelpBox contents = addWidget $(widgetFile "_helpbox")

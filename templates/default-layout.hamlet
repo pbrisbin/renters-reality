@@ -17,8 +17,6 @@
           <li>
             <a href="@{AuthR LoginR}">Login
 
-<div style="display:block;height:45px;">
-
 $maybe msg <- mmsg
   <div .alert-message .info>
     <p>#{msg}

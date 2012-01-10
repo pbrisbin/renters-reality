@@ -1,24 +1,31 @@
-<div .row>
+<div .content>
   <div .pull-right>
     <form .search method="get" action="@{SearchR}">
      <p>
        <input #search-input size=30 name="q">
        <input type="submit" value="Search">
 
-$if null docs
-  <p>
-    I'm sorry, there are no reviews that meet your search criteria.
+  <div .page-header>
+    <h1>Search results
 
-  <p>
-    Would you like to 
-    <a href="@{NewR}">write one
-    ?
+  $if null docs
+    <div .no-results>
+      <p>
+        I'm sorry, there are no reviews that meet your search criteria.
 
-$else
-  $forall doc <- docs
-    <div .searchresult>
-      ^{landlordGrade doc}
+      <p>
+        Would you like to 
+        <a href="@{NewR}">write one
+        ?
+
+  $else
+    $forall doc <- docs
+      <div .row>
+        <h2>
+          <a href=@{LandlordsR $ reviewLandlord $ review doc}>#{landlordName $ landlord doc}
+          <span .float-right>
+            Grade: #{prettyGrade $ reviewGrade $ review doc}
+
       ^{reviewContentBlock doc True}
-      ^{reviewedByLink doc}
 
-  ^{pageWidget}
+    ^{pageWidget}
