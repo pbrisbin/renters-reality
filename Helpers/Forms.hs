@@ -9,7 +9,6 @@ module Helpers.Forms
     ) where
 
 import Foundation
-import Helpers.Widgets
 import Yesod.Goodies
 import Control.Applicative ((<$>),(<*>))
 import Data.Time           (getCurrentTime)
@@ -33,10 +32,10 @@ data ProfileEditForm = ProfileEditForm
     , eEmail    :: Maybe Text
     }
 
-data MarkdownExample = MarkdownExample
-    { mdText :: String
-    , mdHtml :: Widget
-    }
+--data MarkdownExample = MarkdownExample
+    --{ mdText :: String
+    --, mdHtml :: Widget
+    --}
 
 runProfileFormGet :: Widget
 runProfileFormGet = do
@@ -229,6 +228,7 @@ reviewForm mr ml ip fragment = do
 --findOrCreate :: PersistEntity v => v -> Handler (Key Renters v)
 findOrCreate v = return . either fst id =<< runDB (insertBy v)
 
+{-
 helpBoxContents :: Widget
 helpBoxContents = [whamlet|
         <h3>Some quick examples:
@@ -258,3 +258,4 @@ mdExamples = [ MarkdownExample "*italic text*"
              , MarkdownExample "![even images](http://pbrisbin.com/static/images/feed.png)"
                     [whamlet|<img alt="even images" src="http://pbrisbin.com/static/images/feed.png">|]
              ]
+-}

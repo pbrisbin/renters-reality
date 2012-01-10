@@ -4,7 +4,6 @@
 module Handler.Root (getRootR) where
 
 import Foundation
-import Helpers.Widgets
 
 getRootR :: Handler RepHtml
 getRootR = do
