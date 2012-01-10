@@ -26,8 +26,8 @@
             <a href=@{LandlordsR $ reviewLandlord $ review doc}>#{landlordName $ landlord doc}
         <div .offset10>
           <h2>
-            Grade: #{prettyGrade $ reviewGrade $ review doc}
+            #{prettyGrade $ reviewGrade $ review doc}
 
-      ^{reviewContentBlock doc True}
+      ^{asSearchResult doc}
 
   ^{pageWidget}

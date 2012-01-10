@@ -12,8 +12,8 @@ module Handler.Reviews
 
 import Foundation
 import Helpers.Forms
-import Helpers.Widgets
 import Yesod.Comments
+import Yesod.Goodies
 import Control.Monad (unless)
 import Database.Persist.Base
 import Data.Text (Text)
@@ -23,9 +23,11 @@ getReviewsR :: ReviewId -> Handler RepHtml
 getReviewsR rid = do
     docs <- siteDocs =<< getYesod
     case docByReviewId rid docs of
-        Just d -> defaultLayout $ do
-            setTitle "View review"
-            addWidget $(widgetFile "review/show")
+        Just d -> do
+            reviewTime <- liftIO . humanReadableTime . reviewCreatedDate $ review d
+            defaultLayout $ do
+                setTitle "View review"
+                addWidget $(widgetFile "review/show")
 
         Nothing -> notFound
 
@@ -36,10 +38,7 @@ getReviewsR rid = do
             case muid of
                 Just (uid,_) ->
                     if uid == reviewReviewer r
-                        then [whamlet|
-                            <span .edit-link>
-                                <a href="@{EditR rid}">EDIT
-                            |]
+                        then [whamlet|<a .btn .info href="@{EditR rid}">Edit|]
                         else return ()
 
                 _ -> return ()

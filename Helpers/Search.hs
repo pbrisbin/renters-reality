@@ -1,3 +1,4 @@
+{-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Helpers.Search 
     ( generalCompletion
@@ -8,6 +9,7 @@ module Helpers.Search
     , fullSearch
     , tryPrefixes
     , looseMatch
+    , asSearchResult
     ) where
 
 import Foundation
@@ -89,3 +91,22 @@ looseMatch a b = fix a `T.isInfixOf` fix b
         fix :: Text -> Text
         fix = T.strip . T.toCaseFold
             . T.filter (`notElem` [',', '.'])
+
+asSearchResult :: Document -> Widget
+asSearchResult (Document rid r _ u) = do
+    reviewTime <- lift . liftIO . humanReadableTime $ reviewCreatedDate r
+
+    [whamlet|
+        <div .row .search-result-body>
+            <div .span2>
+                <address>
+                    #{reviewAddress r}
+
+            <div .span10>
+                <blockquote>
+                    #{markdownToHtml $ shorten 400 $ reviewContent r}
+
+                    <small>
+                        Reviewed by #{showName u} #{reviewTime} &mdash; 
+                        <a href=@{ReviewsR rid}>Read more...
+        |]

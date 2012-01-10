@@ -1,9 +1,26 @@
 <div .content>
-  <div .view-review>
-    ^{landlordGrade d}
-    ^{reviewContentBlock d False}
-    ^{reviewedBy "reviewed-by" d $ editLink d}
+  <div .page-header>
+    <div .row>
+      <div .span10>
+        <h1>
+          <a href="@{LandlordsR $ reviewLandlord $ review d}">#{landlordName $ landlord d}
+
+      <div .offset10>
+        <h1>#{prettyGrade $ reviewGrade $ review d}
+
+      <div .row .search-result-body>
+        <div .span2>
+          <address>
+            #{reviewAddress $ review d}
+
+        <div .span10>
+          <blockquote>
+            #{markdownToHtml $ reviewContent $ review d}
+
+          <small>
+            Reviewed by #{showName $ user d} #{reviewTime} &mdash; 
+            ^{editLink d}
 
   <h3>Discussion
   <div .discussion>
-    ^{addCommentsAuth $ rText rid}
+    ^{addCommentsAuth $ rText $ reviewId d}

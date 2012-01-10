@@ -4,24 +4,31 @@
 module Handler.Landlords (getLandlordsR) where
 
 import Foundation
-import Helpers.Widgets
-import Yesod.RssFeed
+import Helpers.Search
+import Yesod.Goodies
+import Yesod.RssFeed (rssLink)
 import qualified Data.Text as T
 
 getLandlordsR :: LandlordId -> Handler RepHtml
 getLandlordsR lid = do
-    docs <- siteDocs =<< getYesod
+    -- all documents
+    docs'' <- siteDocs =<< getYesod
 
-    let ldocs = docsByLandlordId lid docs
-    let none  = null ldocs -- no reviews?
+    -- filter by landlord
+    let docs' = docsByLandlordId lid docs''
+    let none  = null docs' -- no reviews?
 
     l <- if none
             then runDB $ get404 lid
-            else return . landlord $ head ldocs
+            else return . landlord $ head docs'
 
-    let tp = (l, ldocs)
+    -- paginated
+    (docs, pageWidget) <- paginate 5 docs'
 
     defaultLayout $ do
         setTitle . T.unpack $ landlordName l
         rssLink (FeedLandlordR lid) ((++) "rss feed for " . T.unpack $ landlordName l)
         addWidget $(widgetFile "landlord/show")
+
+gpa' :: [Document] -> Double
+gpa' = gpa . map (reviewGrade . review)

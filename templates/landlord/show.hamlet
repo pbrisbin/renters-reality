@@ -1,4 +1,11 @@
 <div .content>
+  <div .page-header>
+    <div .row>
+      <div .span10>
+        <h1>#{landlordName l}
+      <div .offset10>
+        <h1>#{show $ gpa' docs'}
+
   $if none
     <p>
       I'm sorry, #{landlordName l} has not been reviewed yet.
@@ -7,11 +14,17 @@
       Would you like to 
       <a href="@{NewR}landlord?#{landlordName l}">write one
       ?
+
   $else
-    <div .view-landlord>
-      ^{landlordGPA tp}
-      $forall d <- ldocs
-        <div .review>
-          ^{reviewedByGrade d}
-          ^{reviewContentBlock d True}
-          <a href=@{ReviewsR $ reviewId d}>Read more...
+    $forall doc <- docs
+      <div .row .search-result-header>
+        <div .span10>
+          <h2>
+            <a href=@{LandlordsR $ reviewLandlord $ review doc}>#{landlordName $ landlord doc}
+        <div .offset10>
+          <h2>
+            #{prettyGrade $ reviewGrade $ review doc}
+
+      ^{asSearchResult doc}
+
+  ^{pageWidget}

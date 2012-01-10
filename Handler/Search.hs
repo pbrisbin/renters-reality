@@ -1,3 +1,4 @@
+{-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Handler.Search 
@@ -8,7 +9,6 @@ module Handler.Search
 
 import Foundation
 import Helpers.Search
-import Helpers.Widgets
 import Yesod.Goodies
 
 getSearchR :: Handler RepHtml
@@ -23,11 +23,12 @@ getSearchR = do
                                       , ("address:" , searchByAddress )
                                       ] fullSearch docs''
 
-    (docs, pageWidget) <- paginate 4 docs'
+    (docs, pageWidget) <- paginate 5 docs'
 
     defaultLayout $ do
         setTitle "Search results" 
         addWidget $(widgetFile "search")
+
 
 getCompLandlordsR :: Handler RepJson
 getCompLandlordsR = generalCompletion $ \t -> do
