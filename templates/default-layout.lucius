@@ -1,6 +1,3 @@
-/* vim:ft=css
- */
-
 html, body {
   background-color: #eee;
 }

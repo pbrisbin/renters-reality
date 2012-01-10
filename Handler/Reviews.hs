@@ -25,6 +25,7 @@ getReviewsR rid = do
     case docByReviewId rid docs of
         Just d -> do
             reviewTime <- liftIO . humanReadableTime . reviewCreatedDate $ review d
+            ownReview  <- isReviewer d
             defaultLayout $ do
                 setTitle "View review"
                 addWidget $(widgetFile "review/show")
@@ -32,16 +33,12 @@ getReviewsR rid = do
         Nothing -> notFound
 
     where
-        editLink :: Document -> Widget
-        editLink (Document _ r _ _) = do
-            muid <- lift $ maybeAuth
-            case muid of
-                Just (uid,_) ->
-                    if uid == reviewReviewer r
-                        then [whamlet|<a .btn .info href="@{EditR rid}">Edit|]
-                        else return ()
-
-                _ -> return ()
+        isReviewer :: Document -> Handler Bool
+        isReviewer (Document _ r _ _) = do
+            muid <- maybeAuth
+            return $ case muid of
+                Just (uid,_) -> uid == reviewReviewer r
+                _            -> False
 
         rText :: ReviewId -> Text
         rText = go . unKey

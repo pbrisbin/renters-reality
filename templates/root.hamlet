@@ -15,34 +15,35 @@
           <div>
             <form .search method="get" action="@{SearchR}">
               <p>
-                <input #search-input size=45 name="q">
-                <input .btn type="submit" value="Search">
-
-            <a href="#" data-controls-modal="search-help" data-backdrop="true" data-keyboard="true">
-              search tips
+                <input #search-input .span6 name="q"> 
+                <input .btn type="submit" value="Search"> 
+                <em>
+                  <a href="#" data-controls-modal="search-help" data-backdrop="true" data-keyboard="true">
+                    tips
 
           <h3>Review your landlord
           <div>
-              <form .new method="get" action="@{NewR}">
-                <p>
-                  <input #landlord-input size=45 name="landlord" placeholder="Name of landlord or management company">
-                  <input .btn type="submit" value="Next">
+            <form .new method="get" action="@{NewR}">
+              <p>
+                <input #landlord-input .span6 name="landlord" placeholder="Name of landlord or management company"> 
+                <input .btn type="submit" value="Next">
 
       $nothing
         <h3>Search reviews
         <div>
           <form .search method="get" action="@{SearchR}">
             <p>
-              <input #search-input size=45 name="q">
-              <input .btn type="submit" value="Search">
+              <input #search-input .span6 name="q"> 
+              <input .btn type="submit" value="Search"> 
+              <em>
+                <a href="#" data-controls-modal="search-help" data-backdrop="true" data-keyboard="true">
+                  tips
 
-            <a href="#" data-controls-modal="search-help" data-backdrop="true" data-keyboard="true">
-              search tips
-
-        <p>
-          Please 
-          <a href="@{AuthR LoginR}">log in
-          \ to submit a review.
+          <p>
+            <small>
+              Please 
+              <a href="@{AuthR LoginR}">log in
+              \ to submit a review.
 
     <div .tab-pane #landlords>
       <p>

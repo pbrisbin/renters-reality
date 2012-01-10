@@ -8,19 +8,25 @@
       <div .offset10>
         <h1>#{prettyGrade $ reviewGrade $ review d}
 
-      <div .row .search-result-body>
-        <div .span2>
-          <address>
-            #{reviewAddress $ review d}
+  $if ownReview
+    <div .pull-right>
+      <a .btn .info href="@{EditR rid}">Edit
 
-        <div .span10>
-          <blockquote>
-            #{markdownToHtml $ reviewContent $ review d}
+  <div .row .search-result-body>
+    <div .span2>
+      <address>
+        #{reviewAddress $ review d}
 
-          <small>
-            Reviewed by #{showName $ user d} #{reviewTime} &mdash; 
-            ^{editLink d}
+    <div .span10>
+      <blockquote>
+        #{markdownToHtml $ reviewContent $ review d}
+
+        <small>
+          Reviewed by #{showName $ user d} #{reviewTime}
 
   <h3>Discussion
   <div .discussion>
-    ^{addCommentsAuth $ rText $ reviewId d}
+    <p>
+      <small>
+        <em>
+          discussion is disabled for the time being.
