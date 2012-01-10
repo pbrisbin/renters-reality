@@ -37,9 +37,9 @@ reviewContentBlock (Document rid r _ u) s = do
     reviewTime <- lift . liftIO . humanReadableTime $ reviewCreatedDate r
 
     [whamlet|
-        <div .row>
+        <div .row .search-result-body>
             <div .span2>
-                <p>
+                <address>
                     #{reviewAddress r}
 
             <div .span10>

@@ -20,12 +20,14 @@
 
   $else
     $forall doc <- docs
-      <div .row>
-        <h2>
-          <a href=@{LandlordsR $ reviewLandlord $ review doc}>#{landlordName $ landlord doc}
-          <span .float-right>
+      <div .row .search-result-header>
+        <div .span10>
+          <h2>
+            <a href=@{LandlordsR $ reviewLandlord $ review doc}>#{landlordName $ landlord doc}
+        <div .offset10>
+          <h2>
             Grade: #{prettyGrade $ reviewGrade $ review doc}
 
       ^{reviewContentBlock doc True}
 
-    ^{pageWidget}
+  ^{pageWidget}
