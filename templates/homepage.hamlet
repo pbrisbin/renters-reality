@@ -16,8 +16,9 @@
             <p>
               <input #search-input size=45 name="q">
               <input type="submit" value="Search">
-            <p .search-tips>
-              <a #open-help href="#">search tips
+
+          <button data-controls-modal="search-help" data-backdrop="true" data-keyboard="true" class="btn info">
+            search help
 
         <h3>Review your landlord
         <div>
@@ -33,8 +34,9 @@
           <p>
             <input #search-input size=45 name="q">
             <input type="submit" value="Search">
-          <p .search-tips>
-            <a #open-help href="#">search tips
+
+          <a href="#" data-controls-modal="search-help" data-backdrop="true" data-keyboard="true">
+            search tips
 
       <p>
         Please 
@@ -76,3 +78,41 @@
       <a href="https://github.com/pbrisbin/renters-reality/issues">
         issues tracker
       \.
+
+<div #search-help .modal .hide .fade .in>
+  <div .modal-header>
+    <a href="#" .close>×
+    <h3>Search tips
+
+  <div .modal-body>
+    <p>
+      By default, the search will return matches on landlord name and 
+      reviewed address.
+
+    <p>
+      That means that if you search for "brighton" you'll get results 
+      for both "Brighton, MA" 
+      <strong>and 
+      "Brighton Realty"
+
+    <p>
+      Since this isn't always wanted, there are two prefixes you can use 
+      to change how the search is performed:
+
+    <dl>
+      <dd>
+        <code>landlord: something
+      <dt>
+        <em>
+          Only show reviews where "something" is part of the landlord's 
+          name
+      <dd>
+        <code>address: something else
+      <dt>
+        <em>
+          Only show reviews where "something else" is part of the address
+
+  <div .modal-footer>
+    <p>
+      Results are sorted by closest match, then most recent.
+

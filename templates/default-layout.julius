@@ -1,5 +1,21 @@
 $(function() {
+
   $('#topbar').dropdown();
+
   $('.tabs').tabs();
-  $('.accordion').accordion({ autoHeight: false });
+
+  $('.accordion').accordion({
+    autoHeight: false
+  });
+
+  $('#search-input').autocomplete({
+    source:    "@{CompSearchesR}",
+    minLength: 3
+  });
+
+  $('#landlord-input').autocomplete({
+    source:    "@{CompLandlordsR}",
+    minLength: 3
+  });
+
 });

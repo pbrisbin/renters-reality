@@ -1,4 +1,0 @@
-$(function() {
-  $("#open-help").click(function()  { $("#helpbox").fadeIn();  return false; });
-  $("#close-help").click(function() { $("#helpbox").fadeOut(); return false; });
-});

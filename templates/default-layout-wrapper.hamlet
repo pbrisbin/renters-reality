@@ -13,9 +13,10 @@
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js">
 
     \<!-- bootstrap -->
-    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
-    <script src="//twitter.github.com/bootstrap/1.4.0/bootstrap-tabs.js">
+    <link rel="stylesheet" href="//twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
     <script src="//twitter.github.com/bootstrap/1.4.0/bootstrap-dropdown.js">
+    <script src="//twitter.github.com/bootstrap/1.4.0/bootstrap-modal.js">
+    <script src="//twitter.github.com/bootstrap/1.4.0/bootstrap-tabs.js">
 
     ^{pageHead pc}
   <body

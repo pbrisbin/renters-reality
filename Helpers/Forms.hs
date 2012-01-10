@@ -106,9 +106,6 @@ runReviewFormEdit (Document rid r l _) = do
 
     [whamlet|<form enctype="#{enctype}" method="post">^{form}|]
 
-    addAutoCompletion "input#landlord" CompLandlordsR
-    addHelpBox helpBoxContents
-
     where
         updateFromForm :: ReviewForm -> Handler ReviewId
         updateFromForm  rf = do
@@ -138,9 +135,6 @@ runReviewFormNew uid ml = do
             redirect RedirectTemporary $ tm (ReviewsR rid)
 
     [whamlet|<form enctype="#{enctype}" method="post">^{form}|]
-
-    addAutoCompletion "input#landlord" CompLandlordsR
-    addHelpBox helpBoxContents
 
     where
         insertFromForm :: ReviewForm -> Handler ReviewId

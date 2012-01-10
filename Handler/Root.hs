@@ -12,7 +12,3 @@ getRootR = do
     defaultLayout $ do
         setTitle "Home"
         addWidget $(widgetFile "homepage")
-
-        addAutoCompletion "#search-input"   CompSearchesR
-        addAutoCompletion "#landlord-input" CompLandlordsR
-        addHelpBox $ addWidget $(widgetFile "search-help")

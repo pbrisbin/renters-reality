@@ -28,7 +28,6 @@ getSearchR = do
     defaultLayout $ do
         setTitle "Search results" 
         addWidget $(widgetFile "search")
-        addAutoCompletion "#search-input" CompSearchesR
 
 getCompLandlordsR :: Handler RepJson
 getCompLandlordsR = generalCompletion $ \t -> do

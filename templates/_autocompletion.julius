@@ -1,6 +1,0 @@
-$(function() {
-  $('#{ident}').autocomplete({
-    source:    "@{route}",
-    minLength: 3
-  });
-});

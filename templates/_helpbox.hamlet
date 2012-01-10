@@ -1,5 +1,0 @@
-<div #helpbox>
-  <span style="float: right;">
-    <a #close-help href="#">[close]
-
-  ^{contents}

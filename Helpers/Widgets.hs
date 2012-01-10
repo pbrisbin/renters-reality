@@ -72,12 +72,6 @@ reviewContentBlock (Document _ r _ _) s = do
                 #{markdownToHtml $ short $ reviewContent r}
         |]
 
--- | Add an auto completion via jquery
-addAutoCompletion :: Text         -- ^ input id
-                  -> RentersRoute -- ^ JSON route
-                  -> Widget
-addAutoCompletion ident route = addWidget $(widgetFile "_autocompletion")
-
 -- | Add contents as a popup helpbox. NOTE: you must add some clickable 
 --   element with the id "open-help" somewhere on the page
 addHelpBox :: Widget -- ^ help box contents
