@@ -1,6 +1,5 @@
-{-# LANGUAGE QuasiQuotes                 #-}
-{-# LANGUAGE OverloadedStrings           #-}
-{-# OPTIONS -fno-warn-missing-signatures #-}
+{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Helpers.Forms
     ( runReviewFormNew
     , runReviewFormEdit
@@ -77,7 +76,7 @@ runReviewFormEdit (Document rid r l _) = do
             -- might've changed
             landlordId <- findOrCreate $ Landlord $ rfLandlord rf
 
-            runDB $ update rid [ ReviewLandlord  =.landlordId
+            runDB $ update rid [ ReviewLandlord  =. landlordId
                                , ReviewGrade     =. rfGrade     rf
                                , ReviewAddress   =. rfAddress   rf
                                , ReviewTimeframe =. rfTimeframe rf
@@ -202,8 +201,7 @@ reviewForm mr ml ip fragment = do
                         &nbsp;
                 |]
 
--- FIXME: kind mismatch?
---findOrCreate :: PersistEntity v => v -> Handler (Key Renters v)
+findOrCreate :: PersistEntity v => v -> Handler (Key (YesodPersistBackend Renters) v)
 findOrCreate v = return . either fst id =<< runDB (insertBy v)
 
 {-
