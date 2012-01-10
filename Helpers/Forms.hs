@@ -44,32 +44,20 @@ runProfileFormGet = do
     ((_, form), enctype) <- lift . runFormPost $ profileEditForm u
 
     [whamlet|
-        <h1>Edit profile
         <div .content>
-            <div .profile>
-                <p>
-                    Reviews and comments will be tagged with your user 
-                    name. If you leave it blank, your full name will be 
-                    used in stead.
+            <div .page-header>
+                <h1>Edit profile
 
-                <p>
-                    Your email is not publicly displayed anywhere. It is 
-                    used to find your gravatar image and may be used in 
-                    an upcoming "notifications" feature of the site and 
-                    even then, only if you opt-in.
+            <div .pull-right>
+                <a href="@{DeleteProfileR}" .btn .danger>Delete
 
-                <hr>
-
-                <form enctype="#{enctype}" method="post">
-                    <table>
-                        ^{form}
-                        <tr>
-                            <td>&nbsp;
-                            <td .buttons>
-                                <input type="submit" value="Save">
-
-                <p .delete-button>
-                    <a href="@{DeleteProfileR}">delete
+            <form enctype="#{enctype}" method="post">
+                <table .condensed-table .border-free-table>
+                    ^{form}
+                    <tr>
+                        <td>&nbsp;
+                        <td>
+                            <input .btn type="submit" value="Save">
         |]
 
 runProfileFormPost :: Handler ()
@@ -155,11 +143,9 @@ runReviewFormNew uid ml = do
 
 profileEditForm :: User -> Html -> MForm Renters Renters (FormResult ProfileEditForm, Widget)
 profileEditForm u = renderTable $ ProfileEditForm
-    <$> aopt textField "Full name" (Just $ userFullname u)
-    <*> aopt textField "User name" (Just $ userUsername u)
-    <*> aopt emailField "Email:"
-        { fsTooltip = Just "never displayed, only used to find your gravatar"
-        } (Just $ userEmail u)
+    <$> aopt textField  "Full name" (Just $ userFullname u)
+    <*> aopt textField  "User name" (Just $ userUsername u)
+    <*> aopt emailField "Email"     (Just $ userEmail u)
 
 reviewForm :: Maybe Review -- ^ for use in edit
            -> Maybe Text   -- ^ maybe landlord name (for use in new)

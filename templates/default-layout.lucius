@@ -33,6 +33,10 @@ body {
   padding-bottom: 8px;
 }
 
+.border-free-table td, th {
+  border: 0 !important;    
+} 
+
 .accordion h3 {
   cursor: pointer;
   border: none;

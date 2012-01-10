@@ -16,17 +16,17 @@
             <form .search method="get" action="@{SearchR}">
               <p>
                 <input #search-input size=45 name="q">
-                <input type="submit" value="Search">
+                <input .btn type="submit" value="Search">
 
-            <button data-controls-modal="search-help" data-backdrop="true" data-keyboard="true" class="btn info">
-              search help
+            <a href="#" data-controls-modal="search-help" data-backdrop="true" data-keyboard="true">
+              search tips
 
           <h3>Review your landlord
           <div>
               <form .new method="get" action="@{NewR}">
                 <p>
                   <input #landlord-input size=45 name="landlord" placeholder="Name of landlord or management company">
-                  <input type="submit" value="Next">
+                  <input .btn type="submit" value="Next">
 
       $nothing
         <h3>Search reviews
@@ -34,7 +34,7 @@
           <form .search method="get" action="@{SearchR}">
             <p>
               <input #search-input size=45 name="q">
-              <input type="submit" value="Search">
+              <input .btn type="submit" value="Search">
 
             <a href="#" data-controls-modal="search-help" data-backdrop="true" data-keyboard="true">
               search tips

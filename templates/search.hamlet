@@ -3,7 +3,7 @@
     <form .search method="get" action="@{SearchR}">
      <p>
        <input #search-input size=30 name="q">
-       <input type="submit" value="Search">
+       <input .btn type="submit" value="Search">
 
   <div .page-header>
     <h1>Search results

@@ -1,20 +1,26 @@
-<h1>Your profile
 <div .content>
-  <div .profile>
-    <div .gravatar>
+  <div .page-header>
+    <h1>Your profile
+
+  <div .pull-right>
+    <a href="@{EditProfileR}" .btn>Edit
+
+  <div .row>
+    <div .span2>
       <a title="change your profile picture at gravatar" href="http://gravatar.com/emails/">
         <img src="#{pic}">
 
-    <table>
-      <tr>
-        <th>Full name:
-        <td>#{fullname}
-      <tr>
-        <th>User name:
-        <td>#{username}
-      <tr>
-        <th>Email address:
-        <td>#{email}
+    <div .span10>
+      <table .condensed-table .border-free-table>
+        <tr>
+          <th>Full name:
+          <td>#{fullname}
 
-    <p .edit-button>
-      <a href="@{EditProfileR}">edit
+        <tr>
+          <th>User name:
+          <td>#{username}
+
+        <tr>
+          <th>Email address:
+          <td>#{email}
+

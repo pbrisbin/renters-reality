@@ -1,11 +1,10 @@
-<h1>Are you sure?
 <div .content>
-  <div .profile>
-    <p>
-      There's no going back. Everything of yours will be deleted. 
-      <strong>Are you sure?
+  <div .page-header>
+    <h1>Are you sure?
 
-    <div .confirm>
-      <form method="post">
-        <input type="Submit" value="Yes, I'm sure.">
-        <a href="@{EditProfileR}">No, take me back.
+  <p>
+    There's no going back. Everything of yours will be deleted.
+
+  <form method="post">
+    <input .btn .danger type="Submit" value="Yes, I'm sure."> 
+    <a href="@{EditProfileR}" .btn .success>No, take me back.
