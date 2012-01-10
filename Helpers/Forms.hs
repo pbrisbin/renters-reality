@@ -165,35 +165,29 @@ reviewForm mr ml ip fragment = do
         <*> fAddress <*> fTimeframe  
         <*> fGrade   <*> fReview, [whamlet|
             #{fragment}
-            <table .review-form>
-                <tr #ip>^{fieldCell 4 fiIp}
+            <table .condensed-table .border-free-table>
+                <tr .hidden-input>
+                    ^{fieldCell 4 fiIp}
 
-                <tr #landlord-grade>
+                <tr>
                     ^{fieldCell 1 fiLandlord}
                     ^{fieldCell 1 fiGrade}
 
-                <tr #timeframe>
+                <tr>
                     ^{fieldCell 4 fiTimeframe}
                     <td colspan=3>&nbsp;
 
-                <tr #address>
+                <tr .address-input>
                     ^{fieldCell 4 fiAddress}
                     <td colspan=3>&nbsp;
 
-                <tr #review-help>
-                    <td>&nbsp;
-                    <td colspan="5">
-                        <small>
-                            <em>
-                                Reviews are parsed as pandoc-style markdown. 
-                                <a #open-help href="#">Tips.
-
-                <tr #review>^{fieldCell 4 fiReview}
+                <tr .review-input>
+                    ^{fieldCell 4 fiReview}
 
                 <tr>
                     <td>&nbsp;
-                    <td .buttons colspan="4">
-                        <input type="submit" value="Save">
+                    <td colspan="4">
+                        <input .btn type="submit" value="Save">
             |])
 
         where

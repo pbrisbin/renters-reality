@@ -1,3 +1,5 @@
-<h1>New review
 <div .content>
+  <div .page-header>
+    <h1>New review
+
   ^{runReviewFormNew uid ml}
