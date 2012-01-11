@@ -115,7 +115,7 @@ reviewForm mr ml ip = renderBootstrap $ ReviewForm
     <*> areq textareaField "Address" (fmap reviewAddress mr)
 
     <*> areq markdownField "Review"
-        { fsClass = ["xxlarge"]
+        { fsClass = ["review-entry"]
         } (fmap reviewContent mr)
 
     where

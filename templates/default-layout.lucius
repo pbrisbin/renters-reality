@@ -34,6 +34,11 @@ form.search, form.new {
   margin-top: 20px;
 }
 
+textarea.review-entry {
+  width: 500px;
+  height: 300px;
+}
+
 .hidden {
   display:none;
 }
