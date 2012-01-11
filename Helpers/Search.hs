@@ -12,12 +12,14 @@ module Helpers.Search
     , asSearchResult
     ) where
 
-import Foundation
+import Import
+
 import Yesod.Goodies
+import Yesod.Json    (array)
 import Control.Monad (forM)
 import Data.List     (nub)
 import Data.Ord      (comparing)
-import Data.Text     (Text)
+import Database.Persist.Store (Entity(..))
 import qualified Data.Text as T
 
 type SearchFunction = Text -> [Document] -> [Document]
@@ -65,9 +67,9 @@ fullSearch = search_
 
 uniqueLandlords :: Handler [Text]
 uniqueLandlords = do
-    lls <- runDB $ selectList [] [Asc LandlordName]
-    forM lls $ \(_, v) -> do
-        return $ landlordName v
+    return []
+    --lls <- runDB $ selectList [] [Asc LandlordName]
+    --return $ map (landlordName . entityVal) lls
 
 uniqueAddresses :: Handler [Text]
 uniqueAddresses = do
@@ -82,7 +84,7 @@ generalCompletion f = do
         Just ""   -> return []
         Just term -> f term
 
-    jsonToRepJson . jsonList $ map (jsonScalar . T.unpack) ss
+    jsonToRepJson $ array ss
 
 looseMatch :: Text -> Text -> Bool
 looseMatch a b = fix a `T.isInfixOf` fix b
@@ -104,9 +106,14 @@ asSearchResult (Document rid r _ u) = do
 
             <div .span10>
                 <blockquote>
-                    #{markdownToHtml $ shorten 400 $ reviewContent r}
+                    #{markdownToHtml $ shortenM 400 $ reviewContent r}
 
                     <small>
                         Reviewed by #{showName u} #{reviewTime} &mdash; 
                         <a href=@{ReviewsR rid}>Read more...
         |]
+
+    where
+        shortenM :: Int -> Markdown -> Markdown
+        shortenM n (Markdown s) = let len = length s in
+            Markdown $ if len > n then take (len - 3) s ++ "..." else s

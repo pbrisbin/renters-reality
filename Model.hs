@@ -1,18 +1,13 @@
-{-# LANGUAGE GADTs                      #-}
-{-# LANGUAGE QuasiQuotes                #-}
-{-# LANGUAGE TypeFamilies               #-}
-{-# LANGUAGE TemplateHaskell            #-}
-{-# LANGUAGE OverloadedStrings          #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE FlexibleContexts           #-}
 module Model where
 
+import Prelude
 import Yesod
-import Yesod.Goodies
+import Data.Text (Text)
 import Database.Persist.Quasi
+
+import Yesod.Goodies
 import Data.Ord  (comparing)
 import Data.Time (UTCTime(..))
-import Data.Text (Text)
 import qualified Data.Text as T
 
 data Grade = Aplus | A | Aminus
@@ -23,7 +18,12 @@ data Grade = Aplus | A | Aminus
 
 derivePersistField "Grade"
 
-share [mkPersist sqlMkSettings, mkMigrate "migrateAll"] $(persistFile upperCaseSettings "config/models")
+-- You can define all of your database entities in the entities file.
+-- You can find more information on persistent and how to declare entities
+-- at:
+-- http://www.yesodweb.com/book/persistent/
+share [mkPersist sqlMkSettings, mkMigrate "migrateAll"]
+    $(persistFile upperCaseSettings "config/models")
 
 data Document = Document
     { reviewId :: ReviewId

@@ -5,7 +5,6 @@
 /new                   NewR            GET POST
 /edit/#ReviewId        EditR           GET POST
 /reviews/#ReviewId     ReviewsR        GET POST
-/landlords/#LandlordId LandlordsR      GET
 /profile               ProfileR        GET
 /profile/edit          EditProfileR    GET POST
 /profile/delete        DeleteProfileR  GET POST

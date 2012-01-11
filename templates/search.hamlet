@@ -22,11 +22,9 @@
     $forall doc <- docs
       <div .row .search-result-header>
         <div .span10>
-          <h2>
-            <a href=@{LandlordsR $ reviewLandlord $ review doc}>#{landlordName $ landlord doc}
+          <h2>#{landlordName $ landlord doc}
         <div .offset10>
-          <h2>
-            #{prettyGrade $ reviewGrade $ review doc}
+          <h2>#{prettyGrade $ reviewGrade $ review doc}
 
       ^{asSearchResult doc}
 

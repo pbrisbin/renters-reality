@@ -39,11 +39,12 @@
                 <a href="#" data-controls-modal="search-help" data-backdrop="true" data-keyboard="true">
                   tips
 
-          <p>
-            <small>
-              Please 
-              <a href="@{AuthR LoginR}">log in
-              \ to submit a review.
+          $maybe authR <- mauthR
+            <p>
+              <small>
+                Please 
+                <a href="@{authR}">log in
+                \ to submit a review.
 
     <div .tab-pane #landlords>
       <p>

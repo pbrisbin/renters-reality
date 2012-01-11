@@ -1,14 +1,12 @@
-{-# LANGUAGE QuasiQuotes       #-}
-{-# LANGUAGE TemplateHaskell   #-}
-{-# LANGUAGE OverloadedStrings #-}
 module Handler.Search 
     ( getSearchR
     , getCompLandlordsR
     , getCompSearchesR
     ) where
 
-import Foundation
+import Import
 import Helpers.Search
+
 import Yesod.Goodies
 
 getSearchR :: Handler RepHtml

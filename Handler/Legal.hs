@@ -1,8 +1,6 @@
-{-# LANGUAGE TemplateHaskell   #-}
-{-# LANGUAGE OverloadedStrings #-}
-module Handler.Legal (getLegalR) where
+module Handler.Legal where
 
-import Foundation
+import Import
 
 getLegalR :: Handler RepHtml
 getLegalR = defaultLayout $ do

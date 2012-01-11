@@ -1,6 +1,8 @@
-import Yesod.Default.Config (fromArgs)
+import Prelude              (IO)
+import Yesod.Default.Config (fromArgsExtra)
 import Yesod.Default.Main   (defaultMain)
+import Settings             (parseExtra)
 import Application          (withRenters)
 
 main :: IO ()
-main = defaultMain fromArgs withRenters
+main = defaultMain (fromArgsExtra parseExtra) withRenters

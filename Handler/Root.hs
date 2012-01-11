@@ -1,13 +1,11 @@
-{-# LANGUAGE QuasiQuotes       #-}
-{-# LANGUAGE TemplateHaskell   #-}
-{-# LANGUAGE OverloadedStrings #-}
-module Handler.Root (getRootR) where
+module Handler.Root where
 
-import Foundation
+import Import
 
 getRootR :: Handler RepHtml
 getRootR = do
-    muid <- maybeAuthId
+    muid   <- maybeAuthId
+    mauthR <- fmap authRoute getYesod
     defaultLayout $ do
         setTitle "Home"
         addWidget $(widgetFile "root")

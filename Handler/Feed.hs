@@ -1,13 +1,12 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Handler.Feed 
     ( getFeedR
     , getFeedLandlordR
     ) where
 
-import Foundation
+import Import
+
 import Yesod.Goodies
 import Yesod.RssFeed
-import Data.Text (Text)
 import qualified Data.Text as T
 
 getFeedR :: Handler RepRss
@@ -21,7 +20,7 @@ getFeedLandlordR :: LandlordId -> Handler RepRss
 getFeedLandlordR lid = do
     docs <- siteDocs =<< getYesod
     case docsByLandlordId lid docs of
-        []   -> notFound
+        []    -> notFound
         docs' -> feedFromDocs docs'
 
 feedFromDocs :: [Document] -> Handler RepRss
@@ -35,7 +34,7 @@ feedFromDocs docs = rssFeed Feed
     , feedEntries     = map docToRssEntry docs
     }
 
-docToRssEntry :: Document -> FeedEntry RentersRoute
+docToRssEntry :: Document -> FeedEntry (Route Renters)
 docToRssEntry (Document rid r l _) = FeedEntry
     { feedEntryLink    = ReviewsR rid
     , feedEntryUpdated = reviewCreatedDate r

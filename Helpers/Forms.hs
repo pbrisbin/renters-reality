@@ -7,13 +7,12 @@ module Helpers.Forms
     , profileEditForm
     ) where
 
-import Foundation
-import Yesod.Goodies
-import Control.Applicative ((<$>),(<*>))
-import Data.Time           (getCurrentTime)
-import Network.Wai         (remoteHost)
+import Import
 
-import Data.Text (Text)
+import Yesod.Goodies
+import Data.Time              (getCurrentTime)
+import Database.Persist.Store (Entity(..))
+import Network.Wai            (remoteHost)
 import qualified Data.Text as T
 
 data ReviewForm = ReviewForm
@@ -47,14 +46,15 @@ runProfileFormPost = do
     where
         saveChanges :: UserId -> ProfileEditForm -> Handler ()
         saveChanges uid ef = do
-            runDB $ update uid 
-                [ UserFullname =. eFullname ef
-                , UserUsername =. eUsername ef
-                , UserEmail    =. eEmail    ef
-                ]
+            return ()
+            --runDB $ update uid 
+                --[ UserFullname =. eFullname ef
+                --, UserUsername =. eUsername ef
+                --, UserEmail    =. eEmail    ef
+                --]
 
-            tm <- getRouteToMaster
-            redirect RedirectTemporary $ tm ProfileR
+            --tm <- getRouteToMaster
+            --redirect $ tm ProfileR
 
 runReviewFormEdit :: Document -> Widget
 runReviewFormEdit (Document rid r l _) = do
@@ -66,7 +66,7 @@ runReviewFormEdit (Document rid r l _) = do
         FormSuccess rf -> lift $ do
             tm  <- getRouteToMaster
             _   <- updateFromForm rf
-            redirect RedirectTemporary $ tm (ReviewsR rid)
+            redirect $ tm (ReviewsR rid)
 
     [whamlet|<form enctype="#{enctype}" method="post">^{form}|]
 
@@ -76,12 +76,12 @@ runReviewFormEdit (Document rid r l _) = do
             -- might've changed
             landlordId <- findOrCreate $ Landlord $ rfLandlord rf
 
-            runDB $ update rid [ ReviewLandlord  =. landlordId
-                               , ReviewGrade     =. rfGrade     rf
-                               , ReviewAddress   =. rfAddress   rf
-                               , ReviewTimeframe =. rfTimeframe rf
-                               , ReviewContent   =. rfReview    rf
-                               ]
+            --runDB $ update rid [ ReviewLandlord  =. landlordId
+                               --, ReviewGrade     =. rfGrade     rf
+                               --, ReviewAddress   =. rfAddress   rf
+                               --, ReviewTimeframe =. rfTimeframe rf
+                               --, ReviewContent   =. rfReview    rf
+                               --]
 
             -- for type consistency
             return rid
@@ -96,7 +96,7 @@ runReviewFormNew uid ml = do
         FormSuccess rf -> lift $ do
             tm  <- getRouteToMaster
             rid <- insertFromForm rf
-            redirect RedirectTemporary $ tm (ReviewsR rid)
+            redirect $ tm (ReviewsR rid)
 
     [whamlet|<form enctype="#{enctype}" method="post">^{form}|]
 
@@ -186,7 +186,7 @@ reviewForm mr ml ip fragment = do
                                  ]
 
             ffs :: Text -> Text -> FieldSettings Text
-            ffs label theId = FieldSettings label Nothing (Just theId) Nothing
+            ffs label theId = FieldSettings label Nothing (Just theId) Nothing []
 
             -- span for the input cell only
             fieldCell :: Int -> FieldView s m -> GWidget s m ()
@@ -202,7 +202,7 @@ reviewForm mr ml ip fragment = do
                 |]
 
 findOrCreate :: PersistEntity v => v -> Handler (Key (YesodPersistBackend Renters) v)
-findOrCreate v = return . either fst id =<< runDB (insertBy v)
+findOrCreate v = return . either entityKey id =<< runDB (insertBy v)
 
 {-
 helpBoxContents :: Widget

@@ -1,6 +1,3 @@
-{-# LANGUAGE QuasiQuotes       #-}
-{-# LANGUAGE TemplateHaskell   #-}
-{-# LANGUAGE OverloadedStrings #-}
 module Handler.Reviews 
     ( getReviewsR
     , postReviewsR
@@ -10,11 +7,12 @@ module Handler.Reviews
     , postNewR
     ) where
 
-import Foundation
+import Import
 import Helpers.Forms
+
 import Yesod.Goodies
 import Control.Monad (unless)
-import Data.Text (Text)
+import Database.Persist.Store (PersistValue(PersistText, PersistInt64))
 import qualified Data.Text as T
 
 getReviewsR :: ReviewId -> Handler RepHtml
@@ -60,7 +58,7 @@ getEditR rid = do
             -- not your review, redirect to the view page
             unless (uid == (reviewReviewer $ review d)) $ do
                 tm <- getRouteToMaster
-                redirect RedirectTemporary $ tm (ReviewsR rid)
+                redirect $ tm (ReviewsR rid)
 
             defaultLayout $ do
                 setTitle "Edit review"

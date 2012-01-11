@@ -2,8 +2,7 @@
   <div .page-header>
     <div .row>
       <div .span10>
-        <h1>
-          <a href="@{LandlordsR $ reviewLandlord $ review d}">#{landlordName $ landlord d}
+        <h1>#{landlordName $ landlord d}
 
       <div .offset10>
         <h1>#{prettyGrade $ reviewGrade $ review d}

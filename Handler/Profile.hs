@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell   #-}
-{-# LANGUAGE OverloadedStrings #-}
 module Handler.Profile
     ( getProfileR
     , getEditProfileR
@@ -8,8 +6,9 @@ module Handler.Profile
     , postDeleteProfileR
     ) where
 
-import Foundation
+import Import
 import Helpers.Forms
+
 import Yesod.Goodies
 import Data.Maybe (fromMaybe)
 
@@ -59,8 +58,8 @@ postDeleteProfileR :: Handler RepHtml
 postDeleteProfileR = do
     (uid, _) <- requireAuth 
 
-    runDB $ deleteWhere [ReviewReviewer ==. uid]
-    runDB $ deleteWhere [IdentUser      ==. uid]
-    runDB $ delete uid
+    --runDB $ deleteWhere [ReviewReviewer ==. uid]
+    --runDB $ deleteWhere [IdentUser      ==. uid]
+    --runDB $ delete uid
 
-    redirect RedirectTemporary $ AuthR LogoutR
+    redirect $ RootR
