@@ -2,7 +2,7 @@
   <div .pull-right>
     <form .search method="get" action="@{SearchR}">
      <p>
-       <input #search-input size=30 name="q">
+       <input #search-input size=30 name="q" autofocus="autofocus"> 
        <input .btn type="submit" value="Search">
 
   <div .page-header>

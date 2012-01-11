@@ -30,9 +30,13 @@ body {
   padding-bottom: 8px;
 }
 
-.border-free-table td, th {
-  border: 0 !important;    
-} 
+form.search, form.new {
+  margin-top: 20px;
+}
+
+.hidden {
+  display:none;
+}
 
 .accordion h3 {
   cursor: pointer;

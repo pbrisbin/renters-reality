@@ -12,34 +12,35 @@
       $maybe _ <- muid
         <div .accordion>
           <h3>Search reviews
-          <div>
-            <form .search method="get" action="@{SearchR}">
+          <div .row>
+            <form .offset3 .search method="get" action="@{SearchR}">
               <p>
-                <input #search-input .span6 name="q"> 
+                <input #search-input .span6 name="q" autofocus="autofocus"> 
                 <input .btn type="submit" value="Search"> 
                 <em>
                   <a href="#" data-controls-modal="search-help" data-backdrop="true" data-keyboard="true">
                     tips
 
           <h3>Review your landlord
-          <div>
-            <form .new method="get" action="@{NewR}">
+          <div .hidden .row>
+            <form .offset3 .new method="get" action="@{NewR}">
               <p>
                 <input #landlord-input .span6 name="landlord" placeholder="Name of landlord or management company"> 
                 <input .btn type="submit" value="Next">
 
       $nothing
         <h3>Search reviews
-        <div>
-          <form .search method="get" action="@{SearchR}">
+        <div .row>
+          <form .offset3 .search method="get" action="@{SearchR}">
             <p>
-              <input #search-input .span6 name="q"> 
+              <input #search-input .span6 name="q" autofocus="autofocus"> 
               <input .btn type="submit" value="Search"> 
               <em>
                 <a href="#" data-controls-modal="search-help" data-backdrop="true" data-keyboard="true">
                   tips
 
-          $maybe authR <- mauthR
+        $maybe authR <- mauthR
+          <div .row>
             <p>
               <small>
                 Please 
