@@ -105,7 +105,7 @@ profileForm u = renderBootstrap $ ProfileForm
 
 reviewForm :: Maybe Review -> Maybe Text -> Text -> Form ReviewForm
 reviewForm mr ml ip = renderBootstrap $ ReviewForm
-    <$> areq hiddenField "Ip" (Just ip)
+    <$> areq hiddenField "" (Just ip)
     <*> areq textField   "Landlord"
         { fsId = Just "landlord-input" } ml
 
