@@ -2,4 +2,8 @@
   <div .page-header>
     <h1>Edit review
 
-  ^{runReviewFormEdit d}
+  <form enctype="#{enctype}" method="post">
+    ^{form}
+
+    <div .input>
+      <input .btn type="submit" value="Save">

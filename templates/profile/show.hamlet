@@ -10,17 +10,25 @@
       <a title="change your profile picture at gravatar" href="http://gravatar.com/emails/">
         <img src="#{pic}">
 
-    <div .span10>
-      <table .condensed-table .border-free-table>
-        <tr>
-          <th>Full name:
-          <td>#{fullname}
+    <div .offset2>
+      <div .row>
+        <div .span2>
+          <p>
+            <strong>
+              Full name
+              <br>
+              <br>
+              User name
+              <br>
+              <br>
+              Email
 
-        <tr>
-          <th>User name:
-          <td>#{username}
-
-        <tr>
-          <th>Email address:
-          <td>#{email}
-
+        <div .offset2>
+          <p>
+            #{fullname}
+            <br>
+            <br>
+            #{username}
+            <br>
+            <br>
+            #{email}

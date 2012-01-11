@@ -11,8 +11,9 @@ import Import
 import Helpers.Forms
 
 import Yesod.Goodies
-import Control.Monad (unless)
+import Control.Monad          (unless)
 import Database.Persist.Store (PersistValue(PersistText, PersistInt64))
+import Network.Wai            (remoteHost)
 import qualified Data.Text as T
 
 getReviewsR :: ReviewId -> Handler RepHtml
@@ -44,21 +45,29 @@ getReviewsR rid = do
                 go (PersistInt64 i) = T.pack $ show i
                 go _                = ""
 
-
-
-postReviewsR :: ReviewId -> Handler RepHtml
-postReviewsR = getReviewsR
-
 getEditR :: ReviewId -> Handler RepHtml
 getEditR rid = do
     (uid, _) <- requireAuth
     docs     <- siteDocs =<< getYesod
+
     case docByReviewId rid docs of
-        Just d -> do
+        Just d@(Document _ r l _) -> do
             -- not your review, redirect to the view page
-            unless (uid == (reviewReviewer $ review d)) $ do
+            unless (uid == reviewReviewer r) $ do
                 tm <- getRouteToMaster
                 redirect $ tm (ReviewsR rid)
+
+            ip <- return . T.pack . show . remoteHost =<< waiRequest
+            ((res, form), enctype) <- runFormPost $ reviewForm (Just r) (Just $ landlordName l) ip
+
+            case res of
+                FormSuccess rf -> do
+                    return ()
+                    tm  <- getRouteToMaster
+                    _   <- updateReview rid rf
+                    redirect $ tm (ReviewsR rid)
+
+                _ -> return ()
 
             defaultLayout $ do
                 setTitle "Edit review"
@@ -66,16 +75,32 @@ getEditR rid = do
 
         _ -> notFound
 
-postEditR :: ReviewId -> Handler RepHtml
-postEditR = getEditR
-
 getNewR :: Handler RepHtml
 getNewR = do
     (uid, _) <- requireAuth
     ml       <- lookupGetParam "landlord"
+
+    ip <- return . T.pack . show . remoteHost =<< waiRequest
+    ((res, form), enctype) <- runFormPost $ reviewForm Nothing ml ip
+
+    case res of
+        FormSuccess rf -> do
+            return ()
+            tm  <- getRouteToMaster
+            rid <- insertReview uid rf
+            redirect $ tm (ReviewsR rid)
+
+        _ -> return ()
+
     defaultLayout $ do
         setTitle "New review"
         addWidget $(widgetFile "review/new")
 
+postReviewsR :: ReviewId -> Handler RepHtml
+postReviewsR = getReviewsR
+
 postNewR :: Handler RepHtml
 postNewR = getNewR
+
+postEditR :: ReviewId -> Handler RepHtml
+postEditR = getEditR

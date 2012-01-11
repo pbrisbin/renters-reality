@@ -6,10 +6,7 @@
     <a href="@{DeleteProfileR}" .btn .danger>Delete
 
   <form enctype="#{enctype}" method="post">
-    <table .condensed-table .border-free-table>
-      ^{form}
+    ^{form}
 
-      <tr>
-        <td>&nbsp;
-        <td>
-          <input .btn type="submit" value="Save">
+    <div.input>
+      <input .btn type="submit" value="Save">

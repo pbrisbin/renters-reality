@@ -35,7 +35,7 @@ getProfileR = do
 getEditProfileR :: Handler RepHtml 
 getEditProfileR = do
     (_, u)               <- requireAuth
-    ((_, form), enctype) <- runFormPost $ profileEditForm u
+    ((_, form), enctype) <- runFormPost $ profileForm u
 
     defaultLayout $ do
         setTitle "Edit profile"
@@ -43,7 +43,12 @@ getEditProfileR = do
 
 postEditProfileR :: Handler RepHtml
 postEditProfileR = do
-    runProfileFormPost
+    (uid, u)          <- requireAuth
+    ((res, _   ), _ ) <- runFormPost $ profileForm u
+    case res of
+        FormSuccess ef -> saveProfile uid ef
+        _              -> return ()
+
     getEditProfileR
 
 getDeleteProfileR :: Handler RepHtml
