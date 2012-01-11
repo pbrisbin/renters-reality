@@ -1,5 +1,3 @@
-{-# LANGUAGE QuasiQuotes       #-}
-{-# LANGUAGE OverloadedStrings #-}
 module Helpers.Search 
     ( generalCompletion
     , uniqueLandlords
@@ -15,11 +13,9 @@ module Helpers.Search
 import Import
 
 import Yesod.Goodies
-import Yesod.Json    (array)
-import Control.Monad (forM)
 import Data.List     (nub)
 import Data.Ord      (comparing)
-import Database.Persist.Store (Entity(..))
+--import Database.Persist.Store (Entity(..))
 import qualified Data.Text as T
 
 type SearchFunction = Text -> [Document] -> [Document]

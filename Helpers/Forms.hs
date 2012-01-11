@@ -1,5 +1,3 @@
-{-# LANGUAGE QuasiQuotes       #-}
-{-# LANGUAGE OverloadedStrings #-}
 module Helpers.Forms
     ( runReviewFormNew
     , runReviewFormEdit
@@ -15,12 +13,33 @@ import Database.Persist.Store (Entity(..))
 import Network.Wai            (remoteHost)
 import qualified Data.Text as T
 
+-- | Render a form using Bootstrap-friendly HTML syntax.
+renderBootstrap :: FormRender sub master a
+renderBootstrap aform fragment = do
+    (res, views') <- aFormToForm aform
+    let views = views' []
+        has (Just _) = True
+        has Nothing  = False
+    let widget = [whamlet|
+#{fragment}
+$forall view <- views
+    <div .clearfix :fvRequired view:.required :not $ fvRequired view:.optional :has $ fvErrors view:.error>
+        <label for=#{fvId view}>#{fvLabel view}
+        <div.input>
+            ^{fvInput view}
+            $maybe tt <- fvTooltip view
+                <span .help-block>#{tt}
+            $maybe err <- fvErrors view
+                <span .help-block>#{err}
+|]
+    return (res, widget)
+
 data ReviewForm = ReviewForm
     { rfIp        :: Text
     , rfLandlord  :: Text
-    , rfAddress   :: Textarea
-    , rfTimeframe :: Text
     , rfGrade     :: Grade
+    , rfTimeframe :: Text
+    , rfAddress   :: Textarea
     , rfReview    :: Markdown
     }
 
@@ -29,11 +48,6 @@ data ProfileEditForm = ProfileEditForm
     , eUsername :: Maybe Text
     , eEmail    :: Maybe Text
     }
-
---data MarkdownExample = MarkdownExample
-    --{ mdText :: String
-    --, mdHtml :: Widget
-    --}
 
 runProfileFormPost :: Handler ()
 runProfileFormPost = do
@@ -117,121 +131,38 @@ runReviewFormNew uid ml = do
                     , reviewLandlord    = landlordId
                     }
 
-profileEditForm :: User -> Html -> MForm Renters Renters (FormResult ProfileEditForm, Widget)
-profileEditForm u = renderTable $ ProfileEditForm
+profileEditForm :: User -> Form ProfileEditForm
+profileEditForm u = renderBootstrap $ ProfileEditForm
     <$> aopt textField  "Full name" (Just $ userFullname u)
     <*> aopt textField  "User name" (Just $ userUsername u)
-    <*> aopt emailField "Email"     (Just $ userEmail u)
+    <*> aopt emailField "Email"
+        { fsTooltip = Just "never displayed, only used to find your gravatar"
+        } (Just $ userEmail u)
 
-reviewForm :: Maybe Review -- ^ for use in edit
-           -> Maybe Text   -- ^ maybe landlord name (for use in new)
-           -> Text         -- ^ IP address of submitter
-           -> Html         -- ^ nonce fragment
-           -> MForm Renters Renters (FormResult ReviewForm, Widget)
-reviewForm mr ml ip fragment = do
-    (fIp       , fiIp       ) <- mreq hiddenField   (ffs ""            "ip"       ) (Just ip                )
-    (fLandlord , fiLandlord ) <- mreq textField     (ffs "Landlord:"   "landlord" ) (ml                     )
-    (fAddress  , fiAddress  ) <- mreq textareaField (ffs "Address:"    "address"  ) (fmap reviewAddress   mr)
-    (fTimeframe, fiTimeframe) <- mreq textField     (ffs "Time frame:" "timeframe") (fmap reviewTimeframe mr)
-    (fGrade    , fiGrade    ) <- mreq selectGrade   (ffs "Grade:"      "grade"    ) (fmap reviewGrade     mr)
-    (fReview   , fiReview   ) <- mreq markdownField (ffs "Review:"     "review"   ) (fmap reviewContent   mr)
+reviewForm :: Maybe Review -> Maybe Text -> Text -> Form ReviewForm
+reviewForm mr ml ip = renderBootstrap $ ReviewForm
+    <$> areq hiddenField "Ip" (Just ip)
+    <*> areq textField   "Landlord"
+        { fsId = Just "search-landlord" } ml
 
-    return (ReviewForm 
-        <$> fIp      <*> fLandlord  
-        <*> fAddress <*> fTimeframe  
-        <*> fGrade   <*> fReview, [whamlet|
-            #{fragment}
-            <table .condensed-table .border-free-table>
-                <tr .hidden-input>
-                    ^{fieldCell 4 fiIp}
+    <*> areq selectGrade "Grade"      (fmap reviewGrade     mr)
+    <*> areq textField   "Time frame" (fmap reviewTimeframe mr)
 
-                <tr>
-                    ^{fieldCell 1 fiLandlord}
-                    ^{fieldCell 1 fiGrade}
+    <*> areq textareaField "Address"
+        { fsClass = ["address-box"]
+        } (fmap reviewAddress mr)
 
-                <tr>
-                    ^{fieldCell 4 fiTimeframe}
-                    <td colspan=3>&nbsp;
+    <*> areq markdownField "Review"
+        { fsClass = ["review-box"]
+        } (fmap reviewContent mr)
 
-                <tr .address-input>
-                    ^{fieldCell 4 fiAddress}
-                    <td colspan=3>&nbsp;
-
-                <tr .review-input>
-                    ^{fieldCell 4 fiReview}
-
-                <tr>
-                    <td>&nbsp;
-                    <td colspan="4">
-                        <input .btn type="submit" value="Save">
-            |])
-
-        where
-            selectGrade = selectField gradesList
-                where
-                    gradesList :: [(Text, Grade)]
-                    gradesList = [ ("A+", Aplus )
-                                 , ("A" , A     )
-                                 , ("A-", Aminus)
-                                 , ("B+", Bplus )
-                                 , ("B" , B     )
-                                 , ("B-", Bminus)
-                                 , ("C+", Cplus )
-                                 , ("C" , C     )
-                                 , ("C-", Cminus)
-                                 , ("D+", Dplus )
-                                 , ("D" , D     )
-                                 , ("D-", Dminus)
-                                 , ("F" , F     )
-                                 ]
-
-            ffs :: Text -> Text -> FieldSettings Text
-            ffs label theId = FieldSettings label Nothing (Just theId) Nothing []
-
-            -- span for the input cell only
-            fieldCell :: Int -> FieldView s m -> GWidget s m ()
-            fieldCell colspan fv = [whamlet|
-                <th>
-                    <label for="#{fvId fv}">#{fvLabel fv}
-                <td ##{fvId fv} colspan=#{show colspan}>^{fvInput fv}
-                <td>
-                    $maybe error <- fvErrors fv
-                        #{error}
-                    $nothing
-                        &nbsp;
-                |]
+    where
+        selectGrade = selectField [ ("A+", Aplus), ("A", A), ("A-", Aminus)
+                                  , ("B+", Bplus), ("B", B), ("B-", Bminus)
+                                  , ("C+", Cplus), ("C", C), ("C-", Cminus)
+                                  , ("D+", Dplus), ("D", D), ("D-", Dminus)
+                                  , ("F" , F    )
+                                  ]
 
 findOrCreate :: PersistEntity v => v -> Handler (Key (YesodPersistBackend Renters) v)
 findOrCreate v = return . either entityKey id =<< runDB (insertBy v)
-
-{-
-helpBoxContents :: Widget
-helpBoxContents = [whamlet|
-        <h3>Some quick examples:
-
-        $forall mdExample <- mdExamples
-            <p .example>
-                <code>#{mdText mdExample} 
-                will render as ^{mdHtml mdExample}
-
-        <p>
-            <em>
-                Additional documentation can be found 
-                <a href="http://daringfireball.net/projects/markdown/syntax">here
-                \.
-    |]
-
-mdExamples :: [MarkdownExample]
-mdExamples = [ MarkdownExample "*italic text*"
-                    [whamlet|<em>italic text|]
-
-             , MarkdownExample "**bold text**"
-                    [whamlet|<strong>bold text|]
-
-             , MarkdownExample "[some link](http://example.com \"link title\")"
-                    [whamlet|<a href="http://example.com" title="link title">some link|]
-
-             , MarkdownExample "![even images](http://pbrisbin.com/static/images/feed.png)"
-                    [whamlet|<img alt="even images" src="http://pbrisbin.com/static/images/feed.png">|]
-             ]
--}

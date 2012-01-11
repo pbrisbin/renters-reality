@@ -24,7 +24,7 @@ import Database.Persist.GenericSql (runMigration)
 import Network.HTTP.Conduit (withManager)
 
 import Control.Monad (forM)
-import qualified Data.Map as M
+--import qualified Data.Map as M
 
 -- Import all relevant handler modules here.
 import Handler.Root

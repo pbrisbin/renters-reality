@@ -34,20 +34,6 @@ body {
   border: 0 !important;    
 } 
 
-.hidden-input {
-  display: none;
-}
-
-.address-input textarea {
-  width:  210px;
-  height: 75px;
-}
-
-.review-input textarea {
-  width:  500px;
-  height: 300px;
-}
-
 .accordion h3 {
   cursor: pointer;
   border: none;
