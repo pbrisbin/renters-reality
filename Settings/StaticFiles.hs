@@ -1,7 +1,7 @@
 {-# LANGUAGE CPP, QuasiQuotes, TemplateHaskell, TypeFamilies #-}
 module Settings.StaticFiles where
 
-import Yesod.Static (staticFiles, StaticRoute (StaticRoute))
+import Yesod.Static
 
 -- | This generates easy references to files in the static directory at compile time.
 --   The upside to this is that you have compile-time verification that referenced files

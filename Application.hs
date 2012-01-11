@@ -11,14 +11,13 @@ import Foundation
 import Settings
 import Yesod.Static
 import Yesod.Auth
-import Yesod.Comments.Storage
 import Yesod.Default.Config
 import Yesod.Default.Main
 import Yesod.Default.Handlers
 import Yesod.Logger (Logger)
 import Control.Monad (forM)
 import Data.Dynamic (Dynamic, toDyn)
-import qualified Database.Persist.Base
+import qualified Database.Persist.Store
 import Database.Persist.GenericSql (runMigration)
 import qualified Data.Map as M
 
@@ -40,10 +39,10 @@ withRenters conf logger f = do
     s <- staticDevel Settings.staticDir
 #endif
     dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
-            $ either error return . Database.Persist.Base.loadConfig
-    Database.Persist.Base.withPool (dbconf :: Settings.PersistConfig) $ \p -> do
-        Database.Persist.Base.runPool dbconf (runMigration migrateAll     ) p
-        Database.Persist.Base.runPool dbconf (runMigration migrateComments) p
+            $ either error return . Database.Persist.Store.loadConfig
+    Database.Persist.Store.withPool (dbconf :: Settings.PersistConfig) $ \p -> do
+        Database.Persist.Store.runPool dbconf (runMigration migrateAll     ) p
+        Database.Persist.Store.runPool dbconf (runMigration migrateComments) p
         defaultRunner f $ Renters conf logger s p loadDocuments
 
     where

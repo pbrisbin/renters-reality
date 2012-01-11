@@ -4,11 +4,12 @@
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE FlexibleContexts           #-}
 module Model where
 
 import Yesod
 import Yesod.Goodies
-import Database.Persist.Base
+import Database.Persist.Quasi
 import Data.Ord  (comparing)
 import Data.Time (UTCTime(..))
 import Data.Text (Text)
@@ -22,7 +23,7 @@ data Grade = Aplus | A | Aminus
 
 derivePersistField "Grade"
 
-share [mkPersist sqlSettings, mkMigrate "migrateAll"] $(persistFile "config/models")
+share [mkPersist sqlMkSettings, mkMigrate "migrateAll"] $(persistFile upperCaseSettings "config/models")
 
 data Document = Document
     { reviewId :: ReviewId

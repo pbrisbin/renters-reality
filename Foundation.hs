@@ -3,62 +3,63 @@
 {-# LANGUAGE CPP #-}
 module Foundation
     ( Renters (..)
-    , RentersRoute (..)
+    , Route (..)
     , RentersMessage (..)
     , resourcesRenters
     , Handler
     , Widget
+    , Form
     , maybeAuth
     , maybeAuthId
     , requireAuth
     , requireAuthId
     , module Yesod
     , module Settings
-    , module Settings.StaticFiles
     , module Model
-    , StaticRoute (..)
-    , AuthRoute (..)
     ) where
 
-import Yesod hiding (setTitle, AppConfig(..), withYamlEnvironment)
-import Yesod.Static (Static, base64md5, StaticRoute(..))
+import Yesod hiding (setTitle)
+import Yesod.Static
 import Settings.StaticFiles
 import Yesod.Auth
 import Yesod.Auth.OpenId
 import Yesod.Auth.Facebook
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
-import Yesod.Logger (Logger, logLazyText)
-import Yesod.Comments hiding (userEmail)
-import Yesod.Comments.Storage
+import Yesod.Logger (Logger, logMsg, formatLogText)
+import Network.HTTP.Conduit (Manager)
 import qualified Settings
-import qualified Database.Persist.Base as Base
+import qualified Database.Persist.Store
 import Database.Persist.GenericSql
 import Settings (setTitle, widgetFile)
 import Model
-import Data.Maybe (fromMaybe)
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
+import Data.Maybe (fromMaybe)
 
 data Renters = Renters
-    { settings  :: AppConfig DefaultEnv ()
-    , getLogger :: Logger
-    , getStatic :: Static
-    , connPool  :: Base.PersistConfigPool Settings.PersistConfig
-    , siteDocs  :: GHandler Renters Renters [Document]
+    { settings    :: AppConfig DefaultEnv ()
+    , getLogger   :: Logger
+    , getStatic   :: Static
+    , connPool    :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig
+    , httpManager :: Manager
+    , siteDocs    :: GHandler Renters Renters [Document]
     }
 
 mkMessage "Renters" "messages" "en"
 
 mkYesodData "Renters" $(parseRoutesFile "config/routes")
 
+type Form x = Html -> MForm Renters Renters (FormResult x, Widget)
+
 instance Yesod Renters where
-    approot      = appRoot . settings
+    approot = appRoot . settings
+
     encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
 
     defaultLayout widget = do
-        (t,h) <- breadcrumbs
+        y     <- getYesod
         mmsg  <- getMessage
         mauth <- maybeAuth
         pc    <- widgetToPageContent $ do
@@ -68,7 +69,7 @@ instance Yesod Renters where
     authRoute _ = Just $ AuthR LoginR
 
     messageLogger y loc level msg =
-      formatLogMessage loc level msg >>= logLazyText (getLogger y)
+      formatLogText (getLogger y) loc level msg >>= logMsg (getLogger y)
 
     addStaticContent = addStaticContentExternal minifym base64md5 Settings.staticDir (StaticR . flip StaticRoute [])
 
@@ -76,8 +77,7 @@ instance Yesod Renters where
 
 instance YesodPersist Renters where
     type YesodPersistBackend Renters = SqlPersist
-    runDB f = liftIOHandler
-            $ fmap connPool getYesod >>= Base.runPool (undefined :: Settings.PersistConfig) f
+    runDB f = fmap connPool getYesod >>= Database.Persist.Store.runPool (undefined :: Settings.PersistConfig) f
 
 instance YesodAuth Renters where
     type AuthId Renters = UserId
@@ -88,8 +88,8 @@ instance YesodAuth Renters where
     getAuthId creds = runDB $ do
         x <- getBy $ UniqueIdent $ credsIdent creds
         case x of
-            Just (_, i) -> return $ Just $ identUser i
-            Nothing       -> do
+            Just (Entity _ e) -> return . Just . identUser $ e
+            Nothing -> do
                 uid <- insert $ User
                     { userFullname      = Nothing
                     , userUsername      = Nothing
@@ -105,32 +105,11 @@ instance YesodAuth Renters where
                   , authFacebook "206687389350404" "9d30284c6cb99ff2c7cbc4e5f8ae53e0" []
                   ]
 
-    loginHandler = defaultLayout $ do
-        setTitle "Login"
-        addWidget $(widgetFile "login")
+    authHttpManager = httpManager
+
+    --loginHandler = defaultLayout $ do
+        --setTitle "Login"
+        --addWidget $(widgetFile "login")
 
 instance RenderMessage Renters FormMessage where
     renderMessage _ _ = defaultFormMessage
-
-instance YesodBreadcrumbs Renters where
-    breadcrumb RootR           = return ("Home"         , Nothing            )
-    breadcrumb SearchR         = return ("search"       , Just RootR         )
-    breadcrumb (ReviewsR  _)   = return ("view review"  , Just RootR         )
-    breadcrumb (LandlordsR _)  = return ("view landlord", Just RootR         )
-    breadcrumb NewR            = return ("new"          , Just RootR         )
-    breadcrumb (EditR rid)     = return ("edit"         , Just $ ReviewsR rid)
-    breadcrumb LegalR          = return ("legal"        , Just RootR         )
-    breadcrumb (AuthR _)       = return ("login"        , Just RootR         )
-    breadcrumb ProfileR        = return ("profile"      , Just RootR         )
-    breadcrumb EditProfileR    = return ("edit"         , Just ProfileR      )
-    breadcrumb DeleteProfileR  = return ("delete"       , Just ProfileR      )
-    breadcrumb _               = return ("404"          , Just RootR         )
-
-instance YesodComments Renters where
-    getComment       = getCommentPersist
-    storeComment     = storeCommentPersist
-    updateComment    = updateCommentPersist
-    deleteComment    = deleteCommentPersist
-    loadComments     = loadCommentsPersist
-    displayUser  uid = return .                maybe ""      showName  =<< runDB (get uid)
-    displayEmail uid = return . fromMaybe "" . maybe Nothing userEmail =<< runDB (get uid)

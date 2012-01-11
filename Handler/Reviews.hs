@@ -12,10 +12,8 @@ module Handler.Reviews
 
 import Foundation
 import Helpers.Forms
-import Yesod.Comments
 import Yesod.Goodies
 import Control.Monad (unless)
-import Database.Persist.Base
 import Data.Text (Text)
 import qualified Data.Text as T
 
