@@ -34,6 +34,7 @@ library
                      Settings.StaticFiles
                      Handler.Root
 
+                     Helpers.ErrorHandler
                      Helpers.Forms
                      Helpers.Search
                      Handler.Feed

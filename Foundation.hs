@@ -44,6 +44,7 @@ import qualified Data.Text.Lazy.Encoding
 import Network.Mail.Mime (sendmail)
 #endif
 
+import Helpers.ErrorHandler
 import Data.Maybe (fromMaybe)
 
 -- | The site argument for your application. This can be a good place to
@@ -129,6 +130,8 @@ instance Yesod Renters where
 
     -- Enable Javascript async loading
     yepnopeJs _ = Just $ Right $ StaticR js_modernizr_js
+
+    errorHandler = rentersErrorHandler
 
 -- How to run database actions.
 instance YesodPersist Renters where
