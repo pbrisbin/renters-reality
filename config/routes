@@ -4,7 +4,7 @@
 /search/comp/searches  CompSearchesR   GET
 /new                   NewR            GET POST
 /edit/#ReviewId        EditR           GET POST
-/reviews/#ReviewId     ReviewsR        GET POST
+/reviews/#ReviewId     ReviewR         GET POST
 /profile               ProfileR        GET
 /profile/edit          EditProfileR    GET POST
 /profile/delete        DeleteProfileR  GET POST

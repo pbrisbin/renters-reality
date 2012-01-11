@@ -36,7 +36,7 @@ feedFromDocs docs = rssFeed Feed
 
 docToRssEntry :: Document -> FeedEntry (Route Renters)
 docToRssEntry (Document rid r l _) = FeedEntry
-    { feedEntryLink    = ReviewsR rid
+    { feedEntryLink    = ReviewR rid
     , feedEntryUpdated = reviewCreatedDate r
     , feedEntryTitle   = mkTitle (landlordName l) (reviewGrade r)
     , feedEntryContent = plainText $ reviewContent r

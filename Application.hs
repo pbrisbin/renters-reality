@@ -31,7 +31,7 @@ import Handler.Root
 import Handler.Legal
 import Handler.Search
 import Handler.Profile
-import Handler.Reviews
+import Handler.Review
 import Handler.Feed
 
 -- This line actually creates our YesodSite instance. It is the second half

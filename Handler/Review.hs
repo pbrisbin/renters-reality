@@ -1,6 +1,6 @@
-module Handler.Reviews 
-    ( getReviewsR
-    , postReviewsR
+module Handler.Review
+    ( getReviewR
+    , postReviewR
     , getEditR
     , postEditR
     , getNewR
@@ -16,8 +16,8 @@ import Database.Persist.Store (PersistValue(PersistText, PersistInt64))
 import Network.Wai            (remoteHost)
 import qualified Data.Text as T
 
-getReviewsR :: ReviewId -> Handler RepHtml
-getReviewsR rid = do
+getReviewR :: ReviewId -> Handler RepHtml
+getReviewR rid = do
     docs <- siteDocs =<< getYesod
     case docByReviewId rid docs of
         Just d -> do
@@ -55,7 +55,7 @@ getEditR rid = do
             -- not your review, redirect to the view page
             unless (uid == reviewReviewer r) $ do
                 tm <- getRouteToMaster
-                redirect $ tm (ReviewsR rid)
+                redirect $ tm (ReviewR rid)
 
             ip <- return . T.pack . show . remoteHost =<< waiRequest
             ((res, form), enctype) <- runFormPost $ reviewForm (Just r) (Just $ landlordName l) ip
@@ -65,7 +65,7 @@ getEditR rid = do
                     return ()
                     tm  <- getRouteToMaster
                     _   <- updateReview rid rf
-                    redirect $ tm (ReviewsR rid)
+                    redirect $ tm (ReviewR rid)
 
                 _ -> return ()
 
@@ -88,7 +88,7 @@ getNewR = do
             return ()
             tm  <- getRouteToMaster
             rid <- insertReview uid rf
-            redirect $ tm (ReviewsR rid)
+            redirect $ tm (ReviewR rid)
 
         _ -> return ()
 
@@ -96,8 +96,8 @@ getNewR = do
         setTitle "New review"
         addWidget $(widgetFile "review/new")
 
-postReviewsR :: ReviewId -> Handler RepHtml
-postReviewsR = getReviewsR
+postReviewR :: ReviewId -> Handler RepHtml
+postReviewR = getReviewR
 
 postNewR :: Handler RepHtml
 postNewR = getNewR

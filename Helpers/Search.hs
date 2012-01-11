@@ -106,7 +106,7 @@ asSearchResult (Document rid r _ u) = do
 
                     <small>
                         Reviewed by #{showName u} #{reviewTime} &mdash; 
-                        <a href=@{ReviewsR rid}>Read more...
+                        <a href=@{ReviewR rid}>Read more...
         |]
 
     where

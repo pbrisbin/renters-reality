@@ -39,7 +39,7 @@ library
                      Handler.Feed
                      Handler.Legal
                      Handler.Profile
-                     Handler.Reviews
+                     Handler.Review
                      Handler.Root
                      Handler.Search
 
