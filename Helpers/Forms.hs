@@ -6,9 +6,6 @@ module Helpers.Forms
     , updateReview
     ) where
 
--- TODO: selectField causes Prelude.undefined error from server. I
--- cannot figure this out...
---
 -- TODO: selectList causes No Query instance at compile.
 
 import Import
@@ -16,6 +13,7 @@ import Import
 import Yesod.Goodies
 import Data.Time              (getCurrentTime)
 import Database.Persist.Store (Entity(..))
+import Database.Persist.Query.GenericSql ()
 import qualified Data.Text as T
 
 renderBootstrap :: FormRender sub master a
@@ -55,11 +53,11 @@ data ProfileForm = ProfileForm
 
 saveProfile :: UserId -> ProfileForm -> Handler ()
 saveProfile uid pf = do
-    --runDB $ update uid 
-        --[ UserFullname =. pfFullename pf
-        --, UserUsername =. pfUsername  pf
-        --, UserEmail    =. pfEmail     pf
-        --]
+    runDB $ update uid 
+        [ UserFullname =. pfFullname pf
+        , UserUsername =. pfUsername pf
+        , UserEmail    =. pfEmail    pf
+        ]
 
     tm <- getRouteToMaster
     redirect $ tm ProfileR
@@ -69,12 +67,12 @@ updateReview rid rf = do
     ---- might've changed
     landlordId <- findOrCreate $ Landlord $ rfLandlord rf
 
-    --runDB $ update rid [ ReviewLandlord  =. landlordId
+    runDB $ update rid [ ReviewLandlord  =. landlordId
                        --, ReviewGrade     =. rfGrade     rf
-                       --, ReviewAddress   =. rfAddress   rf
-                       --, ReviewTimeframe =. rfTimeframe rf
-                       --, ReviewContent   =. rfReview    rf
-                       --]
+                       , ReviewAddress   =. rfAddress   rf
+                       , ReviewTimeframe =. rfTimeframe rf
+                       , ReviewContent   =. rfReview    rf
+                       ]
 
     -- for type consistency
     return rid

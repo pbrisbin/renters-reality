@@ -15,7 +15,8 @@ import Import
 import Yesod.Goodies
 import Data.List     (nub)
 import Data.Ord      (comparing)
---import Database.Persist.Store (Entity(..))
+import Database.Persist.Store (Entity(..))
+import Database.Persist.Query.GenericSql ()
 import qualified Data.Text as T
 
 type SearchFunction = Text -> [Document] -> [Document]
@@ -63,9 +64,8 @@ fullSearch = search_
 
 uniqueLandlords :: Handler [Text]
 uniqueLandlords = do
-    return []
-    --lls <- runDB $ selectList [] [Asc LandlordName]
-    --return $ map (landlordName . entityVal) lls
+    lls <- runDB $ selectList [] [Asc LandlordName]
+    return $ map (landlordName . entityVal) lls
 
 uniqueAddresses :: Handler [Text]
 uniqueAddresses = do

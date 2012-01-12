@@ -24,7 +24,9 @@ import Database.Persist.GenericSql (runMigration)
 import Network.HTTP.Conduit (withManager)
 
 import Control.Monad (forM)
---import qualified Data.Map as M
+import qualified Data.Map as M
+import Database.Persist.Store (Entity(..))
+import Database.Persist.Query.GenericSql ()
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -62,19 +64,23 @@ withRenters conf logger f = withManager $ \manager -> lift $ do
     loadDocuments :: Handler [Document]
     loadDocuments = do
         return []
-        --users     <- return . M.fromList =<< runDB (selectList [] [Asc  UserUsername     ])
-        --landlords <- return . M.fromList =<< runDB (selectList [] [Asc  LandlordName     ])
-        --reviews   <-                         runDB (selectList [] [Desc ReviewCreatedDate])
+        users     <- return . fromEntities =<< runDB (selectList [] [Asc  UserUsername     ])
+        landlords <- return . fromEntities =<< runDB (selectList [] [Asc  LandlordName     ])
+        reviews   <-                           runDB (selectList [] [Desc ReviewCreatedDate])
 
-        --docs <- forM reviews $ \(k,v) -> do
-            --let u = M.lookup (reviewReviewer v) users
-            --let l = M.lookup (reviewLandlord v) landlords
+        docs <- forM reviews $ \(Entity k v) -> do
+            let u = M.lookup (reviewReviewer v) users
+            let l = M.lookup (reviewLandlord v) landlords
 
-            --return $ case (u, l) of
-                --(Just u', Just l') -> [ Document k v l' u' ]
-                --_                  -> []
+            return $ case (u, l) of
+                (Just u', Just l') -> [ Document k v l' u' ]
+                _                  -> []
 
-        --return $ concat docs
+        return $ concat docs
+
+    -- turns a list of entities into a map of key-values
+    fromEntities :: [Entity backend a] -> M.Map (Key backend a) a
+    fromEntities = M.fromList . map (\e -> (entityKey e, entityVal e))
 
 -- for yesod devel
 withDevelAppPort :: Dynamic
