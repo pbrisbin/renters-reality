@@ -40,12 +40,11 @@
                   tips
 
         $maybe authR <- mauthR
-          <div .row>
-            <p>
-              <small>
-                Please 
-                <a href="@{authR}">log in
-                \ to submit a review.
+          <p>
+            <small>
+              Please 
+              <a href="@{authR}">log in
+              \ to submit a review.
 
     <div .tab-pane #landlords>
       <p>

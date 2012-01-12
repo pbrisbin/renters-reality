@@ -27,7 +27,7 @@ body {
 }
 
 .search-result-header {
-  padding-bottom: 8px;
+  padding-bottom: 12px;
 }
 
 form.search, form.new {

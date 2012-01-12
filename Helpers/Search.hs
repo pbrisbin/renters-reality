@@ -96,7 +96,7 @@ asSearchResult (Document rid r _ u) = do
 
     [whamlet|
         <div .row .search-result-body>
-            <div .span2>
+            <div .offset1 .span2>
                 <address>
                     #{reviewAddress r}
 

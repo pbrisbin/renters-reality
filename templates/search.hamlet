@@ -1,6 +1,6 @@
 <div .content>
   <div .pull-right>
-    <form .search method="get" action="@{SearchR}">
+    <form method="get" action="@{SearchR}">
      <p>
        <input #search-input size=30 name="q" autofocus="autofocus"> 
        <input .btn type="submit" value="Search">
@@ -21,9 +21,9 @@
   $else
     $forall doc <- docs
       <div .row .search-result-header>
-        <div .span10>
+        <div .span11>
           <h2>#{landlordName $ landlord doc}
-        <div .offset10>
+        <div .offset11>
           <h2>#{prettyGrade $ reviewGrade $ review doc}
 
       ^{asSearchResult doc}
