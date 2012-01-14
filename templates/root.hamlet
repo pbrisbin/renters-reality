@@ -40,12 +40,14 @@
 
       <p>
         We hope to some day ofter a suite of tools to help you maintain 
-        your own reputation on this site.
+        your own reputation on this site. This is not a site dedicated 
+        to simply calling out bad landlords.
 
       <p>
-        We would like to provide ways to track, discuss, and resolve 
-        negative reviews as well as easily use the positive reviews 
-        found here to better promote your business.
+        We would like to eventually provide ways to track, discuss and 
+        resolve negative reviews and, more importantly, provide a means 
+        for you to leverage any positive reviews found here to better 
+        promote your business.
 
       <p>
         If you have any ideas for how to make this site useful for 
@@ -56,18 +58,31 @@
 
     <div .tab-pane #about>
       <p>
-        We aim to provide an easy to use service where residents can 
-        write a review of their landlord.
+        I'm a developer and a renter. This is a pet project of mine 
+        which I use to explore interesting web technologies while 
+        providing a service to renters like myself.
 
       <p>
-        Would-be residents can then search our database before 
-        unknowingly renting an apartment from a bad landlord.
+        The site uses a haskell web framework known as Yesod as a 
+        backend and the styling is almost entirely provided by Twitter's 
+        amazing bootstrap. The code driving the site is fully open 
+        sourced and can be viewed on my github page. 
 
       <p>
-        If you find any bugs or would like to request a feature please 
-        use the 
-        <a href="https://github.com/pbrisbin/renters-reality/issues">
-          issues tracker
-        \.
+        Because of the beta-nature of things, I can't guarantee it will 
+        always work, or that this site will turn into the featureful 
+        place that I'd hope it could be.
+
+      <p>
+        That said, I do believe it is useful.
+
+      <p>
+        <small>
+          <em>
+            If you find any bugs or would like to request a feature 
+            please use the 
+            <a href="https://github.com/pbrisbin/renters-reality/issues">
+              issues tracker
+            \.
 
 ^{tipsWidget}
