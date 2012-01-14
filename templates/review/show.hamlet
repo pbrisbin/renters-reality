@@ -12,7 +12,7 @@
       <a .btn .info href="@{EditR rid}">Edit
 
   <div .row .search-result-body>
-    <div .span2>
+    <div .span3>
       <address>
         #{reviewAddress $ review d}
 
