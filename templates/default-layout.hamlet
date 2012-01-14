@@ -18,10 +18,8 @@
             <a href="@{AuthR LoginR}">Login
 
 $maybe msg <- mmsg
-  <div .alert-message .info>
-    <p>
-      #{msg}
-      <span .pull-right>
-        <a href="#" #close-message>×
+  <div .alert-message .info .fade .in data-alert="alert">
+    <a .close href="#">×
+    <p>#{msg}
 
 ^{widget}

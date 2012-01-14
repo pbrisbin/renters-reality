@@ -16,8 +16,4 @@ $(function() {
     source:    "@{CompLandlordsR}",
     minLength: 3
   });
-
-  $('#close-message').click(function() {
-    $('.alert-message').hide();
-  });
 });

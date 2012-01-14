@@ -17,6 +17,7 @@
     <script src="//twitter.github.com/bootstrap/1.4.0/bootstrap-dropdown.js">
     <script src="//twitter.github.com/bootstrap/1.4.0/bootstrap-modal.js">
     <script src="//twitter.github.com/bootstrap/1.4.0/bootstrap-tabs.js">
+    <script src="//twitter.github.com/bootstrap/1.4.0/bootstrap-alerts.js">
 
     ^{pageHead pc}
   <body
