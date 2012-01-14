@@ -2,24 +2,23 @@
   <div .page-header>
     <h1>Login
 
-  <div .row>
-    <div .offset3>
-      <div .row>
-        <div .span3>
-          <form method="get" action="@{AuthR forwardUrl}">
-            <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
-            <input .btn type="submit" value="Login via Google">
+  <div .login>
+    <ul>
+      <li>
+        <form method="get" action="@{AuthR forwardUrl}">
+          <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
+          <input type="image" src="@{StaticR img_google_32_png}" title="Login via Google">
 
-        <div .span3>
-          <form method="get" action="@{AuthR forwardUrl}">
-            <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
-            <input .btn type="submit" value="Login via Yahoo!">
+      <li>
+        <form method="get" action="@{AuthR forwardUrl}">
+          <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
+          <input type="image" src="@{StaticR img_yahoo_32_png}" title="Login via Yahoo!">
 
-        <div .span3>
-          <form method="get" action="@{AuthR facebookUrl}">
-            <input .btn type="submit" value="Login via facebook">
+      <li>
+        <form method="get" action="@{AuthR facebookUrl}">
+          <input type="image" src="@{StaticR img_facebook_32_png}" title="Login via facebook">
 
-  <div .row>
-    <form .offset4 method="get" action="@{AuthR forwardUrl}">
-      <input #openid_identifier type="text" name="openid_identifier" placeholder="http://"> 
-      <input #openid_submit .btn type="submit" value="Login via OpenID">
+      <li>
+        <form  method="get" action="@{AuthR forwardUrl}">
+          <input #openid_identifier type="text" name="openid_identifier" placeholder="http://"> 
+          <input #openid_submit type="image" src="@{StaticR img_openid_32_png}" title="Login via OpenID">

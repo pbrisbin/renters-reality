@@ -45,7 +45,6 @@ import Network.Mail.Mime (sendmail)
 #endif
 
 import Helpers.ErrorHandler
-import Data.Maybe (fromMaybe)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application

@@ -63,7 +63,6 @@ withRenters conf logger f = withManager $ \manager -> lift $ do
 
     loadDocuments :: Handler [Document]
     loadDocuments = do
-        return []
         users     <- return . fromEntities =<< runDB (selectList [] [Asc  UserUsername     ])
         landlords <- return . fromEntities =<< runDB (selectList [] [Asc  LandlordName     ])
         reviews   <-                           runDB (selectList [] [Desc ReviewCreatedDate])

@@ -63,8 +63,8 @@ postDeleteProfileR :: Handler RepHtml
 postDeleteProfileR = do
     (uid, _) <- requireAuth 
 
-    --runDB $ deleteWhere [ReviewReviewer ==. uid]
-    --runDB $ deleteWhere [IdentUser      ==. uid]
-    --runDB $ delete uid
+    runDB $ deleteWhere [ReviewReviewer ==. uid]
+    runDB $ deleteWhere [IdentUser      ==. uid]
+    runDB $ delete uid
 
     redirect $ RootR

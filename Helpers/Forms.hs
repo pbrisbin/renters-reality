@@ -14,7 +14,6 @@ import Yesod.Goodies
 import Data.Time              (getCurrentTime)
 import Database.Persist.Store (Entity(..))
 import Database.Persist.Query.GenericSql ()
-import qualified Data.Text as T
 
 renderBootstrap :: FormRender sub master a
 renderBootstrap aform fragment = do

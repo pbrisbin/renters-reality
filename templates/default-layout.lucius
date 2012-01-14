@@ -15,7 +15,7 @@ textarea.review-entry {
   height: 300px;
 }
 .hidden {
-  display:none;
+  display: none;
 }
 .container > footer p {
   text-align: center;
@@ -36,6 +36,30 @@ textarea.review-entry {
 .search-result-header {
   padding-bottom: 12px;
 }
+
+/* login */
+.login ul {
+  margin: 0px;
+  list-style: none;
+  text-align: center;
+}
+.login li,
+.login form {
+  margin: 5px 0px;
+  display: inline;
+}
+.login input[type="image"] {
+  height: 32px;
+  width:  32px;
+  border:     none;
+  box-shadow: none;
+}
+.login input[type="text"] {
+  position: relative;
+  top: -15px;
+  margin-left: 28px;
+}
+
 /* jquery */
 .accordion h3 {
   cursor:  pointer;
