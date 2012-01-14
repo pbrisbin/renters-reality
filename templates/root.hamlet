@@ -13,13 +13,7 @@
         <div .accordion>
           <h3>Search reviews
           <div .row>
-            <form .offset3 .search method="get" action="@{SearchR}">
-              <p>
-                <input #search-input .span6 name="q" autofocus="autofocus"> 
-                <input .btn type="submit" value="Search"> 
-                <em>
-                  <a href="#" data-controls-modal="search-help" data-backdrop="true" data-keyboard="true">
-                    tips
+            ^{searchWidget}
 
           <h3>Review your landlord
           <div .hidden .row>
@@ -31,13 +25,7 @@
       $nothing
         <h3>Search reviews
         <div .row>
-          <form .offset3 .search method="get" action="@{SearchR}">
-            <p>
-              <input #search-input .span6 name="q" autofocus="autofocus"> 
-              <input .btn type="submit" value="Search"> 
-              <em>
-                <a href="#" data-controls-modal="search-help" data-backdrop="true" data-keyboard="true">
-                  tips
+          ^{searchWidget}
 
         $maybe authR <- mauthR
           <p>
@@ -82,40 +70,4 @@
           issues tracker
         \.
 
-<div #search-help .modal .hide .fade .in>
-  <div .modal-header>
-    <a href="#" .close>×
-    <h3>Search tips
-
-  <div .modal-body>
-    <p>
-      By default, the search will return matches on landlord name and 
-      reviewed address.
-
-    <p>
-      That means that if you search for "brighton" you'll get results 
-      for both "Brighton, MA" 
-      <strong>and 
-      "Brighton Realty"
-
-    <p>
-      Since this isn't always wanted, there are two prefixes you can use 
-      to change how the search is performed:
-
-    <dl>
-      <dd>
-        <code>landlord: something
-      <dt>
-        <em>
-          Only show reviews where "something" is part of the landlord's 
-          name
-      <dd>
-        <code>address: something else
-      <dt>
-        <em>
-          Only show reviews where "something else" is part of the address
-
-  <div .modal-footer>
-    <p>
-      Results are sorted by closest match, then most recent.
-
+^{tipsWidget}
