@@ -7,7 +7,7 @@ module Handler.Profile
     ) where
 
 import Import
-import Helpers.Forms
+import Helpers.Profile
 
 import Yesod.Goodies
 import Data.Maybe (fromMaybe)

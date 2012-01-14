@@ -32,11 +32,14 @@ library
                      Model
                      Settings
                      Settings.StaticFiles
-                     Handler.Root
 
                      Helpers.ErrorHandler
                      Helpers.Forms
+                     Helpers.Model
+                     Helpers.Request
                      Helpers.Search
+                     Helpers.Review
+                     Helpers.Profile
                      Handler.Feed
                      Handler.Legal
                      Handler.Profile
