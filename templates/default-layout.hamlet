@@ -19,6 +19,9 @@
 
 $maybe msg <- mmsg
   <div .alert-message .info>
-    <p>#{msg}
+    <p>
+      #{msg}
+      <span .pull-right>
+        <a href="#" #close-message>×
 
 ^{widget}

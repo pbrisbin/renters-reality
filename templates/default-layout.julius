@@ -1,5 +1,4 @@
 $(function() {
-
   $('#topbar').dropdown();
 
   $('.tabs').tabs();
@@ -18,4 +17,7 @@ $(function() {
     minLength: 3
   });
 
+  $('#close-message').click(function() {
+    $('.alert-message').hide();
+  });
 });
