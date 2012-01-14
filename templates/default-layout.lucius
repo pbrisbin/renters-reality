@@ -36,6 +36,9 @@ textarea.review-entry {
 .search-result-header {
   padding-bottom: 12px;
 }
+.search-result-body {
+  margin-left: 5px;
+}
 
 /* login */
 .login ul {

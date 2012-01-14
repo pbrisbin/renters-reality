@@ -96,16 +96,16 @@ asSearchResult (Document rid r _ u) = do
 
     [whamlet|
         <div .row .search-result-body>
-            <div .offset1 .span2>
+            <div .span3>
                 <address>
-                    #{reviewAddress r}
+                    <p>#{reviewAddress r}
 
             <div .span10>
                 <blockquote>
                     #{markdownToHtml $ shortenM 400 $ reviewContent r}
 
                     <small>
-                        Reviewed by #{showName u} #{reviewTime} &mdash; 
+                        Reviewed by #{showName u} #{reviewTime}. 
                         <a href=@{ReviewR rid}>Read more...
         |]
 

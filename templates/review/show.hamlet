@@ -1,11 +1,9 @@
 <div .content>
   <div .page-header>
-    <div .row>
-      <div .span10>
-        <h1>#{landlordName $ landlord d}
-
-      <div .offset10>
-        <h1>#{prettyGrade $ reviewGrade $ review d}
+      <h1>
+        #{landlordName $ landlord d}
+        <span .pull-right>
+          #{prettyGrade $ reviewGrade $ review d}
 
   $if ownReview
     <div .pull-right>
@@ -14,7 +12,7 @@
   <div .row .search-result-body>
     <div .span3>
       <address>
-        #{reviewAddress $ review d}
+        <p>#{reviewAddress $ review d}
 
     <div .span10>
       <blockquote>
