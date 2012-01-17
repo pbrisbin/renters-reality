@@ -32,32 +32,11 @@ data Document = Document
     , user     :: User
     }
 
--- | To search a "document" as text is to search its landlord's name and 
---   the single-string address info
-instance TextSearch Document where
-    toText d@(Document _ _ l _) = landlordName l `append` formatAddress d
-
-        where
-            append :: Text -> Text -> Text
-            a `append` b = a `T.append` " " `T.append` b
-
--- | Search by keyword and lend preference to more recent reviews
-instance Search Document where
-    preference = comparing (reviewCreatedDate . review . searchResult)
-    match      = keywordMatch
-
 showName :: User -> Text
 showName (User _         (Just un) _ _ _) = shorten 40 un
 showName (User (Just fn) _         _ _ _) = shorten 40 fn
 showName _                                = "anonymous"
 
-formatAddress :: Document -> Text
-formatAddress (Document _ r _ _) = T.map go . T.filter (/= '\r') . unTextarea $ reviewAddress r
-
-    where
-        go :: Char -> Char
-        go '\n' = ' '
-        go x    = x
 
 docsByLandlordId :: LandlordId -> [Document] -> [Document]
 docsByLandlordId lid = filter ((== lid) . reviewLandlord . review)

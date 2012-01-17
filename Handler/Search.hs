@@ -1,40 +1,21 @@
-module Handler.Search 
-    ( getSearchR
-    , getCompLandlordsR
-    , getCompSearchesR
-    ) where
+module Handler.Search (getSearchR) where
 
 import Import
 import Helpers.Search
 
-import Yesod.Goodies
-
 getSearchR :: Handler RepHtml
 getSearchR = do
-    mterm <- lookupGetParam "q"
-    docs' <- case mterm of
-        Nothing   -> siteDocs =<< getYesod
-        Just ""   -> siteDocs =<< getYesod
-        Just term -> do
-            docs'' <- siteDocs =<< getYesod
-            return $ tryPrefixes term [ ("landlord:", searchByLandlord)
-                                      , ("address:" , searchByAddress )
-                                      ] fullSearch docs''
-
-    (docs, pageWidget) <- paginate 5 docs'
+    ((res, _), _)         <- runFormGet searchForm
+    (results, pageWidget) <- searchReviews res
 
     defaultLayout $ do
         setTitle "Search results" 
         addWidget $(widgetFile "search")
 
+curQuery :: FormResult SearchForm -> Text
+curQuery (FormSuccess (SearchForm (Just q) _)) = q
+curQuery _                                     = ""
 
-getCompLandlordsR :: Handler RepJson
-getCompLandlordsR = generalCompletion $ \t -> do
-    landlords <- uniqueLandlords
-    return $ filter (looseMatch t) landlords
-
-getCompSearchesR :: Handler RepJson
-getCompSearchesR = generalCompletion $ \t -> do
-    landlords <- uniqueLandlords
-    addrs     <- uniqueAddresses
-    return $ filter (looseMatch t) (landlords ++ addrs)
+curPage :: FormResult SearchForm -> Int
+curPage (FormSuccess (SearchForm _ (Just p))) = p
+curPage _                                     = 1

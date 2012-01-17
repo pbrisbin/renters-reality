@@ -1,34 +1,27 @@
 <div .content>
   <div .pull-right>
     <form method="get" action="@{SearchR}">
-      $maybe t <- mterm
-        <input #search-input size=30 name="q" value="#{t}"> 
-      $nothing
-        <input #search-input size=30 name="q"> 
-
+      <input type="hidden" name="p" value="#{curPage res}">
+      <input #search-input size=30 name="q" value="#{curQuery res}"> 
       <input .btn type="submit" value="Search">
 
   <div .page-header>
     <h1>Search results
 
-  $if null docs
+  $if null results
     <div .no-results>
-      <p>
-        I'm sorry, there are no reviews that meet your search criteria.
-
-      <p>
-        Would you like to 
-        <a href="@{NewR}">write one
-        ?
+      <p>TODO
 
   $else
-    $forall doc <- docs
-      <div .row .search-result-header>
-        <div .span11>
-          <h2>#{landlordName $ landlord doc}
-        <div>
-          <h2>#{prettyGrade $ reviewGrade $ review doc}
+    $forall result <- results
+      <div .search-result-header>
+        <h2>#{resLandlord result}
+      <div .search-result-body>
+        <blockquote>
+          ^{resExcerpt result}
+          <small>
+            <a href="@{ReviewR $ resId result}">Read more
+            \...
 
-      ^{asSearchResult doc}
-
-  ^{pageWidget}
+  <div .pagination>
+    ^{pageWidget}
