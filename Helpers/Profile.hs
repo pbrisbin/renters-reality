@@ -4,7 +4,6 @@ module Helpers.Profile
     ) where
 
 import Import
-import Helpers.Forms
 
 data ProfileForm = ProfileForm
     { pfFullname :: Maybe Text

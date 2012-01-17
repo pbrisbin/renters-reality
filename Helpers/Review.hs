@@ -8,9 +8,8 @@ module Helpers.Review
     ) where
 
 import Import
-import Helpers.Forms
 import Helpers.Model
-import Yesod.Goodies
+import Yesod.Markdown
 import Control.Monad (unless)
 import Data.Time     (getCurrentTime)
 import Database.Persist.Query.GenericSql ()
@@ -18,8 +17,7 @@ import Database.Persist.Query.GenericSql ()
 data ReviewForm = ReviewForm
     { rfIp        :: Text
     , rfLandlord  :: Text
--- FIXME
---    , rfGrade     :: Grade
+    , rfGrade     :: Grade
     , rfTimeframe :: Text
     , rfAddress   :: Textarea
     , rfReview    :: Markdown
@@ -31,8 +29,7 @@ reviewForm mr ml ip = renderBootstrap $ ReviewForm
     <*> areq textField   "Landlord"
         { fsId = Just "landlord-input" } ml
 
--- FIXME
---    <*> areq selectGrade "Grade"      (fmap reviewGrade     mr)
+    <*> areq selectGrade "Grade"      (fmap reviewGrade     mr)
     <*> areq textField   "Time frame" (fmap reviewTimeframe mr)
 
     <*> areq textareaField "Address" (fmap reviewAddress mr)
@@ -42,21 +39,20 @@ reviewForm mr ml ip = renderBootstrap $ ReviewForm
         } (fmap reviewContent mr)
 
     where
-        -- FIXME
-        --selectGrade :: Field Renters Renters Grade
-        --selectGrade = selectField [ ("A+", Aplus), ("A", A), ("A-", Aminus)
-                                  --, ("B+", Bplus), ("B", B), ("B-", Bminus)
-                                  --, ("C+", Cplus), ("C", C), ("C-", Cminus)
-                                  --, ("D+", Dplus), ("D", D), ("D-", Dminus)
-                                  --, ("F" , F    )
-                                  --]
+        selectGrade :: Field Renters Renters Grade
+        selectGrade = selectField $ optionsPairs [ ("A+", Aplus), ("A", A), ("A-", Aminus)
+                                                 , ("B+", Bplus), ("B", B), ("B-", Bminus)
+                                                 , ("C+", Cplus), ("C", C), ("C-", Cminus)
+                                                 , ("D+", Dplus), ("D", D), ("D-", Dminus)
+                                                 , ("F" , F    )
+                                                 ]
 
 updateReview :: ReviewId -> ReviewForm -> Handler ReviewId
 updateReview rid rf = do
     landlordId <- findOrCreate $ Landlord $ rfLandlord rf
 
     runDB $ update rid [ ReviewLandlord  =. landlordId
-                       , ReviewGrade     =. Bplus -- FIXME
+                       , ReviewGrade     =. rfGrade     rf
                        , ReviewAddress   =. rfAddress   rf
                        , ReviewTimeframe =. rfTimeframe rf
                        , ReviewContent   =. rfReview    rf
@@ -71,10 +67,10 @@ insertReview uid rf = do
 
     runDB $ insert $ Review
             { reviewCreatedDate = now
-            , reviewIpAddress   = rfIp rf
-            , reviewGrade       = Bplus -- FIXME
-            , reviewAddress     = rfAddress rf
-            , reviewContent     = rfReview rf
+            , reviewIpAddress   = rfIp        rf
+            , reviewGrade       = rfGrade     rf
+            , reviewAddress     = rfAddress   rf
+            , reviewContent     = rfReview    rf
             , reviewTimeframe   = rfTimeframe rf
             , reviewReviewer    = uid
             , reviewLandlord    = landlordId

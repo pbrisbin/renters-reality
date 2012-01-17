@@ -10,7 +10,8 @@ module Handler.Review
 import Import
 import Helpers.Request
 import Helpers.Review
-import Yesod.Goodies
+import Yesod.Markdown
+import Data.Time.Format.Human
 
 getReviewR :: ReviewId -> Handler RepHtml
 getReviewR rid = do

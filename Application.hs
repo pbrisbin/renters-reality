@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
-    ( withRenters
+    ( getApplication
     , withDevelAppPort
     ) where
 
@@ -13,15 +13,15 @@ import Yesod.Default.Main
 import Yesod.Default.Handlers
 import Data.Dynamic (Dynamic, toDyn)
 #if DEVELOPMENT
-import Yesod.Logger (Logger, logBS, flushLogger)
+import Yesod.Logger (Logger, logBS)
 import Network.Wai.Middleware.RequestLogger (logHandleDev)
 #else
-import Yesod.Logger (Logger)
-import Network.Wai.Middleware.RequestLogger (logStdout)
+import Yesod.Logger (Logger, logBS, toProduction)
+import Network.Wai.Middleware.RequestLogger (logHandle)
 #endif
 import qualified Database.Persist.Store
 import Database.Persist.GenericSql (runMigration)
-import Network.HTTP.Conduit (withManager)
+import Network.HTTP.Conduit (newManagerIO)
 
 import Control.Monad (forM)
 import qualified Data.Map as M
@@ -32,6 +32,7 @@ import Database.Persist.Query.GenericSql ()
 import Handler.Root
 import Handler.Legal
 import Handler.Search
+import Handler.Completion
 import Handler.Profile
 import Handler.Review
 import Handler.Feed
@@ -45,20 +46,24 @@ mkYesodDispatch "Renters" resourcesRenters
 -- performs initialization and creates a WAI application. This is also the
 -- place to put your migrate statements to have automatic database
 -- migrations handled by Yesod.
-withRenters :: AppConfig DefaultEnv () -> Logger -> (Application -> IO ()) -> IO ()
-withRenters conf logger f = withManager $ \manager -> lift $ do
+getApplication :: AppConfig DefaultEnv () -> Logger -> IO Application
+getApplication conf logger = do
+    manager <- newManagerIO 10
     s <- staticSite
     dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
               Database.Persist.Store.loadConfig
-    Database.Persist.Store.withPool (dbconf :: Settings.PersistConfig) $ \p -> do
-        Database.Persist.Store.runPool dbconf (runMigration migrateAll) p
-        let h = Renters conf logger s p manager loadDocuments
-        defaultRunner (f . logWare) h
+    p <- Database.Persist.Store.createPoolConfig (dbconf :: Settings.PersistConfig)
+    Database.Persist.Store.runPool dbconf (runMigration migrateAll) p
+    let foundation = Renters conf setLogger s p manager loadDocuments
+    app <- toWaiAppPlain foundation
+    return $ logWare app
   where
 #ifdef DEVELOPMENT
-    logWare = logHandleDev (\msg -> logBS logger msg >> flushLogger logger)
+    logWare = logHandleDev (logBS setLogger)
+    setLogger = logger
 #else
-    logWare = logStdout
+    setLogger = toProduction logger
+    logWare = logHandle (logBS setLogger)
 #endif
 
     loadDocuments :: Handler [Document]
@@ -83,4 +88,6 @@ withRenters conf logger f = withManager $ \manager -> lift $ do
 
 -- for yesod devel
 withDevelAppPort :: Dynamic
-withDevelAppPort = toDyn $ defaultDevelApp withRenters
+withDevelAppPort = toDyn $ defaultDevelApp loader getApplication
+  where
+    loader = loadConfig (configSettings Development)

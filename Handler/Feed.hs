@@ -5,7 +5,7 @@ module Handler.Feed
 
 import Import
 
-import Yesod.Goodies
+import Yesod.Markdown
 import Yesod.RssFeed
 import qualified Data.Text as T
 

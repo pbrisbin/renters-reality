@@ -9,7 +9,7 @@ module Handler.Profile
 import Import
 import Helpers.Profile
 
-import Yesod.Goodies
+import Network.Gravatar
 import Data.Maybe (fromMaybe)
 
 getProfileR :: Handler RepHtml

@@ -24,3 +24,6 @@ data SearchResult = SearchResult
 
 searchReviews :: FormResult SearchForm -> Handler ([SearchResult], Widget)
 searchReviews = undefined
+
+    --res <- query defaultConfig { port = 9312 } "renters-idx" "brighton"
+    --putStrLn $ show res

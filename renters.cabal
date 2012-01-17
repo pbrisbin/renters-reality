@@ -33,19 +33,20 @@ library
                      Settings
                      Settings.StaticFiles
 
-                     Helpers.ErrorHandler
-                     Helpers.Forms
-                     Helpers.Model
-                     Helpers.Request
-                     Helpers.Search
-                     Helpers.Review
-                     Helpers.Profile
+                     Handler.Completion
                      Handler.Feed
                      Handler.Legal
                      Handler.Profile
                      Handler.Review
                      Handler.Root
                      Handler.Search
+                     Helpers.Completion
+                     Helpers.ErrorHandler
+                     Helpers.Model
+                     Helpers.Profile
+                     Helpers.Request
+                     Helpers.Review
+                     Helpers.Search
 
     ghc-options:   -Wall -threaded -O0
     cpp-options:   -DDEVELOPMENT
@@ -111,8 +112,12 @@ executable         renters
                  , http-conduit                  >= 1.1        && < 1.2
 
                  , containers
+                 , friendly-time
+                 , gravatar
+                 , shorten-strings
+                 , sphinx
                  , time
                  , wai
-                 , yesod-goodies
+                 , yesod-markdown
                  , yesod-json
                  , yesod-newsfeed
