@@ -9,6 +9,8 @@ module Settings
     , staticRoot
     , staticDir
     , setTitle
+    , SphinxSettings(..)
+    , sphinxSettings
     ) where
 
 import Prelude
@@ -22,6 +24,15 @@ import Data.Text (Text)
 
 setTitle :: Y.Yesod m => String -> Y.GWidget s m ()
 setTitle = Y.setTitle . Y.toHtml . (++) "Renters' reality | "
+
+data SphinxSettings = SphinxSettings
+    { sphinxPort    :: Int
+    , sphinxIndex   :: String
+    , sphinxPerPage :: Int
+    }
+
+sphinxSettings :: SphinxSettings
+sphinxSettings = SphinxSettings 9312 "renters-idx" 5
 
 -- | Which Persistent backend this site is using.
 type PersistConfig = PostgresConf

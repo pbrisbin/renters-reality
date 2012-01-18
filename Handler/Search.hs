@@ -5,8 +5,7 @@ import Helpers.Search
 
 getSearchR :: Handler RepHtml
 getSearchR = do
-    ((res, _), _)         <- runFormGet searchForm
-    (results, pageWidget) <- searchReviews res
+    ((results,pageWidget),res) <- executeSearch matchToResult
 
     defaultLayout $ do
         setTitle "Search results" 

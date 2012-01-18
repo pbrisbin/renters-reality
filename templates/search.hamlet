@@ -27,5 +27,4 @@
         <blockquote>
           #{resExcerpt result}
 
-  <div .pagination>
-    ^{pageWidget}
+  ^{pageWidget}

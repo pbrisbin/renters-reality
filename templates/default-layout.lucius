@@ -42,6 +42,14 @@ textarea.review-entry {
 .search-result-body .match {
   font-weight: bold;
 }
+.pagination.center {
+  text-align: center;
+}
+.pagination ul {
+  float:    none;
+  display:  inline-block;
+  overflow: hidden;
+}
 
 /* login */
 .login ul {
