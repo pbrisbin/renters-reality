@@ -2,7 +2,6 @@ module Helpers.Model (findOrCreate) where
 
 import Prelude
 import Yesod
-import Database.Persist.Store (Entity(..))
 
 findOrCreate :: (YesodPersist m,
                  PersistUnique (YesodPersistBackend m) (GHandler s m),

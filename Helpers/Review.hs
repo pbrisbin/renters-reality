@@ -84,7 +84,7 @@ maybeReviewer (Document _ r _ _) = do
         _            -> False
 
 requireReviewer :: Document -> Handler ()
-requireReviewer d@(Document rid r _ _) = do
+requireReviewer (Document rid r _ _) = do
     uid <- requireAuthId
     unless (uid == reviewReviewer r) $ do
         tm <- getRouteToMaster

@@ -25,7 +25,6 @@ import Network.HTTP.Conduit (newManagerIO)
 
 import Control.Monad (forM)
 import qualified Data.Map as M
-import Database.Persist.Store (Entity(..))
 import Database.Persist.Query.GenericSql ()
 
 -- Import all relevant handler modules here.

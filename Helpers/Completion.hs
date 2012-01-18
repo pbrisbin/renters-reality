@@ -8,8 +8,6 @@ module Helpers.Completion
 import Import
 
 import Data.List (nub)
-import Data.Text (Text)
-import Database.Persist.Store (Entity(..))
 import Database.Persist.Query.GenericSql ()
 import qualified Data.Text as T
 
