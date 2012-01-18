@@ -39,6 +39,9 @@ textarea.review-entry {
 .search-result-body {
   margin-left: 5px;
 }
+.search-result-body .match {
+  font-weight: bold;
+}
 
 /* login */
 .login ul {

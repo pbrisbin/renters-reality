@@ -1,6 +1,7 @@
 <div .content>
   <div .pull-right>
     <form method="get" action="@{SearchR}">
+      <input type="hidden" name="_hasdata">
       <input type="hidden" name="p" value="#{curPage res}">
       <input #search-input size=30 name="q" value="#{curQuery res}"> 
       <input .btn type="submit" value="Search">
@@ -14,14 +15,17 @@
 
   $else
     $forall result <- results
-      <div .search-result-header>
-        <h2>#{resLandlord result}
+      <div .row .search-result-header>
+        <div .span13>
+          <h2>
+            <a href="@{ReviewR $ resId result}">#{resLandlord result}
+        <div>
+          <h2>
+            #{prettyGrade $ reviewGrade $ resReview result}
+
       <div .search-result-body>
         <blockquote>
-          ^{resExcerpt result}
-          <small>
-            <a href="@{ReviewR $ resId result}">Read more
-            \...
+          #{resExcerpt result}
 
   <div .pagination>
     ^{pageWidget}
