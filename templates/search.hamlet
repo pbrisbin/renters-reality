@@ -11,7 +11,17 @@
 
   $if null results
     <div .no-results>
-      <p>TODO
+      $if (/=) (curQuery res) ""
+        <h3>Oops!
+
+        <p>
+          There are either no results for your search, or there was some error 
+          with our search engine.
+
+        <p>
+          Would you like to 
+          <a href="@{NewR}">write one
+          ?
 
   $else
     $forall result <- results
@@ -23,8 +33,12 @@
           <h2>
             #{prettyGrade $ reviewGrade $ resReview result}
 
-      <div .search-result-body>
-        <blockquote>
-          #{resExcerpt result}
+      <div .row .search-result-body>
+        <div .span2>
+          <address>
+            #{reviewAddress $ resReview result}
+        <div .span10>
+          <blockquote>
+            #{resExcerpt result}
 
   ^{pageWidget}

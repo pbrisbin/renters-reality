@@ -33,6 +33,9 @@ textarea.review-entry {
   padding: 20px 20px 10px;
   margin: -20px -20px 20px;
 }
+.no-results {
+  height: 250px;
+}
 .search-result-header {
   padding-bottom: 12px;
 }
