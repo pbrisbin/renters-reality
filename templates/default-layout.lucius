@@ -33,6 +33,12 @@ textarea.review-entry {
   padding: 20px 20px 10px;
   margin: -20px -20px 20px;
 }
+.topbar .gravatar {
+  padding-right: 7px;
+  height: 14px;
+  width:  14px;
+  vertical-align: middle;
+}
 .no-results {
   height: 250px;
 }

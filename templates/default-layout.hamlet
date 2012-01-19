@@ -7,7 +7,10 @@
       <ul .nav .secondary-nav>
         $maybe uid <- mauth
           <li .dropdown>
-            <a href="#" .dropdown-toggle>#{showName $ snd uid}
+            <a href="#" .dropdown-toggle>
+              $maybe grav <- mgrav
+                <img .gravatar src="#{grav}">
+              #{showName $ snd uid}
             <ul .dropdown-menu>
               <li>
                 <a href="@{ProfileR}">Your profile

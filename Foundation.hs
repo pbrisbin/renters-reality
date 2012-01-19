@@ -44,6 +44,8 @@ import qualified Data.Text.Lazy.Encoding
 import Network.Mail.Mime (sendmail)
 #endif
 
+import Network.Gravatar
+import Data.Maybe (fromMaybe)
 import Helpers.ErrorHandler
 
 -- | The site argument for your application. This can be a good place to
@@ -98,6 +100,8 @@ instance Yesod Renters where
         mmsg <- getMessage
         mauth <- maybeAuth
 
+        let mgrav = fmap getGravatar mauth
+
         -- We break up the default layout into two components:
         -- default-layout is the contents of the body tag, and
         -- default-layout-wrapper is the entire page. Since the final
@@ -108,6 +112,17 @@ instance Yesod Renters where
             $(widgetFile "normalize")
             $(widgetFile "default-layout")
         hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
+
+        where
+            getGravatar :: (UserId, User) -> String
+            getGravatar (_,u) = let email = fromMaybe "" $ userEmail u
+                                in  gravatarImg email gravatarOpts
+
+            gravatarOpts :: GravatarOptions
+            gravatarOpts = defaultOptions
+                { gSize    = Just $ Size 14
+                , gDefault = Just MM
+                }
 
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticRoot setting in Settings.hs
