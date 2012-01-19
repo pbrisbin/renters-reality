@@ -5,30 +5,39 @@ module Helpers.Sphinx
     , Match(..)
     ) where
 
-import Import
-import Settings (SphinxSettings(..), sphinxSettings)
-
-import Data.Maybe (catMaybes)
-import Text.Blaze (preEscapedString)
-import qualified Data.ByteString.Lazy as L
-import qualified Data.ByteString.Lazy.Char8 as C8
-import qualified Data.Text as T
+import Prelude
+import Yesod
 
 import Text.Search.Sphinx
 import Text.Search.Sphinx.Types
 import qualified Text.Search.Sphinx.ExcerptConfiguration as E
+
+import Control.Applicative ((<$>), (<*>))
+import Data.Maybe          (catMaybes)
+import Data.Text           (Text)
+import Text.Blaze          (preEscapedString)
+
+import qualified Data.ByteString.Lazy       as L
+import qualified Data.ByteString.Lazy.Char8 as C8
+import qualified Data.Text                  as T
+
+import Settings (SphinxSettings(..), sphinxSettings)
 
 data SearchForm = SearchForm
     { sfQuery :: Maybe Text
     , sfPage  :: Maybe Int
     }
 
-searchForm :: Form SearchForm
+searchForm :: RenderMessage m FormMessage
+           => Html
+           -> MForm s m (FormResult SearchForm, GWidget s m ())
 searchForm = renderDivs $ SearchForm
     <$> aopt textField "q" { fsId = Just "q", fsName = Just "q" } Nothing
     <*> aopt intField  "p" { fsId = Just "p", fsName = Just "p" } Nothing
 
-executeSearch :: (Text -> Match -> Handler (Maybe a)) -> Handler (([a], Widget), FormResult SearchForm)
+executeSearch :: RenderMessage m FormMessage
+              => (Text -> Match -> GHandler s m (Maybe a))
+              -> GHandler s m (([a], GWidget s m ()), FormResult SearchForm)
 executeSearch f = do
     ((res, _), _) <- runFormGet searchForm
 
@@ -41,7 +50,6 @@ executeSearch f = do
                     return (ms, total sres)
 
                 _ -> return ([],0)
-                
 
             return ((as, buildWidget page tot),res)
 
@@ -72,7 +80,7 @@ buildExcerpt context qstring = do
         escapeChar c   = [c]
 
 -- | Builds the pagination widget
-buildWidget :: Int -> Int -> Widget
+buildWidget :: Int -> Int -> GWidget s m ()
 buildWidget page tot = do
     let pages = (\(n, r) -> n + (min r 1)) $ tot `divMod` per
 
@@ -123,10 +131,10 @@ buildWidget page tot = do
                                         . map (\(k,v) -> k `T.append` "=" `T.append` v)
                                         . (++ [(p, n)]) . filter ((/= p) . fst) $ getParams
 
-        linkTo :: [(Text,Text)] -> Int -> String -> Widget
+        linkTo :: [(Text,Text)] -> Int -> String -> GWidget s m ()
         linkTo params pg txt = do
             let param = ("p", T.pack $ show pg)
-        
+
             [whamlet|
                 <a href="#{updateGetParam params param}">#{txt}
                 |]
