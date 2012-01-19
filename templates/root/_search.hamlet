@@ -3,6 +3,3 @@
   <input type="hidden" name="p" value=1>
   <input #search-input .span6 name="q" autofocus="autofocus"> 
   <input .btn type="submit" value="Search"> 
-  <em>
-    <a href="#" data-controls-modal="search-help" data-backdrop="true" data-keyboard="true">
-      tips
