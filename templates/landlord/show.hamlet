@@ -8,11 +8,13 @@
   $if null records
     <div .no-results>
       <p>
-        I'm sorry, #{landlordName landlord} has not been reviewed yet.
+        I'm sorry, 
+        <strong>#{landlordName landlord}
+        \ has not been reviewed yet.
 
       <p>
         Would you like to 
-        <a href="@{NewR}landlord?#{landlordName landlord}">write one
+        <a href="@{NewR}?landlord=#{landlordName landlord}">write one
         ?
   $else
     <h3>Reviews
