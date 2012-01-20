@@ -8,7 +8,8 @@ import Model
 import Data.Text (Text)
 
 gpa :: [Grade] -> Double
-gpa = mean . map toNumeric
+gpa [] = 0
+gpa gs = mean $ map toNumeric gs
 
     where
         -- http://cgi.cse.unsw.edu.au/~dons/blog/2008/05/16#fast
