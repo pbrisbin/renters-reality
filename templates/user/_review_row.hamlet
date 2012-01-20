@@ -1,0 +1,7 @@
+<tr>
+  <td>
+    <a href="@{ReviewR rid}">
+    #{landlordName l}
+
+  <td>#{reviewTime}
+  <td>#{prettyGrade $ reviewGrade r}

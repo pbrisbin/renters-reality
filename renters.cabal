@@ -42,6 +42,7 @@ library
                      Handler.Review
                      Handler.Root
                      Handler.Search
+                     Handler.User
                      Helpers.Completion
                      Helpers.ErrorHandler
                      Helpers.Grade

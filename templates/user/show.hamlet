@@ -1,0 +1,22 @@
+<div .content>
+  <div .page-header>
+    <h1>#{showName user}
+
+  $if null records
+    <div .no-results>
+      <h3>Oops!
+      <p>
+        I'm sorry, this user's not left any reviews yet!
+
+  $else
+    <h3>Reviews
+    <table .bordered-table .condensed-table .zebra-striped>
+      <thead>
+        <tr>
+          <th>Landlord
+          <th>Date
+          <th>Grade
+
+      <tbody .link>
+        $forall (r,l) <- records
+          ^{reviewWidget (entityKey r) (entityVal r) (entityVal l)}

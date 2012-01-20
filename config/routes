@@ -7,6 +7,7 @@
 /reviews/#ReviewId     ReviewR         GET POST
 /landlords             LandlordsR      GET
 /landlords/#LandlordId LandlordR       GET
+/users/#UserId         UserR           GET
 /profile               ProfileR        GET
 /profile/edit          EditProfileR    GET POST
 /profile/delete        DeleteProfileR  GET POST
