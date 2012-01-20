@@ -35,23 +35,23 @@ joinTables :: (a -> Key backend b)
            -> [Entity backend a]
            -> [Entity backend b]
            -> [(Entity backend a, Entity backend b)]
-joinTables f as bs = catMaybes $ map (joinRelation f bs) as
+joinTables f as bs = catMaybes . for as $ \a -> fmap (\b -> (a,b)) $ lookupRelation f a bs
 
-    where
-        joinRelation :: (a -> Key backend b) -> [Entity backend b] -> Entity backend a -> Maybe (Entity backend a, Entity backend b)
-        joinRelation f bs a = fmap (\b -> (a,b)) $ lookupRelation (f $ entityVal a) (toMap bs)
-
-        lookupRelation :: Key backend b -> M.Map (Key backend b) b -> Maybe (Entity backend b)
-        lookupRelation k = fmap (\v -> Entity k v) . M.lookup k
-
-        toMap :: [Entity backend a] -> M.Map (Key backend a) a
-        toMap = M.fromList . map (\(Entity k v) -> (k,v))
-
--- | Same but for three tables (making these as I need them).
 joinTables3 :: (a -> Key backend b)
             -> (a -> Key backend c)
             -> [Entity backend a]
             -> [Entity backend b]
             -> [Entity backend c]
             -> [(Entity backend a, Entity backend b, Entity backend c)]
-joinTables3 = undefined
+joinTables3 f g as bs cs = catMaybes . for as $ \a ->
+    case (lookupRelation f a bs, lookupRelation g a cs) of
+        (Just b, Just c) -> Just (a,b,c)
+        _                -> Nothing
+
+lookupRelation :: (a -> Key backend b) -> Entity backend a -> [Entity backend b] -> Maybe (Entity backend b)
+lookupRelation f a bs = let k  = f $ entityVal a
+                            vs = M.fromList $ map (\(Entity k v) -> (k,v)) bs
+                        in fmap (\v -> Entity k v) $ M.lookup k vs
+
+for ::  [a] -> (a -> b) -> [b]
+for xs f = map f xs
