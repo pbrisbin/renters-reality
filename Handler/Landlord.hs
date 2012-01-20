@@ -11,7 +11,7 @@ getLandlordR :: LandlordId -> Handler RepHtml
 getLandlordR lid = do
     (landlord,records) <- runDB $ do
         l       <- get404 lid
-        reviews <- selectList [] [Desc ReviewCreatedDate]
+        reviews <- selectList [ReviewLandlord ==. lid] [Desc ReviewCreatedDate]
 
         let uids = map (reviewReviewer . entityVal) reviews
         users <- selectList [UserId <-. uids] []
