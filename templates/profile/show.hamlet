@@ -5,30 +5,15 @@
   <div .pull-right>
     <a href="@{EditProfileR}" .btn>Edit
 
-  <div .row>
-    <div .span2>
-      <a title="change your profile picture at gravatar" href="http://gravatar.com/emails/">
+  <div .profile>
+    <div .profile-gravatar>
+      <a title="change your profile picture at gravatar" target="_blank" href="http://gravatar.com/emails/">
         <img src="#{pic}">
 
-    <div .offset2>
-      <div .row>
-        <div .span2>
-          <p>
-            <strong>
-              Full name
-              <br>
-              <br>
-              User name
-              <br>
-              <br>
-              Email
+    <div .profile-details>
+      <h2>#{showName u}
+      <h4>#{email}
 
-        <div .offset2>
-          <p>
-            #{fullname}
-            <br>
-            <br>
-            #{username}
-            <br>
-            <br>
-            #{email}
+    <div .profile-links>
+      <p>
+        <a href="@{UserR uid}">Your reviews

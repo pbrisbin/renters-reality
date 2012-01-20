@@ -8,13 +8,14 @@ module Handler.Profile
 
 import Import
 import Helpers.Profile
+import Helpers.User
 
 import Network.Gravatar
 import Data.Maybe (fromMaybe)
 
 getProfileR :: Handler RepHtml
 getProfileR = do
-    (_, u) <- requireAuth
+    (uid, u) <- requireAuth
 
     let fullname = fromMaybe "" $ userFullname u
     let username = fromMaybe "" $ userUsername u
@@ -28,7 +29,7 @@ getProfileR = do
     where
         gravatarOpts :: GravatarOptions
         gravatarOpts = defaultOptions
-            { gSize    = Just $ Size 48
+            { gSize    = Just $ Size 128
             , gDefault = Just MM
             }
 

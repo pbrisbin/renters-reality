@@ -5,8 +5,8 @@
   <div .pull-right>
     <a href="@{DeleteProfileR}" .btn .danger>Delete
 
-  <form enctype="#{enctype}" method="post">
+  <form enctype="#{enctype}" method="post" .form-stacked>
     ^{form}
 
-    <div.input>
-      <input .btn type="submit" value="Save">
+    <div .actions>
+      <button type="submit" .btn>Save

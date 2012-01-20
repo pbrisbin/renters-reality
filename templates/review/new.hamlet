@@ -7,6 +7,4 @@
       ^{form}
 
     <div .actions>
-      <button type="submit" .btn .primary>Save
-      \ 
-      <button type="reset" .btn>Cancel
+      <button type="submit" .btn>Save

@@ -120,7 +120,7 @@ instance Yesod Renters where
 
             gravatarOpts :: GravatarOptions
             gravatarOpts = defaultOptions
-                { gSize    = Just $ Size 14
+                { gSize    = Just $ Size 20
                 , gDefault = Just MM
                 }
 
