@@ -1,0 +1,6 @@
+<tr>
+  <td>
+    <a href="@{LandlordR lid}">
+    #{landlordName l}
+
+  <td>#{show c}

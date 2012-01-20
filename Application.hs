@@ -26,6 +26,7 @@ import Network.HTTP.Conduit (newManagerIO)
 -- Import all relevant handler modules here.
 import Handler.Root
 import Handler.Landlord
+import Handler.Landlords
 import Handler.Legal
 import Handler.Search
 import Handler.Completion

@@ -36,6 +36,7 @@ library
                      Handler.Completion
                      Handler.Feed
                      Handler.Landlord
+                     Handler.Landlords
                      Handler.Legal
                      Handler.Profile
                      Handler.Review
