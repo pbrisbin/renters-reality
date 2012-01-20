@@ -23,7 +23,11 @@
 
   <p>
     <small>
-      <a href="@{LandlordR $ reviewLandlord review}"}>More reviews for this landlord
+      See more reviews for this 
+      <a href="@{LandlordR $ reviewLandlord review}"}>landlord
+      \ or by this 
+      <a href="@{UserR $ reviewReviewer review}">user
+      \.
 
   <h3>Discussion
   <div .discussion>
