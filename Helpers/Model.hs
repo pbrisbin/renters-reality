@@ -50,7 +50,7 @@ joinTables3 f g as bs cs = catMaybes . for as $ \a ->
 
 lookupRelation :: (a -> Key backend b) -> Entity backend a -> [Entity backend b] -> Maybe (Entity backend b)
 lookupRelation f a bs = let k  = f $ entityVal a
-                            vs = M.fromList $ map (\(Entity k v) -> (k,v)) bs
+                            vs = M.fromList $ map (\(Entity k' v) -> (k',v)) bs
                         in fmap (\v -> Entity k v) $ M.lookup k vs
 
 for ::  [a] -> (a -> b) -> [b]
