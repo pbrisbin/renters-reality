@@ -4,6 +4,7 @@ import Import
 import Helpers.Model
 import Helpers.User
 import Helpers.Grade
+import Data.Time.Format.Human
 
 getReviewsR :: Handler RepHtml
 getReviewsR = do
@@ -19,4 +20,6 @@ getReviewsR = do
         addWidget $(widgetFile "review/index")
 
 reviewWidget :: ReviewId -> Review -> Landlord -> User -> Widget
-reviewWidget rid r l u = $(widgetFile "review/_review_row")
+reviewWidget rid r l u = do
+    reviewTime <- lift $ liftIO $ humanReadableTime $ reviewCreatedDate r
+    $(widgetFile "review/_review_row")
