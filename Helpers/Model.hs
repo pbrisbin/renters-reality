@@ -1,6 +1,7 @@
 module Helpers.Model
     ( findOrCreate
     , joinTables
+    , joinTables3
     ) where
 
 import Prelude
@@ -45,3 +46,12 @@ joinTables f as bs = catMaybes $ map (joinRelation f bs) as
 
         toMap :: [Entity backend a] -> M.Map (Key backend a) a
         toMap = M.fromList . map (\(Entity k v) -> (k,v))
+
+-- | Same but for three tables (making these as I need them).
+joinTables3 :: (a -> Key backend b)
+            -> (a -> Key backend c)
+            -> [Entity backend a]
+            -> [Entity backend b]
+            -> [Entity backend c]
+            -> [(Entity backend a, Entity backend b, Entity backend c)]
+joinTables3 = undefined

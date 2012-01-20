@@ -40,6 +40,7 @@ library
                      Handler.Legal
                      Handler.Profile
                      Handler.Review
+                     Handler.Reviews
                      Handler.Root
                      Handler.Search
                      Handler.User

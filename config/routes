@@ -4,6 +4,7 @@
 /search/comp/searches  CompSearchesR   GET
 /new                   NewR            GET POST
 /edit/#ReviewId        EditR           GET POST
+/reviews               ReviewsR        GET
 /reviews/#ReviewId     ReviewR         GET POST
 /landlords             LandlordsR      GET
 /landlords/#LandlordId LandlordR       GET

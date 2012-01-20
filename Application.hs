@@ -32,6 +32,7 @@ import Handler.Search
 import Handler.Completion
 import Handler.Profile
 import Handler.Review
+import Handler.Reviews
 import Handler.Feed
 import Handler.User
 
