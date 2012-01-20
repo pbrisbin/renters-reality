@@ -4,51 +4,63 @@ module Handler.Feed
     ) where
 
 import Import
+import Helpers.Grade
+import Helpers.Model
 
 import Yesod.Markdown
 import Yesod.RssFeed
+import Database.Persist.GenericSql
 import qualified Data.Text as T
 
 getFeedR :: Handler RepRss
 getFeedR = do
-    notFound -- FIXME
-    --docs' <- siteDocs =<< getYesod
-    --case docs' of
-        --[]   -> notFound
-        --docs -> feedFromDocs $ take 10 docs
+    records <- runDB $ do
+        reviews <- selectList [] [Desc ReviewCreatedDate, LimitTo 10]
+
+        let lids = map (reviewLandlord . entityVal) reviews
+        landlords <- selectList [LandlordId <-. lids] []
+
+        return $ joinTables reviewLandlord reviews landlords
+
+    feedFromRecords records
 
 getFeedLandlordR :: LandlordId -> Handler RepRss
 getFeedLandlordR lid = do
-    notFound -- FIXME
-    --docs <- siteDocs =<< getYesod
-    --case docsByLandlordId lid docs of
-        --[]    -> notFound
-        --docs' -> feedFromDocs docs'
+    records <- runDB $ do
+        landlord <- get404 lid
+        reviews  <- selectList [ReviewLandlord ==. lid] [Desc ReviewCreatedDate, LimitTo 10]
 
---feedFromDocs :: [Document] -> Handler RepRss
---feedFromDocs docs = rssFeed Feed
-    --{ feedTitle       = "Renters' reality"
-    --, feedDescription = "Recent reviews on rentersreality.com"
-    --, feedLanguage    = "en-us"
-    --, feedLinkSelf    = FeedR
-    --, feedLinkHome    = RootR
-    --, feedUpdated     = reviewCreatedDate . review $ head docs
-    --, feedEntries     = map docToRssEntry docs
-    --}
+        return $ zip reviews (repeat $ Entity lid landlord)
 
---docToRssEntry :: Document -> FeedEntry (Route Renters)
---docToRssEntry (Document rid r l _) = FeedEntry
-    --{ feedEntryLink    = ReviewR rid
-    --, feedEntryUpdated = reviewCreatedDate r
-    --, feedEntryTitle   = mkTitle (landlordName l) (reviewGrade r)
-    --, feedEntryContent = plainText $ reviewContent r
-    --}
+    feedFromRecords records
 
-    --where
-        --mkTitle :: Text -> Grade -> Text
-        --mkTitle n g = n `T.append` " reviewed as "
-                        --`T.append` prettyGrade g
-                        --`T.append` " on rentersreality.com"
+feedFromRecords :: [(Entity SqlPersist Review, Entity SqlPersist Landlord)] -> Handler RepRss
+feedFromRecords [] = notFound
+feedFromRecords records@(r:_) =
+    rssFeed Feed
+        { feedTitle       = "Renters' reality"
+        , feedDescription = "Recent reviews on rentersreality.com"
+        , feedLanguage    = "en-us"
+        , feedLinkSelf    = FeedR
+        , feedLinkHome    = RootR
+        , feedUpdated     = reviewCreatedDate . entityVal $ fst r
+        , feedEntries     = map recordToRssEntry records
+        }
 
-        --plainText :: Markdown -> Html
-        --plainText (Markdown s) = toHtml s
+recordToRssEntry :: (Entity SqlPersist Review, Entity SqlPersist Landlord) -> FeedEntry (Route Renters)
+recordToRssEntry (Entity rid r, Entity _ l) =
+    FeedEntry
+        { feedEntryLink    = ReviewR rid
+        , feedEntryUpdated = reviewCreatedDate r
+        , feedEntryTitle   = mkTitle (landlordName l) (reviewGrade r)
+        , feedEntryContent = plainText $ reviewContent r
+        }
+
+    where
+        mkTitle :: Text -> Grade -> Text
+        mkTitle n g = n `T.append` " reviewed as "
+                        `T.append` prettyGrade g
+                        `T.append` " on rentersreality.com"
+
+        plainText :: Markdown -> Html
+        plainText (Markdown s) = toHtml s
