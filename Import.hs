@@ -1,5 +1,6 @@
 module Import
     ( module Prelude
+    , module Yesod
     , module Foundation
     , (<>)
     , Text
@@ -8,6 +9,7 @@ module Import
     ) where
 
 import Prelude hiding (writeFile, readFile)
+import Yesod hiding (Route(..), setTitle)
 import Foundation
 import Data.Monoid (Monoid (mappend, mempty, mconcat))
 import Control.Applicative ((<$>), (<*>), pure)

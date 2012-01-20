@@ -10,7 +10,6 @@ module Foundation
     , maybeAuthId
     , requireAuth
     , requireAuthId
-    , module Yesod
     , module Settings
     , module Model
     ) where
@@ -46,8 +45,10 @@ import Network.Mail.Mime (sendmail)
 
 import Network.Gravatar
 import Data.Maybe (fromMaybe)
+import Data.Text  (Text)
 import Helpers.ErrorHandler
 import Helpers.User
+import qualified Data.Text as T
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -99,6 +100,16 @@ instance Yesod Renters where
         y <- getYesod
         mmsg <- getMessage
         mauth <- maybeAuth
+
+        tm  <- getRouteToMaster
+        mcr <- getCurrentRoute
+
+        let (hActive,rActive,lActive) =
+                case fmap tm mcr of
+                    Just RootR      -> (True,False,False)
+                    Just ReviewsR   -> (False,True,False)
+                    Just LandlordsR -> (False,False,True)
+                    _               -> (False,False,False)
 
         let mgrav = fmap getGravatar mauth
 
@@ -164,7 +175,10 @@ instance YesodAuth Renters where
     getAuthId creds = runDB $ do
         x <- getBy $ UniqueIdent $ credsIdent creds
         case x of
-            Just (Entity _ e) -> return . Just . identUser $ e
+            Just (Entity _ i) -> do
+                updateFromAx (credsExtra creds) $ identUser i
+                return $ Just $ identUser i
+
             Nothing -> do
                 uid <- insert $ User
                     { userFullname      = Nothing
@@ -175,10 +189,44 @@ instance YesodAuth Renters where
                     }
  
                 _ <- insert $ Ident (credsIdent creds) uid
+                updateFromAx (credsExtra creds) uid
                 return $ Just uid
 
+        where
+            -- updates username/email with values returned by openid
+            -- unless values exist there already
+            updateFromAx :: PersistStore SqlPersist m
+                         => [(Text,Text)] -- ^ the @credsExtra@ returned from open id
+                         -> UserId        -- ^ the user id to update
+                         -> SqlPersist m ()
+            updateFromAx keys uid = maybe (return ()) go =<< get uid
+
+                where
+                    go :: PersistStore SqlPersist m => User -> SqlPersist m ()
+                    go u = do
+                        case (userUsername u, lookup "openid.ext1.value.email" keys) of
+                            (Nothing, val@(Just _)) -> update uid [UserUsername =. (parseNick val)]
+                            _                       -> return ()
+
+                        case (userEmail u, lookup "openid.ext1.value.email" keys) of
+                            (Nothing, val@(Just _)) -> update uid [UserEmail =. val]
+                            _                       -> return ()
+
+                    -- we'll request only email and parse the first
+                    -- portion as our username.
+                    parseNick :: Maybe Text -> Maybe Text
+                    parseNick = fmap (T.takeWhile (/= '@'))
+
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins = [ authOpenId 
+    authPlugins = [ authOpenIdExtended
+                        -- tested to work with at least google
+                        [ ("openid.ax.mode"       , "fetch_request"                         )
+                        , ("openid.ax.required"   , "email"                                 )
+                        , ("openid.ax.type.email" , "http://schema.openid.net/contact/email")
+                        , ("openid.ns.ax"         , "http://openid.net/srv/ax/1.0"          )
+                        , ("openid.ns.ax.required", "email"                                 )
+                        , ("openid.ui.icon"       , "true"                                  )
+                        ]
                   , authFacebook "206687389350404" "9d30284c6cb99ff2c7cbc4e5f8ae53e0" []
                   ]
 

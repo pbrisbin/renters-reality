@@ -4,11 +4,11 @@
       <h3>
         <a href="@{RootR}">Renters' Reality
       <ul .nav>
-        <li>
+        <li :hActive:.active>
           <a href="@{RootR}">Home
-        <li>
+        <li :rActive:.active>
           <a href="@{ReviewsR}">Reviews
-        <li>
+        <li :lActive:.active>
           <a href="@{LandlordsR}">Landlords
 
       <ul .nav .secondary-nav>
