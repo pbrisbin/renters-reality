@@ -1,30 +1,28 @@
 <div .content>
   <div .page-header>
-    <div .row>
-      <div .span10>
-        <h1>#{landlordName l}
-      <div .offset10>
-        <h1>#{show $ gpa' docs'}
+    <h1>
+      #{landlordName landlord}
+      <span .pull-right>
+        GPA: #{showGPA records}
 
-  $if none
-    <p>
-      I'm sorry, #{landlordName l} has not been reviewed yet.
+  $if null records
+    <div .no-results>
+      <p>
+        I'm sorry, #{landlordName landlord} has not been reviewed yet.
 
-    <p>
-      Would you like to 
-      <a href="@{NewR}landlord?#{landlordName l}">write one
-      ?
-
+      <p>
+        Would you like to 
+        <a href="@{NewR}landlord?#{landlordName landlord}">write one
+        ?
   $else
-    $forall doc <- docs
-      <div .row .search-result-header>
-        <div .span10>
-          <h2>
-            <a href=@{LandlordsR $ reviewLandlord $ review doc}>#{landlordName $ landlord doc}
-        <div .offset10>
-          <h2>
-            #{prettyGrade $ reviewGrade $ review doc}
+    <h3>Reviews
+    <table .bordered-table .condensed-table .zebra-striped>
+      <thead>
+        <tr>
+          <th>User
+          <th>Date
+          <th>Grade
 
-      ^{asSearchResult doc}
-
-  ^{pageWidget}
+      <tbody .link>
+        $forall (r,u) <- records
+          ^{reviewWidget (entityKey r) (entityVal r) (entityVal u)}

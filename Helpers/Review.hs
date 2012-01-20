@@ -76,15 +76,15 @@ insertReview uid rf = do
             , reviewLandlord    = landlordId
             }
 
-maybeReviewer :: Document -> Handler Bool
-maybeReviewer (Document _ r _ _) = do
+maybeReviewer :: Review -> Handler Bool
+maybeReviewer r = do
     muid <- maybeAuth
     return $ case muid of
         Just (uid,_) -> uid == reviewReviewer r
         _            -> False
 
-requireReviewer :: Document -> Handler ()
-requireReviewer (Document rid r _ _) = do
+requireReviewer :: ReviewId -> Review -> Handler ()
+requireReviewer rid r = do
     uid <- requireAuthId
     unless (uid == reviewReviewer r) $ do
         tm <- getRouteToMaster

@@ -17,6 +17,9 @@ textarea.review-entry {
 .hidden {
   display: none;
 }
+.hover {
+  cursor: pointer;
+}
 .container > footer p {
   text-align: center;
 }

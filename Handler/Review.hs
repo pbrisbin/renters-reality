@@ -10,39 +10,47 @@ module Handler.Review
 import Import
 import Helpers.Request
 import Helpers.Review
+import Helpers.User
+import Helpers.Grade
 import Yesod.Markdown
 import Data.Time.Format.Human
 
 getReviewR :: ReviewId -> Handler RepHtml
 getReviewR rid = do
-    docs <- siteDocs =<< getYesod
-    case docByReviewId rid docs of
-        Just d -> do
-            ownReview  <- maybeReviewer d
-            reviewTime <- liftIO . humanReadableTime . reviewCreatedDate $ review d
-            defaultLayout $ do
-                setTitle "View review"
-                addWidget $(widgetFile "review/show")
+    (review,landlord,user)<- runDB $ do
+        r <- get404 rid
+        l <- get404 $ reviewLandlord r
+        u <- get404 $ reviewReviewer r
 
-        Nothing -> notFound
+        return (r,l,u)
+
+    ownReview  <- maybeReviewer review
+    reviewTime <- liftIO . humanReadableTime $ reviewCreatedDate review
+
+    defaultLayout $ do
+        setTitle "View review"
+        addWidget $(widgetFile "review/show")
 
 getEditR :: ReviewId -> Handler RepHtml
 getEditR rid = do
-    docs <- siteDocs =<< getYesod
-    case docByReviewId rid docs of
-        Just d@(Document _ r l _) -> do
-            requireReviewer d
+    (review,landlord,user) <- runDB $ do
+        r <- get404 rid
+        l <- get404 $ reviewLandlord r
+        u <- get404 $ reviewReviewer r
 
-            ip <- requestIp
+        return (r,l,u)
 
-            ((res, form), enctype) <- runFormPost $ reviewForm (Just r) (Just $ landlordName l) ip
-            doAndRedirect res (updateReview rid)
+    requireReviewer rid review
 
-            defaultLayout $ do
-                setTitle "Edit review"
-                addWidget $(widgetFile "review/edit")
+    ip <- requestIp
 
-        _ -> notFound
+    ((res, form), enctype) <- runFormPost $ reviewForm (Just review) (Just $ landlordName landlord) ip
+    doAndRedirect res (updateReview rid)
+
+    defaultLayout $ do
+        setTitle "Edit review"
+        addWidget $(widgetFile "review/edit")
+
 
 getNewR :: Handler RepHtml
 getNewR = do

@@ -47,6 +47,7 @@ import Network.Mail.Mime (sendmail)
 import Network.Gravatar
 import Data.Maybe (fromMaybe)
 import Helpers.ErrorHandler
+import Helpers.User
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -58,7 +59,6 @@ data Renters = Renters
     , getStatic :: Static -- ^ Settings for static file serving.
     , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
     , httpManager :: Manager
-    , siteDocs    :: GHandler Renters Renters [Document]
     }
 
 -- Set up i18n messages. See the message folder.

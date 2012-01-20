@@ -1,25 +1,29 @@
 <div .content>
   <div .page-header>
       <h1>
-        #{landlordName $ landlord d}
+        #{landlordName $ landlord}
         <span .pull-right>
-          #{prettyGrade $ reviewGrade $ review d}
+          #{prettyGrade $ reviewGrade review}
 
   $if ownReview
     <div .pull-right>
       <a .btn .info href="@{EditR rid}">Edit
 
-  <div .row .search-result-body>
-    <div .span3>
+  <div .row>
+    <div .span2>
       <address>
-        <p>#{reviewAddress $ review d}
+        <p>#{reviewAddress review}
 
-    <div .span10>
+    <div .span11>
       <blockquote>
-        #{markdownToHtml $ reviewContent $ review d}
+        #{markdownToHtml $ reviewContent review}
 
         <small>
-          Reviewed by #{showName $ user d} #{reviewTime}
+          Reviewed by #{showName user} #{reviewTime}
+
+  <p>
+    <small>
+      <a href="@{LandlordR $ reviewLandlord review}"}>More reviews for this landlord
 
   <h3>Discussion
   <div .discussion>

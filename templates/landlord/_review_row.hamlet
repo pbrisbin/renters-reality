@@ -1,0 +1,7 @@
+<tr>
+  <td>
+    <a href="@{ReviewR rid}">
+    #{showName u}
+
+  <td>#{reviewTime}
+  <td>#{prettyGrade $ reviewGrade r}
