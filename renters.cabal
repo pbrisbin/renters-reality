@@ -48,6 +48,7 @@ library
                      Helpers.ErrorHandler
                      Helpers.Grade
                      Helpers.Model
+                     Helpers.Paginate
                      Helpers.Profile
                      Helpers.Request
                      Helpers.Review

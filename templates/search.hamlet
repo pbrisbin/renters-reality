@@ -2,16 +2,16 @@
   <div .pull-right>
     <form method="get" action="@{SearchR}">
       <input type="hidden" name="_hasdata">
-      <input type="hidden" name="p" value="#{curPage res}">
-      <input #search-input size=30 name="q" value="#{curQuery res}"> 
+      <input type="hidden" name="p" value="#{searchPage results}">
+      <input #search-input size=30 name="q" value="#{searchQuery results}"> 
       <input .btn type="submit" value="Search">
 
   <div .page-header>
     <h1>Search results
 
-  $if null results
+  $if null $ searchResults results
     <div .no-results>
-      $if (/=) (curQuery res) ""
+      $if (/=) (searchQuery results) ""
         <h3>Oops!
 
         <p>
@@ -24,7 +24,7 @@
           ?
 
   $else
-    $forall result <- results
+    $forall result <- searchResults results
       <div .row .search-result-header>
         <div .span13>
           <h2>

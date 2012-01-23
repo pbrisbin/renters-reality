@@ -6,16 +6,11 @@ import Helpers.Grade
 
 getSearchR :: Handler RepHtml
 getSearchR = do
-    ((results,pageWidget),res) <- executeSearch matchToResult
+    results <- executeSearch
+
+    let pageWidget = paginateResults results
 
     defaultLayout $ do
         setTitle "Search results" 
         addWidget $(widgetFile "search")
 
-curQuery :: FormResult SearchForm -> Text
-curQuery (FormSuccess (SearchForm (Just q) _)) = q
-curQuery _                                     = ""
-
-curPage :: FormResult SearchForm -> Int
-curPage (FormSuccess (SearchForm _ (Just p))) = p
-curPage _                                     = 1

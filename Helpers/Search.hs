@@ -1,12 +1,14 @@
 module Helpers.Search
-    ( SearchForm(..)
+    ( SearchResults(..)
     , SearchResult(..)
     , executeSearch
-    , matchToResult
+    , paginateResults
     ) where
 
 import Import
 import Helpers.Sphinx
+import Helpers.Paginate
+import Settings (SphinxSettings(..), sphinxSettings)
 
 import Yesod.Markdown
 import Database.Persist.Store (PersistValue(..))
@@ -19,28 +21,40 @@ data SearchResult = SearchResult
     , resExcerpt  :: Html
     }
 
-matchToResult :: Text -> Match -> Handler (Maybe SearchResult)
-matchToResult text match = do
-    let rid = Key . PersistInt64 $ documentId match
+executeSearch :: Handler (SearchResults SearchResult)
+executeSearch = executeQuery
+    (sphinxIndex   sphinxSettings)
+    (sphinxPort    sphinxSettings)
+    (sphinxPerPage sphinxSettings)
+    $ \text match -> do
+        let rid = Key . PersistInt64 $ documentId match
 
-    runDB $ do
-        mreview <- get rid
-        case mreview of
-            Just r -> do
-                mlandlord <- get (reviewLandlord r)
-                case mlandlord of
-                    Just l -> do
-                        excerpt <- liftIO $ mkExcerpt (reviewContent r) text
-                        return $ Just $ SearchResult
-                                            { resId       = rid 
-                                            , resReview   = r
-                                            , resLandlord = (landlordName l)
-                                            , resExcerpt  = excerpt
-                                            }
+        runDB $ do
+            mreview <- get rid
+            case mreview of
+                Just r -> do
+                    mlandlord <- get (reviewLandlord r)
+                    case mlandlord of
+                        Just l -> do
+                            excerpt <- liftIO $ mkExcerpt (reviewContent r) text
+                            return $ Just $ SearchResult
+                                                { resId       = rid 
+                                                , resReview   = r
+                                                , resLandlord = (landlordName l)
+                                                , resExcerpt  = excerpt
+                                                }
 
-                    _ -> return Nothing
+                        _ -> return Nothing
 
-            _ -> return Nothing
+                _ -> return Nothing
 
 mkExcerpt :: Markdown -> Text -> IO Html
-mkExcerpt (Markdown s) qstring = buildExcerpt s (T.unpack qstring)
+mkExcerpt (Markdown s) qstring = buildExcerpt (sphinxIndex sphinxSettings) (sphinxPort  sphinxSettings) s (T.unpack qstring)
+
+paginateResults :: SearchResults SearchResult -> Widget
+paginateResults results = do
+    let page = searchPage results
+        tot  = searchTotal results
+        per  = sphinxPerPage sphinxSettings
+
+    paginate page per tot
