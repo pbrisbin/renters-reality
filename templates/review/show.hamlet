@@ -31,7 +31,4 @@
 
   <h3>Discussion
   <div .discussion>
-    <p>
-      <small>
-        <em>
-          discussion is disabled for the time being.
+    ^{addCommentsAuth $ toPathPiece rid}

@@ -13,6 +13,7 @@ import Helpers.Review
 import Helpers.User
 import Helpers.Grade
 import Yesod.Markdown
+import Yesod.Comments (addCommentsAuth)
 import Data.Time.Format.Human
 
 getReviewR :: ReviewId -> Handler RepHtml

@@ -43,6 +43,8 @@ import qualified Data.Text.Lazy.Encoding
 import Network.Mail.Mime (sendmail)
 #endif
 
+import Yesod.Comments hiding (userEmail)
+import Yesod.Comments.Storage
 import Network.Gravatar
 import Data.Maybe (fromMaybe)
 import Data.Text  (Text)
@@ -248,3 +250,20 @@ deliver _ = sendmail
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage Renters FormMessage where
     renderMessage _ _ = defaultFormMessage
+
+instance YesodComments Renters where
+    getComment    = getCommentPersist
+    storeComment  = storeCommentPersist
+    updateComment = updateCommentPersist
+    deleteComment = deleteCommentPersist
+    loadComments  = loadCommentsPersist
+
+    displayUser  uid = do
+        u <- runDB $ get uid
+        let mname = fmap showName u
+        return $ fromMaybe "" mname
+
+    displayEmail uid = do
+        u <- runDB $ get uid
+        let memail = fromMaybe Nothing $ fmap userEmail u
+        return $ fromMaybe "" memail

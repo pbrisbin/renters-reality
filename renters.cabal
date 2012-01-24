@@ -127,6 +127,7 @@ executable         renters
                  , sphinx
                  , time
                  , wai
-                 , yesod-markdown
+                 , yesod-comments
                  , yesod-json
+                 , yesod-markdown
                  , yesod-newsfeed
