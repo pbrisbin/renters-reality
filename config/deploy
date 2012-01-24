@@ -4,9 +4,9 @@ ip="${1:-rentersreality.com}"
 
 deptag # tag deployments
 
-touch Settings.hs
+touch ./**/* # CPP declarations
 cabal clean
-cabal install -fproduction
+cabal install
 
 ssh "$ip" '
   cd renters             &&
