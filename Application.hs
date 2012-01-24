@@ -23,6 +23,8 @@ import qualified Database.Persist.Store
 import Database.Persist.GenericSql (runMigration)
 import Network.HTTP.Conduit (newManagerIO)
 
+import Yesod.Comments.Storage (migrateComments)
+
 -- Import all relevant handler modules here.
 import Handler.Root
 import Handler.Landlord
@@ -53,6 +55,7 @@ getApplication conf logger = do
               Database.Persist.Store.loadConfig
     p <- Database.Persist.Store.createPoolConfig (dbconf :: Settings.PersistConfig)
     Database.Persist.Store.runPool dbconf (runMigration migrateAll) p
+    Database.Persist.Store.runPool dbconf (runMigration migrateComments) p
     let foundation = Renters conf setLogger s p manager
     app <- toWaiAppPlain foundation
     return $ logWare app

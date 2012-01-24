@@ -104,6 +104,7 @@ textarea.review-entry {
 /* comments */
 .yesod_comments {
   width: 500px;
+  margin-top:  10px;
   margin-left: 25px;
 }
 .yesod_comments .avatar {

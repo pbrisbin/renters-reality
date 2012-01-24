@@ -43,7 +43,7 @@ import qualified Data.Text.Lazy.Encoding
 import Network.Mail.Mime (sendmail)
 #endif
 
-import Yesod.Comments hiding (userEmail)
+import Yesod.Comments hiding (Form, userEmail)
 import Yesod.Comments.Storage
 import Network.Gravatar
 import Data.Maybe (fromMaybe)
