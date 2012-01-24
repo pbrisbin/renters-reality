@@ -42,6 +42,8 @@ textarea.review-entry {
   width:  20px;
   vertical-align: top;
 }
+
+/* search */
 .no-results {
   height: 250px;
 }
@@ -54,6 +56,8 @@ textarea.review-entry {
 .search-result-body .match {
   font-weight: bold;
 }
+
+/* pagination */
 .pagination.center {
   text-align: center;
 }
@@ -62,6 +66,8 @@ textarea.review-entry {
   display:  inline-block;
   overflow: hidden;
 }
+
+/* profile */
 .profile {
   height: 150px;
 }
@@ -94,6 +100,8 @@ textarea.review-entry {
   top: -15px;
   margin-left: 28px;
 }
+
+/* comments */
 .yesod_comments {
   width: 500px;
   margin-left: 25px;
