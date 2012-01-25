@@ -20,7 +20,6 @@ import Yesod.Static
 import Settings.StaticFiles
 import Yesod.Auth
 import Yesod.Auth.OpenId
-import Yesod.Auth.Facebook
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
 import Yesod.Logger (Logger, logMsg, formatLogText)
@@ -220,7 +219,7 @@ instance YesodAuth Renters where
                     parseNick = fmap (T.takeWhile (/= '@'))
 
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins = [ authOpenIdExtended
+    authPlugins _ = [ authOpenIdExtended
                         -- tested to work with at least google
                         [ ("openid.ax.mode"       , "fetch_request"                         )
                         , ("openid.ax.required"   , "email"                                 )
@@ -228,9 +227,7 @@ instance YesodAuth Renters where
                         , ("openid.ns.ax"         , "http://openid.net/srv/ax/1.0"          )
                         , ("openid.ns.ax.required", "email"                                 )
                         , ("openid.ui.icon"       , "true"                                  )
-                        ]
-                  , authFacebook "206687389350404" "9d30284c6cb99ff2c7cbc4e5f8ae53e0" []
-                  ]
+                        ] ]
 
     authHttpManager = httpManager
 

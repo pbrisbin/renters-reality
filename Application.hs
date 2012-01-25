@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
     ( getApplication
-    , withDevelAppPort
+    , getApplicationDev
     ) where
 
 import Import
@@ -11,17 +11,16 @@ import Yesod.Auth
 import Yesod.Default.Config
 import Yesod.Default.Main
 import Yesod.Default.Handlers
-import Data.Dynamic (Dynamic, toDyn)
 #if DEVELOPMENT
 import Yesod.Logger (Logger, logBS)
-import Network.Wai.Middleware.RequestLogger (logHandleDev)
+import Network.Wai.Middleware.RequestLogger (logCallbackDev)
 #else
 import Yesod.Logger (Logger, logBS, toProduction)
-import Network.Wai.Middleware.RequestLogger (logHandle)
+import Network.Wai.Middleware.RequestLogger (logCallback)
 #endif
 import qualified Database.Persist.Store
 import Database.Persist.GenericSql (runMigration)
-import Network.HTTP.Conduit (newManagerIO)
+import Network.HTTP.Conduit (newManager, def)
 
 import Yesod.Comments.Storage (migrateComments)
 
@@ -49,7 +48,7 @@ mkYesodDispatch "Renters" resourcesRenters
 -- migrations handled by Yesod.
 getApplication :: AppConfig DefaultEnv () -> Logger -> IO Application
 getApplication conf logger = do
-    manager <- newManagerIO 10
+    manager <- newManager def
     s <- staticSite
     dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
               Database.Persist.Store.loadConfig
@@ -61,15 +60,16 @@ getApplication conf logger = do
     return $ logWare app
   where
 #ifdef DEVELOPMENT
-    logWare = logHandleDev (logBS setLogger)
+    logWare = logCallbackDev (logBS setLogger)
     setLogger = logger
 #else
-    setLogger = toProduction logger
-    logWare = logHandle (logBS setLogger)
+    setLogger = toProduction logger -- by default the logger is set for development
+    logWare = logCallback (logBS setLogger)
 #endif
 
 -- for yesod devel
-withDevelAppPort :: Dynamic
-withDevelAppPort = toDyn $ defaultDevelApp loader getApplication
+getApplicationDev :: IO (Int, Application)
+getApplicationDev =
+    defaultDevelApp loader getApplication
   where
     loader = loadConfig (configSettings Development)

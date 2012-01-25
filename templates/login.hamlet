@@ -15,10 +15,6 @@
           <input type="image" src="@{StaticR img_yahoo_32_png}" title="Login via Yahoo!">
 
       <li>
-        <form method="get" action="@{AuthR facebookUrl}">
-          <input type="image" src="@{StaticR img_facebook_32_png}" title="Login via facebook">
-
-      <li>
         <form  method="get" action="@{AuthR forwardUrl}">
           <input #openid_identifier type="text" name="openid_identifier" placeholder="http://"> 
           <input #openid_submit type="image" src="@{StaticR img_openid_32_png}" title="Login via OpenID">
