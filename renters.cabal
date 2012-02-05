@@ -39,6 +39,7 @@ library
                      Handler.Landlords
                      Handler.Legal
                      Handler.Profile
+                     Handler.Recent
                      Handler.Review
                      Handler.Reviews
                      Handler.Root
