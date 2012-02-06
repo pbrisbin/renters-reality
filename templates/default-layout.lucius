@@ -43,6 +43,11 @@ textarea.review-entry {
   vertical-align: top;
 }
 
+/* recent */
+#recent-reviews {
+  margin: 30px 70px;
+}
+
 /* search */
 .no-results {
   height: 250px;

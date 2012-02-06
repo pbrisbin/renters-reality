@@ -19,6 +19,8 @@
     <script src="@{StaticR js_bootstrap_tabs_js}">
     <script src="@{StaticR js_bootstrap_alerts_js}">
 
+    <script src="@{StaticR js_recent_js}">
+
     ^{pageHead pc}
   <body
     <div .container>
