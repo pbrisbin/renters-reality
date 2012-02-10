@@ -29,9 +29,7 @@ reviewForm mr ml ip = renderBootstrap $ ReviewForm
     <*> areq textField   "Landlord"
         { fsId = Just "landlord-input" } ml
 
-    <*> pure Bplus
--- FIXME
---    <*> areq selectGrade   "Grade"      (fmap reviewGrade     mr)
+    <*> areq selectGrade   "Grade"      (fmap reviewGrade     mr)
     <*> areq textField     "Time frame" (fmap reviewTimeframe mr)
     <*> areq textareaField "Address"    (fmap reviewAddress mr)
     <*> areq markdownField "Review"
@@ -39,13 +37,16 @@ reviewForm mr ml ip = renderBootstrap $ ReviewForm
         } (fmap reviewContent mr)
 
     where
-        --selectGrade :: Field Renters Renters Grade
-        --selectGrade = selectField $ optionsPairs [ ("A+", Aplus), ("A", A), ("A-", Aminus)
-                                                 --, ("B+", Bplus), ("B", B), ("B-", Bminus)
-                                                 --, ("C+", Cplus), ("C", C), ("C-", Cminus)
-                                                 --, ("D+", Dplus), ("D", D), ("D-", Dminus)
-                                                 --, ("F" , F    )
-                                                 --]
+        selectGrade :: Field Renters Renters Grade
+        selectGrade = selectFieldList grades
+
+        grades :: [(Text,Grade)] -- need explicit type
+        grades = [ ("A+", Aplus), ("A", A), ("A-", Aminus)
+                 , ("B+", Bplus), ("B", B), ("B-", Bminus)
+                 , ("C+", Cplus), ("C", C), ("C-", Cminus)
+                 , ("D+", Dplus), ("D", D), ("D-", Dminus)
+                 , ("F" , F    )
+                 ]
 
 updateReview :: ReviewId -> ReviewForm -> Handler ReviewId
 updateReview rid rf = do
@@ -90,7 +91,7 @@ requireReviewer rid r = do
         tm <- getRouteToMaster
         redirect $ tm (ReviewR rid)
 
--- | On sucessful FormResult, perform and action on that result which
+-- | On sucessful FormResult, perform an action on that result which
 --   returns a ReviewId, then redirect to the review with that id.
 doAndRedirect :: FormResult a -> (a -> Handler ReviewId) -> Handler ()
 doAndRedirect (FormSuccess res) f = do
