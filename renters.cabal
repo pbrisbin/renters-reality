@@ -49,7 +49,6 @@ library
                      Helpers.ErrorHandler
                      Helpers.Grade
                      Helpers.Model
-                     Helpers.Paginate
                      Helpers.Profile
                      Helpers.Request
                      Helpers.Review
@@ -132,3 +131,4 @@ executable         renters
                  , yesod-json
                  , yesod-markdown
                  , yesod-newsfeed
+                 , yesod-paginator

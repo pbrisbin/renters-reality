@@ -6,8 +6,8 @@ module Helpers.Search
     ) where
 
 import Import
+import Yesod.Paginator (paginationWidget)
 import Helpers.Sphinx
-import Helpers.Paginate
 import Settings (SphinxSettings(..), sphinxSettings)
 
 import Yesod.Markdown
@@ -57,4 +57,4 @@ paginateResults results = do
         tot  = searchTotal results
         per  = sphinxPerPage sphinxSettings
 
-    paginate page per tot
+    paginationWidget page per tot
