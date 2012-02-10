@@ -1,6 +1,5 @@
 module Helpers.Sphinx
-    ( SearchForm(..)
-    , executeQuery
+    ( executeQuery
     , buildExcerpt
     , Match(..)
     , SearchResults(..)
@@ -14,7 +13,7 @@ import Text.Search.Sphinx.Types
 import qualified Text.Search.Sphinx.ExcerptConfiguration as E
 
 import Control.Applicative ((<$>), (<*>))
-import Data.Maybe          (catMaybes)
+import Data.Maybe          (catMaybes, fromMaybe)
 import Data.Text           (Text)
 import Text.Blaze          (preEscapedString)
 
@@ -22,25 +21,12 @@ import qualified Data.ByteString.Lazy       as L
 import qualified Data.ByteString.Lazy.Char8 as C8
 import qualified Data.Text                  as T
 
-data SearchForm = SearchForm
-    { sfQuery :: Maybe Text
-    , sfPage  :: Maybe Int
-    }
-
 data SearchResults a = SearchResults
     { searchResults    :: [a]
     , searchTotal      :: Int
     , searchPage       :: Int
     , searchQuery      :: Text
-    , searchFormResult :: FormResult SearchForm
     }
-
-searchForm :: RenderMessage m FormMessage
-           => Html
-           -> MForm s m (FormResult SearchForm, GWidget s m ())
-searchForm = renderDivs $ SearchForm
-    <$> aopt textField "q" { fsId = Just "q", fsName = Just "q" } Nothing
-    <*> aopt intField  "p" { fsId = Just "p", fsName = Just "p" } Nothing
 
 executeQuery :: RenderMessage m FormMessage
               => String -- ^ sphinx index
@@ -49,11 +35,23 @@ executeQuery :: RenderMessage m FormMessage
               -> (Text -> Match -> GHandler s m (Maybe a))
               -> GHandler s m (SearchResults a)
 executeQuery index p per f = do
-    ((res, _), _) <- runFormGet searchForm
+    res <- runInputGet $ (,) <$> iopt (searchField True) "q" <*> iopt intField "p"
 
     case res of
-        FormSuccess (SearchForm (Just text) (Just page)) -> do
-            qres     <- liftIO $ query (config p (page - 1) per) index (T.unpack text)
+        -- no search term, show no results
+        (Nothing, _) -> return $ SearchResults
+            { searchResults    = []
+            , searchTotal      = 0
+            , searchPage       = 1
+            , searchQuery      = ""
+            }
+
+        -- seach entered, maybe page
+        (Just text, mpage) -> do
+            let page = fromMaybe 1 mpage
+
+            qres <- liftIO $ query (config p (page - 1) per) index (T.unpack text)
+
             (as,tot) <- case qres of
                 Ok sres -> do
                     ms <- fmap catMaybes $ mapM (f text) $ matches sres
@@ -66,15 +64,6 @@ executeQuery index p per f = do
                 , searchTotal      = tot
                 , searchPage       = page
                 , searchQuery      = text
-                , searchFormResult = res
-                }
-
-        _ -> return $ SearchResults
-                { searchResults    = []
-                , searchTotal      = 0
-                , searchPage       = curPage  res
-                , searchQuery      = curQuery res
-                , searchFormResult = res
                 }
 
     where
@@ -85,14 +74,6 @@ executeQuery index p per f = do
             , limit  = l
             , mode   = Any
             }
-
-        curQuery :: FormResult SearchForm -> Text
-        curQuery (FormSuccess (SearchForm (Just q) _)) = q
-        curQuery _                                     = ""
-
-        curPage :: FormResult SearchForm -> Int
-        curPage (FormSuccess (SearchForm _ (Just p'))) = p'
-        curPage _                                      = 1
 
 buildExcerpt :: String -- ^ sphinx index
              -> Int    -- ^ sphinx port

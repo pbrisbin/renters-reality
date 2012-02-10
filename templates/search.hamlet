@@ -1,8 +1,6 @@
 <div .content>
   <div .pull-right>
     <form method="get" action="@{SearchR}">
-      <input type="hidden" name="_hasdata">
-      <input type="hidden" name="p" value="#{searchPage results}">
       <input #search-input size=30 name="q" value="#{searchQuery results}"> 
       <input .btn type="submit" value="Search">
 
@@ -41,4 +39,5 @@
           <blockquote>
             #{resExcerpt result}
 
-  ^{pageWidget}
+  <div .pagination .center>
+    ^{pageWidget}

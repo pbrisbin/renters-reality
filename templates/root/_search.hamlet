@@ -1,5 +1,3 @@
 <form .offset3 .search method="get" action="@{SearchR}">
-  <input type="hidden" name="_hasdata">
-  <input type="hidden" name="p" value=1>
   <input #search-input .span6 name="q" autofocus="autofocus"> 
   <input .btn type="submit" value="Search"> 
