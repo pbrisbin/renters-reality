@@ -24,7 +24,7 @@ getLandlordR lid = do
         setTitle . T.unpack $ landlordName landlord
         addWidget $(widgetFile "landlord/show")
 
-showGPA ::  [(Entity backend Review, b)] -> String
+showGPA ::  [(Entity Review, b)] -> String
 showGPA = take 4 . show . gpa . map (reviewGrade . entityVal . fst)
 
 reviewWidget :: ReviewId -> Review -> User -> Widget

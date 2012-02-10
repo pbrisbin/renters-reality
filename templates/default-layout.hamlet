@@ -12,12 +12,12 @@
           <a href="@{LandlordsR}">Landlords
 
       <ul .nav .secondary-nav>
-        $maybe uid <- mauth
+        $maybe u <- mauth
           <li .dropdown>
             <a href="#" .dropdown-toggle>
               $maybe grav <- mgrav
                 <img .gravatar src="#{grav}">
-              #{showName $ snd uid}
+              #{showName $ entityVal u}
             <ul .dropdown-menu>
               <li>
                 <a href="@{ProfileR}">Your profile

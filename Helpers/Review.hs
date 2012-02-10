@@ -29,23 +29,23 @@ reviewForm mr ml ip = renderBootstrap $ ReviewForm
     <*> areq textField   "Landlord"
         { fsId = Just "landlord-input" } ml
 
-    <*> areq selectGrade "Grade"      (fmap reviewGrade     mr)
-    <*> areq textField   "Time frame" (fmap reviewTimeframe mr)
-
-    <*> areq textareaField "Address" (fmap reviewAddress mr)
-
+    <*> pure Bplus
+-- FIXME
+--    <*> areq selectGrade   "Grade"      (fmap reviewGrade     mr)
+    <*> areq textField     "Time frame" (fmap reviewTimeframe mr)
+    <*> areq textareaField "Address"    (fmap reviewAddress mr)
     <*> areq markdownField "Review"
         { fsClass = ["review-entry"]
         } (fmap reviewContent mr)
 
     where
-        selectGrade :: Field Renters Renters Grade
-        selectGrade = selectField $ optionsPairs [ ("A+", Aplus), ("A", A), ("A-", Aminus)
-                                                 , ("B+", Bplus), ("B", B), ("B-", Bminus)
-                                                 , ("C+", Cplus), ("C", C), ("C-", Cminus)
-                                                 , ("D+", Dplus), ("D", D), ("D-", Dminus)
-                                                 , ("F" , F    )
-                                                 ]
+        --selectGrade :: Field Renters Renters Grade
+        --selectGrade = selectField $ optionsPairs [ ("A+", Aplus), ("A", A), ("A-", Aminus)
+                                                 --, ("B+", Bplus), ("B", B), ("B-", Bminus)
+                                                 --, ("C+", Cplus), ("C", C), ("C-", Cminus)
+                                                 --, ("D+", Dplus), ("D", D), ("D-", Dminus)
+                                                 --, ("F" , F    )
+                                                 --]
 
 updateReview :: ReviewId -> ReviewForm -> Handler ReviewId
 updateReview rid rf = do
@@ -80,8 +80,8 @@ maybeReviewer :: Review -> Handler Bool
 maybeReviewer r = do
     muid <- maybeAuth
     return $ case muid of
-        Just (uid,_) -> uid == reviewReviewer r
-        _            -> False
+        Just (Entity uid _) -> uid == reviewReviewer r
+        _                   -> False
 
 requireReviewer :: ReviewId -> Review -> Handler ()
 requireReviewer rid r = do

@@ -55,9 +55,9 @@ getEditR rid = do
 
 getNewR :: Handler RepHtml
 getNewR = do
-    (uid, _) <- requireAuth
-    ml       <- lookupGetParam "landlord"
-    ip       <- requestIp
+    (Entity uid _) <- requireAuth
+    ml             <- lookupGetParam "landlord"
+    ip             <- requestIp
 
     ((res, form), enctype) <- runFormPost $ reviewForm Nothing ml ip
     doAndRedirect res (insertReview uid)

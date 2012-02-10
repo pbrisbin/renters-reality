@@ -9,7 +9,6 @@ import Helpers.Model
 
 import Yesod.Markdown
 import Yesod.RssFeed
-import Database.Persist.GenericSql
 import qualified Data.Text as T
 
 getFeedR :: Handler RepRss
@@ -34,7 +33,7 @@ getFeedLandlordR lid = do
 
     feedFromRecords records
 
-feedFromRecords :: [(Entity SqlPersist Review, Entity SqlPersist Landlord)] -> Handler RepRss
+feedFromRecords :: [(Entity Review, Entity Landlord)] -> Handler RepRss
 feedFromRecords [] = notFound
 feedFromRecords records@(r:_) =
     rssFeed Feed
@@ -47,7 +46,7 @@ feedFromRecords records@(r:_) =
         , feedEntries     = map recordToRssEntry records
         }
 
-recordToRssEntry :: (Entity SqlPersist Review, Entity SqlPersist Landlord) -> FeedEntry (Route Renters)
+recordToRssEntry :: (Entity Review, Entity Landlord) -> FeedEntry (Route Renters)
 recordToRssEntry (Entity rid r, Entity _ l) =
     FeedEntry
         { feedEntryLink    = ReviewR rid
