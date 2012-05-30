@@ -1,4 +1,4 @@
-!!!
+$doctype 5
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -8,11 +8,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="keywords" content="review, reviews, renter, renters, landlord, landlords, apartment, apartments, property, properties">
 
-    \<!-- jquery  -->
+    <!-- jquery  -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js">
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js">
 
-    \<!-- bootstrap -->
+    <!-- bootstrap -->
     <link rel="stylesheet" href="@{StaticR css_bootstrap_min_css}">
     <script src="@{StaticR js_bootstrap_dropdown_js}">
     <script src="@{StaticR js_bootstrap_modal_js}">
@@ -22,7 +22,7 @@
     <script src="@{StaticR js_recent_js}">
 
     ^{pageHead pc}
-  <body
+  <body>
     <div .container>
       ^{pageBody pc}
 

@@ -1,17 +1,19 @@
 Default: &defaults
-  host: "localhost"
+  host: "127.0.0.1"
   port: 3000
 
 Development:
   <<: *defaults
+  approot: "http://localhost:3000"
 
 Test:
   <<: *defaults
+  approot: "http://localhost:3000"
 
 Staging:
   <<: *defaults
+  approot: "http://localhost:3000"
 
 Production:
-  host: "rentersreality.com"
-  port: 80
   <<: *defaults
+  approot: "http://rentersreality.com"

@@ -36,11 +36,6 @@ import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
-#if DEVELOPMENT
-import qualified Data.Text.Lazy.Encoding
-#else
-import Network.Mail.Mime (sendmail)
-#endif
 
 import Yesod.Comments hiding (Form, userEmail)
 import Yesod.Comments.Storage
@@ -61,6 +56,7 @@ data Renters = Renters
     , getStatic :: Static -- ^ Settings for static file serving.
     , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
     , httpManager :: Manager
+    , persistConfig :: Settings.PersistConfig
     }
 
 -- Set up i18n messages. See the message folder.
@@ -94,12 +90,22 @@ type Form x = Html -> MForm Renters Renters (FormResult x, Widget)
 instance Yesod Renters where
     approot = ApprootMaster $ appRoot . settings
 
-    -- Place the session key file in the config folder
-    encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
+    -- Store session data on the client in encrypted cookies,
+    -- default session idle timeout is 120 minutes
+    makeSessionBackend _ = do
+        key <- getKey "config/client_session_key.aes"
+        return . Just $ clientSessionBackend key 120
 
     defaultLayout widget = do
         y <- getYesod
         mmsg <- getMessage
+
+        -- We break up the default layout into two components:
+        -- default-layout is the contents of the body tag, and
+        -- default-layout-wrapper is the entire page. Since the final
+        -- value passed to hamletToRepHtml cannot be a widget, this allows
+        -- you to use normal widget features in default-layout.
+
         mauth <- maybeAuth
 
         tm  <- getRouteToMaster
@@ -114,24 +120,17 @@ instance Yesod Renters where
 
         let mgrav = fmap getGravatar mauth
 
-        -- We break up the default layout into two components:
-        -- default-layout is the contents of the body tag, and
-        -- default-layout-wrapper is the entire page. Since the final
-        -- value passed to hamletToRepHtml cannot be a widget, this allows
-        -- you to use normal widget features in default-layout.
-
         pc <- widgetToPageContent $ do
-            $(widgetFile "normalize")
             $(widgetFile "default-layout")
         hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
 
         where
             getGravatar :: Entity User -> String
             getGravatar (Entity _ u) = let email = fromMaybe "" $ userEmail u
-                                       in  gravatarImg email gravatarOpts
+                                       in  gravatar gravatarOpts email
 
             gravatarOpts :: GravatarOptions
-            gravatarOpts = defaultOptions
+            gravatarOpts = def
                 { gSize    = Just $ Size 20
                 , gDefault = Just MM
                 }
@@ -154,15 +153,20 @@ instance Yesod Renters where
     -- users receiving stale content.
     addStaticContent = addStaticContentExternal minifym base64md5 Settings.staticDir (StaticR . flip StaticRoute [])
 
-    -- Enable Javascript async loading
-    yepnopeJs _ = Just $ Right $ StaticR js_modernizr_js
+    -- Place Javascript at bottom of the body tag so the rest of the page loads first
+    jsLoader _ = BottomOfHeadAsync $ loadJsYepnope $ Right $ StaticR js_modernizr_js
 
     errorHandler = rentersErrorHandler
 
 -- How to run database actions.
 instance YesodPersist Renters where
     type YesodPersistBackend Renters = SqlPersist
-    runDB f = fmap connPool getYesod >>= Database.Persist.Store.runPool (undefined :: Settings.PersistConfig) f
+    runDB f = do
+        master <- getYesod
+        Database.Persist.Store.runPool
+            (persistConfig master)
+            f
+            (connPool master)
 
 instance YesodAuth Renters where
     type AuthId Renters = UserId
@@ -196,14 +200,11 @@ instance YesodAuth Renters where
         where
             -- updates username/email with values returned by openid
             -- unless values exist there already
-            updateFromAx :: PersistStore SqlPersist m
-                         => [(Text,Text)] -- ^ the @credsExtra@ returned from open id
-                         -> UserId        -- ^ the user id to update
-                         -> SqlPersist m ()
+            updateFromAx :: [(Text, Text)] -> UserId -> YesodDB s Renters ()
             updateFromAx keys uid = maybe (return ()) go =<< get uid
 
                 where
-                    go :: PersistStore SqlPersist m => User -> SqlPersist m ()
+                    go :: User -> YesodDB s Renters ()
                     go u = do
                         case (userUsername u, lookup "openid.ext1.value.email" keys) of
                             (Nothing, val@(Just _)) -> update uid [UserUsername =. (parseNick val)]
@@ -234,14 +235,6 @@ instance YesodAuth Renters where
     loginHandler = defaultLayout $ do
         setTitle "Login"
         addWidget $(widgetFile "login")
-
--- Sends off your mail. Requires sendmail in production!
-deliver :: Renters -> L.ByteString -> IO ()
-#ifdef DEVELOPMENT
-deliver y = logLazyText (getLogger y) . Data.Text.Lazy.Encoding.decodeUtf8
-#else
-deliver _ = sendmail
-#endif
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.

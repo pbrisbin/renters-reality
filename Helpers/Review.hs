@@ -33,7 +33,7 @@ reviewForm mr ml ip = renderBootstrap $ ReviewForm
     <*> areq textField     "Time frame" (fmap reviewTimeframe mr)
     <*> areq textareaField "Address"    (fmap reviewAddress mr)
     <*> areq markdownField "Review"
-        { fsClass = ["review-entry"]
+        { fsAttrs = [("class","review-entry")]
         } (fmap reviewContent mr)
 
     where

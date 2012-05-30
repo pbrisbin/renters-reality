@@ -63,4 +63,4 @@ applyLayout :: Yesod master
             -> GHandler sub master ChooseRep
 applyLayout title body = fmap chooseRep $ defaultLayout $ do
     setTitle title
-    addHamlet body
+    toWidget body

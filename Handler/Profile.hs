@@ -20,7 +20,7 @@ getProfileR = do
     let fullname = fromMaybe "" $ userFullname u
     let username = fromMaybe "" $ userUsername u
     let email    = fromMaybe "" $ userEmail u
-    let pic      = gravatarImg email gravatarOpts
+    let pic      = gravatar gravatarOpts email
 
     defaultLayout $ do
         setTitle "View profile"
@@ -28,7 +28,7 @@ getProfileR = do
 
     where
         gravatarOpts :: GravatarOptions
-        gravatarOpts = defaultOptions
+        gravatarOpts = def
             { gSize    = Just $ Size 128
             , gDefault = Just MM
             }
