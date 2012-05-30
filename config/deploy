@@ -2,15 +2,25 @@
 
 ip="${1:-rentersreality.com}"
 
-deptag # tag deployments
-
 cabal clean
 cabal configure
 cabal build
 
+for dir in static config; do
+  echo "syncing ./$dir..."
+  rsync -avz -delete -e ssh "./$dir" "$ip":~/renters/
+done
+
+echo 'uploading new binary...'
+scp ./dist/build/renters/renters "$ip":~/renters/renters.new
+
 ssh "$ip" '
   cd renters             &&
-  bin/selfupdate.sh      &&
-  bin/service.sh restart &&
+  bin/service.sh stop    &&
+  cp -v ./renters{,.bak} &&
+  cp -v ./renters{.new,} &&
+  bin/service.sh start   &&
   sleep 3
 '
+
+curl "$ip"
