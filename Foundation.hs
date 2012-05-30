@@ -28,7 +28,6 @@ import Network.HTTP.Conduit (Manager)
 import Yesod.Logger (logLazyText)
 #endif
 import qualified Settings
-import qualified Data.ByteString.Lazy as L
 import qualified Database.Persist.Store
 import Database.Persist.GenericSql
 import Settings (setTitle, widgetFile)

@@ -3,6 +3,6 @@
     <a href="@{ReviewR rid}">
     #{landlordName l}
 
-  <td>#{showName u}
+  <td>#{showName user}
   <td>#{reviewTime}
   <td>#{prettyGrade $ reviewGrade r}

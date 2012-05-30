@@ -11,7 +11,7 @@
         <img src="#{pic}">
 
     <div .profile-details>
-      <h2>#{showName u}
+      <h2>#{showName user}
       <h4>#{email}
 
     <div .profile-links>

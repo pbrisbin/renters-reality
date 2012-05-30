@@ -15,11 +15,11 @@ import Data.Maybe (fromMaybe)
 
 getProfileR :: Handler RepHtml
 getProfileR = do
-    (Entity uid u) <- requireAuth
+    (Entity uid user) <- requireAuth
 
-    let fullname = fromMaybe "" $ userFullname u
-    let username = fromMaybe "" $ userUsername u
-    let email    = fromMaybe "" $ userEmail u
+    let fullname = fromMaybe "" $ userFullname user
+    let username = fromMaybe "" $ userUsername user
+    let email    = fromMaybe "" $ userEmail user
     let pic      = gravatar gravatarOpts email
 
     defaultLayout $ do
@@ -35,8 +35,8 @@ getProfileR = do
 
 getEditProfileR :: Handler RepHtml 
 getEditProfileR = do
-    (Entity _ u)         <- requireAuth
-    ((_, form), enctype) <- runFormPost $ profileForm u
+    (Entity _ user)      <- requireAuth
+    ((_, form), enctype) <- runFormPost $ profileForm user
 
     defaultLayout $ do
         setTitle "Edit profile"

@@ -28,6 +28,6 @@ showGPA ::  [(Entity Review, b)] -> String
 showGPA = take 4 . show . gpa . map (reviewGrade . entityVal . fst)
 
 reviewWidget :: ReviewId -> Review -> User -> Widget
-reviewWidget rid r u = do
+reviewWidget rid r user = do
     reviewTime <- lift $ liftIO $ humanReadableTime $ reviewCreatedDate r
     $(widgetFile "landlord/_review_row")

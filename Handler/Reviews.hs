@@ -20,6 +20,6 @@ getReviewsR = do
         addWidget $(widgetFile "review/index")
 
 reviewWidget :: ReviewId -> Review -> Landlord -> User -> Widget
-reviewWidget rid r l u = do
+reviewWidget rid r l user = do
     reviewTime <- lift $ liftIO $ humanReadableTime $ reviewCreatedDate r
     $(widgetFile "review/_review_row")
