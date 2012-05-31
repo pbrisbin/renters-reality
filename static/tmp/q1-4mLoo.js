@@ -1,1 +1,0 @@
-$(function(){$('input#landlord').autocomplete({source:"http://localhost:3000/search/comp/landlords",minLength:3})});$(function(){$("#open-help").click(function(){$("#helpbox").fadeIn();return false});$("#close-help").click(function(){$("#helpbox").fadeOut();return false})})
