@@ -1,0 +1,4 @@
+exec: ../dist/build/renters/renters
+args:
+  - production
+host: rentersreality.com

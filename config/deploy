@@ -1,37 +1,12 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
-display() { echo -e "\e[1;34m::\e[1;37m $*\e[0m";     }
-error()   { echo -e "\e[1;31m::\e[1;37m $*\e[0m" >&2; }
-
-ip="${1:-rentersreality.com}"
-
-display 'building new binary...'
 cabal clean
 cabal configure
 cabal build
 
-for dir in static config; do
-  display "syncing ./$dir..."
-  rsync -avz -delete -e ssh "./$dir" "$ip":~/renters/
-done
+strip dist/build/renters/renters
 
-display 'uploading new binary...'
-scp ./dist/build/renters/renters "$ip":~/renters/renters.new
+rm -rf static/tmp/
 
-display 'restarting services...'
-ssh "$ip" '
-  cd renters             &&
-  bin/service.sh stop    &&
-  cp -v ./renters{,.bak} &&
-  cp -v ./renters{.new,} &&
-  bin/service.sh start   &&
-  sleep 3
-'
-
-if curl -s "$ip" | grep -Fq "<title>Renters&#39; reality | Home</title>"; then
-  display
-  display 'deployment OK'
-else
-  error "$ip returned unexpected html"
-  exit 1
-fi
+tar czfv - dist/build/renters/renters config static |\
+  ssh rentersreality.com 'cat > ~/keter/incoming/renters.keter'
