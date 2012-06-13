@@ -16,7 +16,7 @@ import Yesod.Markdown
 import Yesod.Comments (addCommentsAuth)
 import Data.Time.Format.Human
 
-getReviewR :: ReviewId -> Handler RepHtml
+getReviewR :: ReviewId -> Handler RepHtmlJson
 getReviewR rid = do
     (review,landlord,user)<- runDB $ do
         r <- get404 rid
@@ -28,9 +28,17 @@ getReviewR rid = do
     ownReview  <- maybeReviewer review
     reviewTime <- liftIO . humanReadableTime $ reviewCreatedDate review
 
-    defaultLayout $ do
+    let jsonRep = object [ "user"     .= (Entity (reviewReviewer review) user)
+                         , "landlord" .= (Entity (reviewLandlord review) landlord)
+                         , "review"   .= (Entity rid review)
+                         , "reviewed" .= reviewTime
+                         ]
+
+    let htmlRep = do
         setTitle "View review"
         addWidget $(widgetFile "review/show")
+
+    defaultLayoutJson htmlRep jsonRep
 
 getEditR :: ReviewId -> Handler RepHtml
 getEditR rid = do
@@ -66,7 +74,7 @@ getNewR = do
         setTitle "New review"
         addWidget $(widgetFile "review/new")
 
-postReviewR :: ReviewId -> Handler RepHtml
+postReviewR :: ReviewId -> Handler RepHtmlJson
 postReviewR = getReviewR
 
 postNewR :: Handler RepHtml
