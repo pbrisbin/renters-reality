@@ -1,11 +1,8 @@
 module Handler.Recent (getRecentR) where
 
 import Import
-import Yesod.Markdown
 import Helpers.Model
-import Helpers.User
 import Control.Monad (forM)
-import qualified Data.Text as T
 
 getRecentR :: Handler RepJson
 getRecentR = do
@@ -21,14 +18,9 @@ getRecentR = do
         return $ joinTables3 reviewLandlord reviewReviewer reviews landlords users
 
     objects <- forM records $ \(review,landlord,user) -> do
-        return $ object [ ("landlord",                        landlordName $ entityVal landlord)
-                        , ("content" ,         shorten 200 . reviewContent $ entityVal review  )
-                        , ("user"    ,                            showName $ entityVal user    )
-                        , ("link"    , "/reviews/" `T.append` (toPathPiece $ entityKey review) )
+        return $ object [ "landlord".= landlord
+                        , "review"  .= review
+                        , "user"    .= user
                         ]
 
     jsonToRepJson $ array objects
-
-    where
-        shorten :: Int -> Markdown -> Text
-        shorten n (Markdown s) = T.pack $ if length s >= n then take n s ++ "..." else s
