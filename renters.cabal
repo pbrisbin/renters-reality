@@ -128,6 +128,7 @@ executable         renters
                  , yaml                          >= 0.7        && < 0.8
                  , http-conduit                  >= 1.4        && < 1.5
 
+                 , aeson
                  , blaze-html
                  , containers
                  , friendly-time
