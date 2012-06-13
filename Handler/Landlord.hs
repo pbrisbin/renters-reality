@@ -7,7 +7,7 @@ import Helpers.Grade
 import Data.Time.Format.Human
 import qualified Data.Text as T
 
-getLandlordR :: LandlordId -> Handler RepHtml
+getLandlordR :: LandlordId -> Handler RepHtmlJson
 getLandlordR lid = do
     (landlord,records) <- runDB $ do
         l       <- get404 lid
@@ -20,9 +20,21 @@ getLandlordR lid = do
 
         return (l,records)
 
-    defaultLayout $ do
+
+    let jsonRep = object
+            [ "landlord" .= (Entity lid landlord)
+            , "reviews"  .= (array $ for records $ \(r,u) -> object [ "review" .= r, "user" .= u])
+            ]
+
+    let htmlRep = do
         setTitle . T.unpack $ landlordName landlord
         addWidget $(widgetFile "landlord/show")
+
+    defaultLayoutJson htmlRep jsonRep
+
+    where
+        for :: [a] -> (a -> b) -> [b]
+        for = flip $ map
 
 showGPA ::  [(Entity Review, b)] -> String
 showGPA = take 4 . show . gpa . map (reviewGrade . entityVal . fst)
