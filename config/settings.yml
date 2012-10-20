@@ -17,4 +17,5 @@ Staging:
 Production:
   <<: *defaults
   #approot: "http://rentersreality.com"
+  host: "0.0.0.0"
   approot: "http://quiet-taiga-4213.herokuapp.com/"
