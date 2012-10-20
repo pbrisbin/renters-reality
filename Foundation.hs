@@ -126,7 +126,7 @@ instance Yesod Renters where
                                        in  gravatar gravatarOpts email
 
             gravatarOpts :: GravatarOptions
-            gravatarOpts = def
+            gravatarOpts = defaultConfig
                 { gSize    = Just $ Size 20
                 , gDefault = Just MM
                 }
