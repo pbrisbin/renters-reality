@@ -1,12 +1,16 @@
 #!/bin/bash -ex
 
-cabal clean
-cabal configure
-cabal build
+(
+  cd ./vagrant
+  vagrant ssh -c 'cd /app &&
+                  cabal clean &&
+                  cabal configure -fproduction &&
+                  cabal build'
+)
 
 strip dist/build/renters/renters
+cp dist/build/renters/renters .
 
-rm -rf static/tmp/
+git commit ./renters -m 'new binary'
 
-tar czfv - dist/build/renters/renters config static |\
-  ssh rentersreality.com 'cat > ~/keter/incoming/renters.keter'
+git push heroku master
