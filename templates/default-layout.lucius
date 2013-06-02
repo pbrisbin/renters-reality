@@ -19,6 +19,27 @@ blockquote p {
   margin-bottom: inherit;
 }
 
+/* login */
+#login ul {
+  list-style: none;
+  text-align: center;
+  margin: 50px;
+}
+#login form, #login li {
+  display: inline;
+}
+#login input {
+  margin: auto;
+  vertical-align: middle;
+}
+#login input[type="image"] {
+  height: 64px;
+  width:  64px;
+}
+#login li#open-id {
+  margin-left: 20px;
+}
+
 /* root */
 #search {
   text-align: center;
@@ -51,13 +72,13 @@ textarea.review-entry {
 
 /* show review */
 #address {
-  margin-top: 15px;
-  margin-bottom: 15px;
+  margin: 15px;
+  margin-right: 0px;
 }
 
 #review {
-  margin-top: 30px;
-  margin-bottom: 30px;
+  margin: 30px;
+  margin-left: 0px;
 }
 
 /* grades */
