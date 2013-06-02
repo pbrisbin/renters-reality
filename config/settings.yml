@@ -17,4 +17,4 @@ Staging:
 Production:
   <<: *defaults
   host: "0.0.0.0"
-  approot: "http://rentersreality.com"
+  approot: "http://rentersreality.herokuapp.com"
