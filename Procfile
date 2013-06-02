@@ -1,1 +1,1 @@
-web: ./renters production -p $PORT
+web: ./dist/build/renters/renters production -p $PORT
