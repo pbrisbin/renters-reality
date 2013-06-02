@@ -1,34 +1,27 @@
-<div .content>
-  <div .page-header>
-      <h1>
-        #{landlordName $ landlord}
-        <span .pull-right>
-          #{prettyGrade $ reviewGrade review}
+$if ownReview
+  <div .pull-right>
+    <a .btn .btn-info href="@{EditR rid}">Edit
 
-  $if ownReview
-    <div .pull-right>
-      <a .btn .info href="@{EditR rid}">Edit
+$with grade <- prettyGrade $ reviewGrade review
+  <h1 #landlord>
+    #{landlordName $ landlord}: 
+    <span #grade data-grade="#{grade}">#{prettyGrade $ reviewGrade review}
 
-  <div .row>
-    <div .span2>
-      <address>
-        <p>#{reviewAddress review}
+<section #address .pull-right>
+  <address>
+    #{reviewAddress review}
 
-    <div .span11>
-      <blockquote>
-        #{markdownToHtml $ reviewContent review}
-
-        <small>
-          Reviewed by #{showName user} #{reviewTime}
-
-  <p>
+<section #review>
+  <blockquote>
+    #{markdownToHtml $ reviewContent review}
     <small>
-      See more reviews for this 
-      <a href="@{LandlordR $ reviewLandlord review}"}>landlord
-      \ or by this 
-      <a href="@{UserR $ reviewReviewer review}">user
-      \.
+      Reviewed by #{showName user} #{reviewTime}
 
-  <h3>Discussion
-  <div .discussion>
-    ^{addCommentsAuth $ toPathPiece rid}
+<p>
+  See more reviews for this 
+  <a href="#"}>landlord
+  \.
+
+<h3>Discussion
+<div .discussion>
+  ^{addComments $ toPathPiece rid}

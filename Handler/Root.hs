@@ -1,6 +1,7 @@
 module Handler.Root where
 
 import Import
+import Yesod.Auth
 
 getRootR :: Handler RepHtml
 getRootR = do
@@ -8,10 +9,4 @@ getRootR = do
     mauthR <- fmap authRoute getYesod
     defaultLayout $ do
         setTitle "Home"
-        addWidget $(widgetFile "root")
-
-searchWidget :: Widget
-searchWidget = $(widgetFile "root/_search")
-
-tipsWidget :: Widget
-tipsWidget = $(widgetFile "root/_tips")
+        $(widgetFile "root")

@@ -1,90 +1,13 @@
-<div .content>
-  <ul .tabs data-tabs="tabs">
-    <li .active>
-      <a href="#renters">renters
-    <li>
-      <a href="#landlords">landlords
-    <li>
-      <a href="#about">about
+<section #search>
+  <form .search .form-stacked method="get" action="@{SearchR}">
+    <input #search-input name="q" autofocus="autofocus"> 
+    <div .actions>
+      <input .btn type="submit" value="Search Reviews">
 
-  <div .tab-content>
-    <div .tab-pane .active #renters>
       $maybe _ <- muid
-        <div .accordion>
-          <h3>Search reviews
-          <div .row>
-            ^{searchWidget}
-
-          <h3>Review your landlord
-          <div .hidden .row>
-            <form .offset3 .new method="get" action="@{NewR}">
-              <p>
-                <input #landlord-input .span6 name="landlord" placeholder="Name of landlord or management company"> 
-                <input .btn type="submit" value="Next">
-
+        &nbsp;
+        <a href="@{NewR}" .btn>Write Review
       $nothing
-        <h3>Search reviews
-        <div .row>
-          ^{searchWidget}
-
         $maybe authR <- mauthR
-          <p>
-            <small>
-              Please 
-              <a href="@{authR}">log in
-              \ to submit a review.
-
-      <div #recent-reviews>
-
-    <div .tab-pane #landlords>
-      <p>
-        Landlords,
-
-      <p>
-        We hope to some day ofter a suite of tools to help you maintain 
-        your own reputation on this site. This is not a site dedicated 
-        to simply calling out bad landlords.
-
-      <p>
-        We would like to eventually provide ways to track, discuss and 
-        resolve negative reviews and, more importantly, provide a means 
-        for you to leverage any positive reviews found here to better 
-        promote your business.
-
-      <p>
-        If you have any ideas for how to make this site useful for 
-        yourself, please open an issue at this site's 
-        <a href="https://github.com/pbrisbin/renters-reality/issues">
-          project page
-        \.
-
-    <div .tab-pane #about>
-      <p>
-        I'm a developer and a renter. This is a pet project of mine 
-        which I use to explore interesting web technologies while 
-        providing a service to renters like myself.
-
-      <p>
-        The site uses a haskell web framework known as Yesod as a 
-        backend and the styling is almost entirely provided by Twitter's 
-        amazing bootstrap. The code driving the site is fully open 
-        sourced and can be viewed on my github page. 
-
-      <p>
-        Because of the beta-nature of things, I can't guarantee it will 
-        always work, or that this site will turn into the featureful 
-        place that I'd hope it could be.
-
-      <p>
-        That said, I do believe it is useful.
-
-      <p>
-        <small>
-          <em>
-            If you find any bugs or would like to request a feature 
-            please use the 
-            <a href="https://github.com/pbrisbin/renters-reality/issues">
-              issues tracker
-            \.
-
-^{tipsWidget}
+          &nbsp;
+          <a href="@{authR}" .btn>Log In

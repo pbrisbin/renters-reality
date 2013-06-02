@@ -9,10 +9,11 @@ module Helpers.Review
 
 import Import
 import Helpers.Model
+import Helpers.Grade
+import Yesod.Auth
 import Yesod.Markdown
 import Control.Monad (unless)
 import Data.Time     (getCurrentTime)
-import Database.Persist.Query.GenericSql ()
 
 data ReviewForm = ReviewForm
     { rfIp        :: Text
@@ -37,7 +38,7 @@ reviewForm mr ml ip = renderBootstrap $ ReviewForm
         } (fmap reviewContent mr)
 
     where
-        selectGrade :: Field Renters Renters Grade
+        --selectGrade :: Field App Grade
         selectGrade = selectFieldList grades
 
         grades :: [(Text,Grade)] -- need explicit type
@@ -66,7 +67,7 @@ insertReview uid rf = do
     now        <- liftIO getCurrentTime
     landlordId <- findOrCreate $ Landlord $ rfLandlord rf
 
-    runDB $ insert $ Review
+    runDB $ insert Review
             { reviewCreatedDate = now
             , reviewIpAddress   = rfIp        rf
             , reviewGrade       = rfGrade     rf
@@ -87,17 +88,13 @@ maybeReviewer r = do
 requireReviewer :: ReviewId -> Review -> Handler ()
 requireReviewer rid r = do
     uid <- requireAuthId
-    unless (uid == reviewReviewer r) $ do
-        tm <- getRouteToMaster
-        redirect $ tm (ReviewR rid)
+    unless (uid == reviewReviewer r) $ redirect $ ReviewR rid
 
 -- | On sucessful FormResult, perform an action on that result which
 --   returns a ReviewId, then redirect to the review with that id.
 doAndRedirect :: FormResult a -> (a -> Handler ReviewId) -> Handler ()
 doAndRedirect (FormSuccess res) f = do
-    tm  <- getRouteToMaster
     rid <- f res
-
-    redirect $ tm (ReviewR rid)
+    redirect $ ReviewR rid
 
 doAndRedirect _ _ = return ()

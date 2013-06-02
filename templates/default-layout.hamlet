@@ -1,35 +1,25 @@
-<div #topbar .topbar data-dropdown="dropdown">
-  <div .topbar-inner>
-    <div .container>
-      <h3>
-        <a href="@{RootR}">Renters' Reality
-      <ul .nav>
-        <li :hActive:.active>
-          <a href="@{RootR}">Home
-        <li :rActive:.active>
-          <a href="@{ReviewsR}">Reviews
-        <li :lActive:.active>
-          <a href="@{LandlordsR}">Landlords
-
-      <ul .nav .secondary-nav>
-        $maybe user <- mauth
-          <li .dropdown>
-            <a href="#" .dropdown-toggle>
-              $maybe grav <- mgrav
-                <img .gravatar src="#{grav}">
-              #{showName $ entityVal user}
-            <ul .dropdown-menu>
-              <li>
-                <a href="@{ProfileR}">Your profile
-              <li>
-                <a href="@{AuthR LogoutR}">Logout
-        $nothing
-          <li>
-            <a href="@{AuthR LoginR}">Login
+<div .navbar .navbar-static>
+  <div .navbar-inner>
+    <a .brand href="@{RootR}">Renters' Reality
+    <ul .nav .pull-right>
+      $maybe user <- muid
+        <li .dropdown>
+          <a href="#" .dropdown-toggle role="button" data-toggle="dropdown">
+            $maybe grav <- mgrav
+              <img .gravatar src="#{grav}">
+            #{showName $ entityVal user}
+          <ul .dropdown-menu role="menu">
+            <li>
+              <a href="@{ProfileR}">Your profile
+            <li>
+              <a href="@{AuthR LogoutR}">Logout
+      $nothing
+        <li>
+          <a href="@{AuthR LoginR}">Login
 
 $maybe msg <- mmsg
-  <div .alert-message .info .fade .in data-alert="alert">
-    <a .close href="#">×
-    <p>#{msg}
+  <div .alert .fade .in>
+    <a .close data-dismiss="alert" href="#">&times;
+    #{msg}
 
 ^{widget}

@@ -1,0 +1,6 @@
+<form enctype="#{enctype}" method="post" .form-stacked>
+  <fieldset>
+    ^{form}
+
+  <div .actions>
+    <button type="submit" .btn>Save

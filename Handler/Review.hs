@@ -12,42 +12,25 @@ import Helpers.Request
 import Helpers.Review
 import Helpers.User
 import Helpers.Grade
+import Yesod.Auth
 import Yesod.Markdown
-import Yesod.Comments (addCommentsAuth)
+import Yesod.Comments (addComments)
 import Data.Time.Format.Human
 
-getReviewR :: ReviewId -> Handler RepHtmlJson
+getReviewR :: ReviewId -> Handler RepHtml
 getReviewR rid = do
-    (review,landlord,user)<- runDB $ do
-        r <- get404 rid
-        l <- get404 $ reviewLandlord r
-        u <- get404 $ reviewReviewer r
-
-        return (r,l,u)
+    (review,landlord,user) <- getReviewRecords rid
 
     ownReview  <- maybeReviewer review
     reviewTime <- liftIO . humanReadableTime $ reviewCreatedDate review
 
-    let jsonRep = object [ "user"     .= (Entity (reviewReviewer review) user)
-                         , "landlord" .= (Entity (reviewLandlord review) landlord)
-                         , "review"   .= (Entity rid review)
-                         , "reviewed" .= reviewTime
-                         ]
-
-    let htmlRep = do
+    defaultLayout $ do
         setTitle "View review"
-        addWidget $(widgetFile "review/show")
-
-    defaultLayoutJson htmlRep jsonRep
+        $(widgetFile "review/show")
 
 getEditR :: ReviewId -> Handler RepHtml
 getEditR rid = do
-    (review,landlord,user) <- runDB $ do
-        r <- get404 rid
-        l <- get404 $ reviewLandlord r
-        u <- get404 $ reviewReviewer r
-
-        return (r,l,u)
+    (review,landlord,user) <- getReviewRecords rid
 
     requireReviewer rid review
 
@@ -58,8 +41,7 @@ getEditR rid = do
 
     defaultLayout $ do
         setTitle "Edit review"
-        addWidget $(widgetFile "review/edit")
-
+        $(widgetFile "review/form")
 
 getNewR :: Handler RepHtml
 getNewR = do
@@ -72,9 +54,9 @@ getNewR = do
 
     defaultLayout $ do
         setTitle "New review"
-        addWidget $(widgetFile "review/new")
+        $(widgetFile "review/form")
 
-postReviewR :: ReviewId -> Handler RepHtmlJson
+postReviewR :: ReviewId -> Handler RepHtml
 postReviewR = getReviewR
 
 postNewR :: Handler RepHtml
@@ -82,3 +64,11 @@ postNewR = getNewR
 
 postEditR :: ReviewId -> Handler RepHtml
 postEditR = getEditR
+
+getReviewRecords :: ReviewId -> Handler (Review, Landlord, User)
+getReviewRecords rid = runDB $ do
+    r <- get404 rid
+    l <- get404 $ reviewLandlord r
+    u <- get404 $ reviewReviewer r
+
+    return (r,l,u)

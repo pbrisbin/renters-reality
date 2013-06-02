@@ -4,6 +4,7 @@ module Handler.Feed
     ) where
 
 import Import
+import Yesod -- TODO
 import Helpers.Grade
 import Helpers.Model
 
@@ -37,7 +38,8 @@ feedFromRecords :: [(Entity Review, Entity Landlord)] -> Handler RepRss
 feedFromRecords [] = notFound
 feedFromRecords records@(r:_) =
     rssFeed Feed
-        { feedTitle       = "Renters' reality"
+        { feedAuthor      = "Patrick Brisbin"
+        , feedTitle       = "Renters' reality"
         , feedDescription = "Recent reviews on rentersreality.com"
         , feedLanguage    = "en-us"
         , feedLinkSelf    = FeedR
@@ -46,7 +48,7 @@ feedFromRecords records@(r:_) =
         , feedEntries     = map recordToRssEntry records
         }
 
-recordToRssEntry :: (Entity Review, Entity Landlord) -> FeedEntry (Route Renters)
+recordToRssEntry :: (Entity Review, Entity Landlord) -> FeedEntry (Route App)
 recordToRssEntry (Entity rid r, Entity _ l) =
     FeedEntry
         { feedEntryLink    = ReviewR rid

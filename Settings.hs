@@ -3,39 +3,21 @@
 -- In addition, you can configure a number of different aspects of Yesod
 -- by overriding methods in the Yesod typeclass. That instance is
 -- declared in the Foundation.hs file.
-module Settings
-    ( widgetFile
-    , PersistConfig
-    , staticRoot
-    , staticDir
-    , setTitle
-    , SphinxSettings(..)
-    , sphinxSettings
-    ) where
+module Settings where
 
 import Prelude
 import Text.Shakespeare.Text (st)
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql (PostgresConf)
 import Yesod.Default.Config
-import qualified Yesod as Y
-import qualified Yesod.Default.Util
+import Yesod.Default.Util
 import Data.Text (Text)
-
-setTitle :: Y.Yesod m => String -> Y.GWidget s m ()
-setTitle = Y.setTitle . Y.toHtml . (++) "Renters' reality | "
-
-data SphinxSettings = SphinxSettings
-    { sphinxPort    :: Int
-    , sphinxIndex   :: String
-    , sphinxPerPage :: Int
-    }
-
-sphinxSettings :: SphinxSettings
-sphinxSettings = SphinxSettings 9312 "renters-idx" 5
+import Settings.Development
+import Data.Default (def)
+import Text.Hamlet
 
 -- | Which Persistent backend this site is using.
-type PersistConfig = PostgresConf
+type PersistConf = PostgresConf
 
 -- Static setting below. Changing these requires a recompile
 
@@ -57,16 +39,33 @@ staticDir = "static"
 -- have to make a corresponding change here.
 --
 -- To see how this value is used, see urlRenderOverride in Foundation.hs
-staticRoot :: AppConfig DefaultEnv x ->  Text
+staticRoot :: AppConfig DefaultEnv x -> Text
 staticRoot conf = [st|#{appRoot conf}/static|]
 
+-- | Settings for 'widgetFile', such as which template languages to support and
+-- default Hamlet settings.
+--
+-- For more information on modifying behavior, see:
+--
+-- https://github.com/yesodweb/yesod/wiki/Overriding-widgetFile
+widgetFileSettings :: WidgetFileSettings
+widgetFileSettings = def
+    { wfsHamletSettings = hamletSettings }
+
+hamletSettings :: HamletSettings
+hamletSettings = defaultHamletSettings
+    { hamletNewlines = NoNewlines }
+
+hamletFile :: FilePath -> Q Exp
+hamletFile = hamletFileWithSettings hamletRules hamletSettings
 
 -- The rest of this file contains settings which rarely need changing by a
 -- user.
 
 widgetFile :: String -> Q Exp
-#if DEVELOPMENT
-widgetFile = Yesod.Default.Util.widgetFileReload
-#else
-widgetFile = Yesod.Default.Util.widgetFileNoReload
-#endif
+widgetFile = (if development then widgetFileReload
+                             else widgetFileNoReload)
+              widgetFileSettings
+
+parseNothing :: Monad m => a -> b -> m ()
+parseNothing _ _ = return ()

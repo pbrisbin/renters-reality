@@ -7,12 +7,7 @@ module Helpers.Search
 
 import Import
 import Yesod.Paginator (defaultWidget)
-import Helpers.Sphinx
-import Settings (SphinxSettings(..), sphinxSettings)
-
-import Yesod.Markdown
-import Database.Persist.Store (PersistValue(..))
-import qualified Data.Text as T
+import Data.Maybe (fromMaybe)
 
 data SearchResult = SearchResult
     { resId       :: ReviewId
@@ -21,40 +16,41 @@ data SearchResult = SearchResult
     , resExcerpt  :: Html
     }
 
+data SearchResults a = SearchResults
+    { searchResults :: [a]
+    , searchTotal   :: Int
+    , searchPage    :: Int
+    , searchQuery   :: Text
+    }
+
 executeSearch :: Handler (SearchResults SearchResult)
-executeSearch = executeQuery
-    (sphinxIndex   sphinxSettings)
-    (sphinxPort    sphinxSettings)
-    (sphinxPerPage sphinxSettings)
-    $ \text match -> do
-        let rid = Key . PersistInt64 $ documentId match
+executeSearch = do
+    res <- runInputGet $ (,) <$> iopt (searchField True) "q" <*> iopt intField "p"
 
-        runDB $ do
-            mreview <- get rid
-            case mreview of
-                Just r -> do
-                    mlandlord <- get (reviewLandlord r)
-                    case mlandlord of
-                        Just l -> do
-                            excerpt <- liftIO $ mkExcerpt (reviewContent r) text
-                            return $ Just $ SearchResult
-                                                { resId       = rid 
-                                                , resReview   = r
-                                                , resLandlord = (landlordName l)
-                                                , resExcerpt  = excerpt
-                                                }
+    case res of
+        -- no search term, show no results
+        (Nothing, _) -> return SearchResults
+            { searchResults = []
+            , searchTotal   = 0
+            , searchPage    = 1
+            , searchQuery   = ""
+            }
 
-                        _ -> return Nothing
+        -- search entered, maybe page
+        (Just text, mpage) -> do
+            let page = fromMaybe 1 mpage
 
-                _ -> return Nothing
-
-mkExcerpt :: Markdown -> Text -> IO Html
-mkExcerpt (Markdown s) qstring = buildExcerpt (sphinxIndex sphinxSettings) (sphinxPort  sphinxSettings) s (T.unpack qstring)
+            return SearchResults
+                { searchResults = [] -- TODO
+                , searchTotal   = 0
+                , searchPage    = page
+                , searchQuery   = text
+                }
 
 paginateResults :: SearchResults SearchResult -> Widget
 paginateResults results = do
     let page = searchPage results
         tot  = searchTotal results
-        per  = sphinxPerPage sphinxSettings
+        per  = 10
 
     defaultWidget page per tot

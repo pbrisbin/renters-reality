@@ -1,19 +1,15 @@
-<div .content>
-  <div .page-header>
-    <h1>Your profile
+<div .pull-right>
+  <a href="@{EditProfileR}" .btn>Edit
 
-  <div .pull-right>
-    <a href="@{EditProfileR}" .btn>Edit
+<div .profile>
+  <div .gravatar>
+    <a title="change your profile picture at gravatar" target="_blank" href="http://gravatar.com/emails/">
+      <img src="#{pic}">
 
-  <div .profile>
-    <div .profile-gravatar>
-      <a title="change your profile picture at gravatar" target="_blank" href="http://gravatar.com/emails/">
-        <img src="#{pic}">
+  <div>
+    <h2>#{showName user}
+    <h4>#{email}
 
-    <div .profile-details>
-      <h2>#{showName user}
-      <h4>#{email}
-
-    <div .profile-links>
-      <p>
-        <a href="@{UserR uid}">Your reviews
+  <div>
+    <p>
+      <a href="#">Your reviews

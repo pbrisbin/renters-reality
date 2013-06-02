@@ -2,7 +2,7 @@ module Handler.Search (getSearchR) where
 
 import Import
 import Helpers.Search
-import Helpers.Grade
+--import Helpers.Grade
 
 getSearchR :: Handler RepHtml
 getSearchR = do
@@ -12,5 +12,5 @@ getSearchR = do
 
     defaultLayout $ do
         setTitle "Search results" 
-        addWidget $(widgetFile "search")
+        $(widgetFile "search")
 

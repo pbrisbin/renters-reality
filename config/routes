@@ -4,18 +4,12 @@
 /search/comp/searches  CompSearchesR   GET
 /new                   NewR            GET POST
 /edit/#ReviewId        EditR           GET POST
-/recent                RecentR         GET
-/reviews               ReviewsR        GET
 /reviews/#ReviewId     ReviewR         GET POST
-/landlords             LandlordsR      GET
-/landlords/#LandlordId LandlordR       GET
-/users/#UserId         UserR           GET
 /profile               ProfileR        GET
 /profile/edit          EditProfileR    GET POST
 /profile/delete        DeleteProfileR  GET POST
 /feed                  FeedR           GET
 /feed/#LandlordId      FeedLandlordR   GET
-/legal                 LegalR          GET
 /favicon.ico           FaviconR        GET
 /robots.txt            RobotsR         GET
 

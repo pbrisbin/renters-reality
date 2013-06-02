@@ -1,11 +1,20 @@
 module Helpers.Grade
-    ( prettyGrade
+    ( Grade(..)
+    , prettyGrade
     , gpa
     ) where
 
 import Prelude
-import Model
+import Database.Persist.TH
 import Data.Text (Text)
+
+data Grade = Aplus | A | Aminus
+           | Bplus | B | Bminus
+           | Cplus | C | Cminus
+           | Dplus | D | Dminus
+           | F deriving (Eq, Ord, Read, Show)
+
+derivePersistField "Grade"
 
 gpa :: [Grade] -> Double
 gpa [] = 0

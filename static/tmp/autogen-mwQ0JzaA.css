@@ -1,0 +1,80 @@
+footer {
+    margin-top: 20px;
+    text-align: center;
+}
+.container {
+    padding-top: 10px;
+    width: 790px;
+}
+.navbar .gravatar {
+    padding-right: 7px;
+    height: 20px;
+    width: 20px;
+    vertical-align: top;
+}
+.profile .gravatar {
+    float: left;
+    padding-right: 20px;
+    height: 128px;
+    width: 128px;
+}
+textarea.review-entry {
+    width: 500px;
+    height: 300px;
+}
+.yesod_comments {
+    width: 60%;
+    margin: 20px;
+    margin-top: 10px;
+}
+.yesod_comments .avatar {
+    float: left;
+    height: 48px;
+    width: 48px;
+    padding: 5px;
+}
+.yesod_comments .attribution .avatar {
+    float: none;
+    padding: 0;
+    height: 20px;
+    width: 20px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+.yesod_comments .comment,.yesod_comments > .input {
+    padding: 5px 10px;
+    margin: 10px 0;
+    border: solid 1px #ccc;
+}
+.yesod_comments > .input {
+    padding-left: 65px;
+}
+.yesod_comments > .input textarea {
+    height: 80px;
+    width: 85%;
+}
+.yesod_comments .thread {
+    margin: 0;
+    width: 100%;
+    margin-bottom: 20px;
+}
+.ui-autocomplete {
+    width: 60px;
+    border: solid 1px #ccc;
+    background-color: white;
+}
+.ui-autocomplete li {
+    list-style: none;
+    padding-left: 2px;
+}
+.ui-autocomplete a {
+    color: gray;
+    text-decoration: none;
+}
+.ui-autocomplete li:hover a {
+    color: black;
+}
+.ui-autocomplete li:hover {
+    cursor: pointer;
+    background-color: #e5e5e5;
+}

@@ -4,6 +4,7 @@ User
   email         Text Maybe Update
   verifiedEmail Bool default=false Eq Update
   verkey        Text Maybe Update
+  deriving Typeable
 
 Ident
   ident Text Asc

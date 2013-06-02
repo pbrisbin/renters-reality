@@ -1,43 +1,21 @@
-<div .content>
-  <div .pull-right>
-    <form method="get" action="@{SearchR}">
-      <input #search-input size=30 name="q" value="#{searchQuery results}"> 
-      <input .btn type="submit" value="Search">
+<div .pull-right>
+  <form method="get" action="@{SearchR}">
+    <input #search-input size=30 name="q" value="#{searchQuery results}"> 
+    <input .btn type="submit" value="Search">
 
-  <div .page-header>
-    <h1>Search results
+$if null $ searchResults results
+  <div .no-results>
+    $if (/=) (searchQuery results) ""
+      <h3>Oops!
 
-  $if null $ searchResults results
-    <div .no-results>
-      $if (/=) (searchQuery results) ""
-        <h3>Oops!
+      <p>
+        There are either no results for your search, or there was some 
+        error with our search engine.
 
-        <p>
-          There are either no results for your search, or there was some error 
-          with our search engine.
+      <p>
+        Would you like to 
+        <a href="@{NewR}">write one
+        ?
 
-        <p>
-          Would you like to 
-          <a href="@{NewR}">write one
-          ?
-
-  $else
-    $forall result <- searchResults results
-      <div .row .search-result-header>
-        <div .span13>
-          <h2>
-            <a href="@{ReviewR $ resId result}">#{resLandlord result}
-        <div>
-          <h2>
-            #{prettyGrade $ reviewGrade $ resReview result}
-
-      <div .row .search-result-body>
-        <div .span2>
-          <address>
-            #{reviewAddress $ resReview result}
-        <div .span10>
-          <blockquote>
-            #{resExcerpt result}
-
-  <div .pagination .center>
-    ^{pageWidget}
+<div .pagination .center>
+  ^{pageWidget}

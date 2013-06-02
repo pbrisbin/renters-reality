@@ -1,25 +1,21 @@
-<div .content>
-  <div .page-header>
-    <h1>All reviews
+$if null records
+  <div .no-results>
+    <h3>Oops!
+    <p>
+      We don't seem to have any reviews in the system. Something must 
+      be broken.
 
-  $if null records
-    <div .no-results>
-      <h3>Oops!
-      <p>
-        We don't seem to have any reviews in the system. Something must 
-        be broken.
+    <p>Please check back later.
 
-      <p>Please check back later.
+$else
+  <table .table-bordered .table-condensed .table-striped>
+    <thead>
+      <tr>
+        <th>Landlord name
+        <th>Reviewer name
+        <th>Date reviewed
+        <th>Grade
 
-  $else
-    <table .bordered-table .condensed-table .zebra-striped>
-      <thead>
-        <tr>
-          <th>Landlord name
-          <th>Reviewer name
-          <th>Date reviewed
-          <th>Grade
-
-      <tbody .link>
-        $forall (r,l,u) <- records
-          ^{reviewWidget (entityKey r) (entityVal r) (entityVal l) (entityVal u)}
+    <tbody .link>
+      $forall (r,l,u) <- records
+        ^{reviewWidget (entityKey r) (entityVal r) (entityVal l) (entityVal u)}

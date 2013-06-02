@@ -7,6 +7,7 @@ module Handler.Profile
     ) where
 
 import Import
+import Yesod.Auth
 import Helpers.Profile
 import Helpers.User
 
@@ -24,7 +25,7 @@ getProfileR = do
 
     defaultLayout $ do
         setTitle "View profile"
-        addWidget $(widgetFile "profile/show")
+        $(widgetFile "profile/show")
 
     where
         gravatarOpts :: GravatarOptions
@@ -40,7 +41,7 @@ getEditProfileR = do
 
     defaultLayout $ do
         setTitle "Edit profile"
-        addWidget $(widgetFile "profile/edit")
+        $(widgetFile "profile/edit")
 
 postEditProfileR :: Handler RepHtml
 postEditProfileR = do
@@ -58,7 +59,7 @@ getDeleteProfileR = do
 
     defaultLayout $ do
         setTitle "Delete profile"
-        addWidget $(widgetFile "profile/delete")
+        $(widgetFile "profile/delete")
 
 postDeleteProfileR :: Handler RepHtml
 postDeleteProfileR = do
@@ -69,4 +70,4 @@ postDeleteProfileR = do
         deleteWhere [IdentUser      ==. uid]
         delete uid
 
-    redirect $ RootR
+    redirect RootR

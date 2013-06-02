@@ -1,0 +1,1 @@
+$(function(){$('#search-input').autocomplete({source:"http://localhost:3000/search/comp/searches",minLength:3});$('#landlord-input').autocomplete({source:"http://localhost:3000/search/comp/landlords",minLength:3})})

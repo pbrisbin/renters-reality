@@ -1,3 +1,0 @@
-<form .offset3 .search method="get" action="@{SearchR}">
-  <input #search-input .span6 name="q" autofocus="autofocus"> 
-  <input .btn type="submit" value="Search"> 

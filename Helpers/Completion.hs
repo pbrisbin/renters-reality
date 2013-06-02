@@ -8,7 +8,6 @@ module Helpers.Completion
 import Import
 
 import Data.List (nub)
-import Database.Persist.Query.GenericSql ()
 import qualified Data.Text as T
 
 generalCompletion :: (Text -> Handler [Text]) -> Handler RepJson
@@ -19,7 +18,7 @@ generalCompletion f = do
         Just ""   -> return []
         Just term -> f term
 
-    jsonToRepJson $ array ss
+    return $ RepJson $ toContent $ array ss
 
 uniqueLandlords :: Handler [Text]
 uniqueLandlords = do
@@ -37,7 +36,7 @@ looseMatch a b = fix a `T.isInfixOf` fix b
     where
         fix :: Text -> Text
         fix = T.strip . T.toCaseFold
-            . T.filter (`notElem` [',', '.'])
+            . T.filter (`notElem` ",.")
 
 formatAddress :: Review -> Text
 formatAddress = T.map go . T.filter (/= '\r') . unTextarea . reviewAddress
