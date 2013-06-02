@@ -87,15 +87,13 @@ library
                  , monad-logger                  >= 0.3
                  , fast-logger                   >= 0.3
 
-                 , blaze-html
                  , containers
+                 , wai
                  , friendly-time
                  , gravatar
                  , shorten-strings
                  , time
-                 , wai
                  , yesod-comments
-                 , yesod-json
                  , yesod-markdown
                  , yesod-newsfeed
                  , yesod-paginator
