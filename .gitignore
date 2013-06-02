@@ -1,3 +1,4 @@
 *.aes
 dist
 static/tmp
+yesod-devel/*
