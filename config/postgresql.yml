@@ -9,17 +9,4 @@ Default: &defaults
 Development:
   <<: *defaults
 
-Test:
-  <<: *defaults
-
-Staging:
-  <<: *defaults
-
-Production:
-  <<: *defaults
-  user: yphlhbhmzthocg
-  password: 4KE6f7tENj2YaAh43vWoCqfMAo
-  host: ec2-54-243-228-169.compute-1.amazonaws.com
-  port: 5432
-  database: dfh57p6tk1gqbl
-  sslmode: require
+# Non-Development reads from DATABASE_URL via Helpers.Heroku

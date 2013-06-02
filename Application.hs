@@ -29,6 +29,7 @@ import Handler.Completion
 import Handler.Profile
 import Handler.Review
 import Handler.Feed
+import Helpers.Heroku
 
 -- This line actually creates our YesodDispatch instance. It is the second half
 -- of the call to mkYesodData which occurs in Foundation.hs. Please see the
@@ -62,9 +63,12 @@ makeFoundation :: AppConfig DefaultEnv () -> IO App
 makeFoundation conf = do
     manager <- newManager def
     s <- staticSite
-    dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
-              Database.Persist.loadConfig >>=
-              Database.Persist.applyEnv
+    dbconf <- if development
+                then withYamlEnvironment "config/postgresql.yml" (appEnv conf)
+                    Database.Persist.loadConfig >>=
+                    Database.Persist.applyEnv
+                else herokuConf
+
     p <- Database.Persist.createPoolConfig (dbconf :: Settings.PersistConf)
     logger <- mkLogger True stdout
     let foundation = App conf s p manager dbconf logger

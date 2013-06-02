@@ -33,6 +33,7 @@ library
                      Helpers.Review
                      Helpers.Search
                      Helpers.User
+                     Helpers.Heroku
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -97,6 +98,7 @@ library
                  , yesod-markdown
                  , yesod-newsfeed
                  , yesod-paginator
+                 , heroku
 
 executable         renters
     if flag(library-only)
