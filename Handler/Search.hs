@@ -1,14 +1,18 @@
 module Handler.Search (getSearchR) where
 
 import Import
+import Helpers.Grade
 import Helpers.Search
---import Helpers.Grade
+import Data.Maybe (fromMaybe)
 
 getSearchR :: Handler RepHtml
 getSearchR = do
-    results <- executeSearch
+    query <- runInputGet $ fromMaybe "" <$> iopt (searchField True) "q"
 
-    let pageWidget = paginateResults results
+    (results, pageWidget) <-
+        if query /= ""
+            then executeSearch query
+            else return ([], mempty)
 
     defaultLayout $ do
         setTitle "Search results" 

@@ -1,13 +1,15 @@
 module Helpers.Search
-    ( SearchResults(..)
-    , SearchResult(..)
+    ( SearchResult(..)
     , executeSearch
-    , paginateResults
     ) where
 
 import Import
-import Yesod.Paginator (defaultWidget)
-import Data.Maybe (fromMaybe)
+import Database.Persist.Sql (rawSql)
+import Text.Shakespeare.Text (st)
+import Yesod.Markdown (Markdown(..))
+import Yesod.Paginator (paginate)
+
+import qualified Data.Text as T
 
 data SearchResult = SearchResult
     { resId       :: ReviewId
@@ -16,41 +18,40 @@ data SearchResult = SearchResult
     , resExcerpt  :: Html
     }
 
-data SearchResults a = SearchResults
-    { searchResults :: [a]
-    , searchTotal   :: Int
-    , searchPage    :: Int
-    , searchQuery   :: Text
-    }
+executeSearch :: Text -> Handler ([SearchResult], Widget)
+executeSearch query = do
+    records' <- runDB $ rawSql [st|
+        SELECT ??, ??
+        FROM "Review"
+        JOIN "Landlord" ON "Review".landlord = "Landlord".id
+        WHERE to_tsvector(name || ' ' || address || ' ' || content) @@ to_tsquery('#{formatQ query}')
+        ORDER BY "createdDate" DESC
+        |] []
 
-executeSearch :: Handler (SearchResults SearchResult)
-executeSearch = do
-    res <- runInputGet $ (,) <$> iopt (searchField True) "q" <*> iopt intField "p"
+    (records, widget) <- paginate resultLimit records'
 
-    case res of
-        -- no search term, show no results
-        (Nothing, _) -> return SearchResults
-            { searchResults = []
-            , searchTotal   = 0
-            , searchPage    = 1
-            , searchQuery   = ""
-            }
+    return (map toResult records, widget)
 
-        -- search entered, maybe page
-        (Just text, mpage) -> do
-            let page = fromMaybe 1 mpage
-
-            return SearchResults
-                { searchResults = [] -- TODO
-                , searchTotal   = 0
-                , searchPage    = page
-                , searchQuery   = text
+    where
+        toResult :: (Entity Review, Entity Landlord) -> SearchResult
+        toResult (r, l) =
+            let review = entityVal r
+                name   = landlordName $ entityVal l
+            in SearchResult
+                { resId       = entityKey r
+                , resReview   = review
+                , resLandlord = name
+                , resExcerpt  = formatE $ reviewContent review
                 }
 
-paginateResults :: SearchResults SearchResult -> Widget
-paginateResults results = do
-    let page = searchPage results
-        tot  = searchTotal results
-        per  = 10
+        formatQ :: Text -> Text
+        formatQ = T.intercalate " & " . T.words
 
-    defaultWidget page per tot
+        formatE :: Markdown -> Html
+        formatE = toHtml . (`T.append` "...") . T.take excerptLimit . unMarkdown
+
+resultLimit :: Int
+resultLimit = 25
+
+excerptLimit :: Int
+excerptLimit = 250

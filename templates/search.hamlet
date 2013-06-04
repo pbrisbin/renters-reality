@@ -1,21 +1,33 @@
 <div .pull-right>
   <form method="get" action="@{SearchR}">
-    <input #search-input size=30 name="q" value="#{searchQuery results}"> 
+    <input #search-input size=30 name="q" value="#{query}"> 
     <input .btn type="submit" value="Search">
 
-$if null $ searchResults results
-  <div .no-results>
-    $if (/=) (searchQuery results) ""
-      <h3>Oops!
+$if null results
+  <h3>Oops!
 
-      <p>
-        There are either no results for your search, or there was some 
-        error with our search engine.
+  <p>
+    There are either no results for your search, or there was some 
+    error with our search engine.
 
-      <p>
-        Would you like to 
-        <a href="@{NewR}">write one
-        ?
+  <p>
+    Would you like to 
+    <a href="@{NewR}">write one
+    ?
 
-<div .pagination .center>
-  ^{pageWidget}
+$else
+  <h3>Results
+
+  <section .search-results>
+    $forall result <- results
+      <article .search-result>
+        $with grade <- prettyGrade $ reviewGrade $ resReview result
+          <h4>
+            #{resLandlord result}: 
+            <span .grade data-grade="#{grade}">#{grade}
+          <div .excerpt>
+            #{resExcerpt result} 
+            <a href="@{ReviewR $ resId result}">Read more
+
+  <div .pagination .pagination-centered>
+    ^{pageWidget}

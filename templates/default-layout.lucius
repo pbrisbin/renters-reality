@@ -56,6 +56,14 @@ blockquote p {
   margin-top: -10px;
 }
 
+/* search */
+.search-results {
+  margin: 0 25px;
+}
+.search-result {
+  margin-top: 25px;
+}
+
 /* profile */
 .profile .gravatar {
   float: left;
@@ -82,42 +90,19 @@ textarea.review-entry {
 }
 
 /* grades */
-#landlord #grade[data-grade="A+"] { color: green; }
-#landlord #grade[data-grade="A"]  { color: green; }
-#landlord #grade[data-grade="A-"] { color: green; }
-#landlord #grade[data-grade="B+"] { color: green; }
-#landlord #grade[data-grade="B"]  { color: blue; }
-#landlord #grade[data-grade="B-"] { color: blue; }
-#landlord #grade[data-grade="C+"] { color: blue; }
-#landlord #grade[data-grade="C"]  { color: black; }
-#landlord #grade[data-grade="C-"] { color: black; }
-#landlord #grade[data-grade="D+"] { color: black; }
-#landlord #grade[data-grade="D"]  { color: black; }
-#landlord #grade[data-grade="D-"] { color: red; }
-#landlord #grade[data-grade="F"]  { color: red; }
-
-/* login */
-/* .login ul { */
-/*   margin: 0px; */
-/*   list-style: none; */
-/*   text-align: center; */
-/* } */
-/* .login li, */
-/* .login form { */
-/*   margin: 5px 0px; */
-/*   display: inline; */
-/* } */
-/* .login input[type="image"] { */
-/*   height: 32px; */
-/*   width:  32px; */
-/*   border:     none; */
-/*   box-shadow: none; */
-/* } */
-/* .login input[type="text"] { */
-/*   position: relative; */
-/*   top: -15px; */
-/*   margin-left: 28px; */
-/* } */
+.grade[data-grade="A+"] { color: green; }
+.grade[data-grade="A"]  { color: green; }
+.grade[data-grade="A-"] { color: green; }
+.grade[data-grade="B+"] { color: green; }
+.grade[data-grade="B"]  { color: blue; }
+.grade[data-grade="B-"] { color: blue; }
+.grade[data-grade="C+"] { color: blue; }
+.grade[data-grade="C"]  { color: black; }
+.grade[data-grade="C-"] { color: black; }
+.grade[data-grade="D+"] { color: black; }
+.grade[data-grade="D"]  { color: black; }
+.grade[data-grade="D-"] { color: red; }
+.grade[data-grade="F"]  { color: red; }
 
 /* comments  {{{ */
 .yesod_comments {

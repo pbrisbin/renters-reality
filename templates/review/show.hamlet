@@ -5,7 +5,7 @@ $if ownReview
 $with grade <- prettyGrade $ reviewGrade review
   <h1 #landlord>
     #{landlordName $ landlord}: 
-    <span #grade data-grade="#{grade}">#{prettyGrade $ reviewGrade review}
+    <span #grade .grade data-grade="#{grade}">#{grade}
 
 <section #address .pull-right>
   <address>
