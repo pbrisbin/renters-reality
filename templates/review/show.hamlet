@@ -19,7 +19,7 @@ $with grade <- prettyGrade $ reviewGrade review
 
 <p>
   See more reviews for this 
-  <a href="#"}>landlord
+  <a href="@{SearchR}?q=#{landlordName landlord}">landlord
   \.
 
 <h3>Discussion
